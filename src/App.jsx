@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Layout from './components/layout/Layout';
 import Login from './pages/Login';
@@ -12,9 +12,24 @@ import FinanceMinister from './pages/FinanceMinister';
 import MasterDashboard from './pages/MasterDashboard';
 import NotFound from './pages/NotFound';
 import Download from './pages/Download';
+import LoadingScreen from './components/ui/LoadingScreen';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
+  const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('splashShown');
+  });
+
+  const handleLoadingComplete = useCallback(() => {
+    setLoading(false);
+    sessionStorage.setItem('splashShown', '1');
+  }, []);
+
+  if (showSplash) {
+    return <LoadingScreen onComplete={handleLoadingComplete} />;
+  }
+
   return (
     <AuthProvider>
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
