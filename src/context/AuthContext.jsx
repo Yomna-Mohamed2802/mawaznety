@@ -17,15 +17,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    // Demo login - in real app this would call Supabase
-    if (email && password) {
-      const userData = { id: 1, email, name: 'Admin User', role: 'admin' };
+    if (email === 'yomna@gmail.com' && password === 'BOFELIA ISLAND') {
+      const userData = { id: 1, email, name: 'Yomna', role: 'admin' };
       setUser(userData);
       setIsAuthenticated(true);
       localStorage.setItem('user', JSON.stringify(userData));
       return { success: true };
     }
-    return { success: false, error: 'Invalid credentials' };
+    return { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' };
   };
 
   const logout = () => {

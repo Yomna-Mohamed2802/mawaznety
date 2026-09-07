@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import CookieConsent from '../ui/CookieConsent';
 import { useAuth } from '../../context/AuthContext';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
@@ -27,8 +29,13 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen bg-surface">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className={`transition-all duration-300 ease-in-out ${sidebarOpen ? 'lg:mr-64' : 'mr-0'}`}>
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
+      <div className={`transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'lg:mr-16' : 'lg:mr-64'}`}>
         <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
         <main className="pt-2 pb-8">
           <motion.div
@@ -40,6 +47,7 @@ const Layout = () => {
           </motion.div>
         </main>
       </div>
+      <CookieConsent />
     </div>
   );
 };

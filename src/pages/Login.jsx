@@ -40,7 +40,7 @@ const Login = () => {
               <span className="text-2xl font-bold text-white">م</span>
             </div>
             <h1 className="text-xl font-bold text-primary-900">موازنتي</h1>
-            <p className="text-sm text-primary-500 mt-1">نظام مسابقة 2024</p>
+            <p className="text-sm text-primary-500 mt-1">نظام مسابقة 2026</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -59,7 +59,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-surface-warm/50 border border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-sm text-primary-900 placeholder-primary-400"
-                placeholder="admin@example.com"
+                placeholder="your@email.com"
                 required
               />
             </div>
@@ -88,7 +88,7 @@ const Login = () => {
           </form>
 
           <p className="text-center text-xs text-primary-500 mt-6">
-            للتجربة، استخدم أي بريد وكلمة مرور
+            سجّل دخولك بالمعلومات الصحيحة للوصول للوحة التحكم
           </p>
         </div>
       </motion.div>

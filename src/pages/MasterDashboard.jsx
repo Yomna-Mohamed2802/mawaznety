@@ -200,9 +200,7 @@ export default function MasterDashboard() {
               </a>
               <button
                 onClick={() => {
-                  const el = document.getElementById('sources');
-                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  showToast('ملف موازنة المواطن متاح في قسم المصادر — جارٍ تجهيز التحميل المباشر');
+                  window.location.href = '/download';
                 }}
                 className="btn-secondary bg-white/8 text-white border-white/20 hover:bg-white/15"
               >
@@ -215,7 +213,7 @@ export default function MasterDashboard() {
       </section>
 
       {/* ─── 01 — KPI SECTION ────────────────────────────── */}
-      <Section id="kpi" className="section-container -mt-10 relative z-10">
+      <Section id="kpi" className="section-container py-10 sm:py-14">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {[
             { figure: budgetOverview.expenditures, icon: HiOutlineArrowDown, color: 'red' },
@@ -907,38 +905,6 @@ export default function MasterDashboard() {
                 <p className="text-xs text-primary-500 mt-5 leading-relaxed">نسب محسوبة من التصنيف الاقتصادي للمصروفات في التقرير الرسمي</p>
               </div>
             </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* ─── 10 — اسأل موازنتي ─────────────────────────── */}
-      <Section className="section-container py-12 sm:py-16">
-        <div className="rounded-3xl p-8 sm:p-12 md:p-14 text-center text-white overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #102a43 0%, #243b53 50%, #334e68 100%)' }}>
-          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, #486581 0%, transparent 50%), radial-gradient(circle at 80% 20%, #059669 0%, transparent 50%)' }} />
-          <div className="relative">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-amber-400/15 mb-5">
-              <HiOutlineLightBulb className="w-6 h-6 text-amber-400" />
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 tracking-tight">عندك سؤال عن الموازنة؟</h2>
-            <p className="text-white/70 text-sm sm:text-base mb-7 max-w-md mx-auto">اسأل موازنتي واهد إجابات فورية مبنية على البيانات الرسمية</p>
-
-            <div className="flex flex-wrap justify-center gap-2 mb-7">
-              {['كام موازنة التعليم؟', 'فلوس الدولة بتروح فين؟', 'قد إيه الصحة؟', 'الدين وصل لكام؟'].map((q) => (
-                <span key={q} className="px-3.5 py-1.5 bg-white/8 rounded-full text-xs border border-white/12 backdrop-blur-sm text-white/80">{q}</span>
-              ))}
-            </div>
-
-            <button
-              onClick={() => {
-                const el = document.querySelector('[data-chatbot-bubble]');
-                if (el) el.click();
-                else showToast('اضغط على زر الدردشة في أسفل الشاشة');
-              }}
-              className="btn-primary bg-white text-primary-900 hover:bg-white/90" style={{ boxShadow: '0 10px 30px -10px rgb(0 0 0 / 0.25)' }}
-            >
-              اسأل موازنتي
-            </button>
-            <p className="text-xs text-white/80 mt-4 tracking-wide">قريباً · الذكاء الاصطناعي قيد التطوير</p>
           </div>
         </div>
       </Section>

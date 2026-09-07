@@ -11,6 +11,7 @@ import Budget100 from './pages/Budget100';
 import FinanceMinister from './pages/FinanceMinister';
 import MasterDashboard from './pages/MasterDashboard';
 import NotFound from './pages/NotFound';
+import Download from './pages/Download';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <AnimatePresence mode="wait">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/download" element={<Download />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<MasterDashboard />} />
               <Route path="budget100" element={<Budget100 />} />
