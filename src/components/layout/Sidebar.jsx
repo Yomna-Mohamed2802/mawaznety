@@ -10,6 +10,7 @@ import {
   HiOutlineDocumentText,
   HiOutlineChevronLeft,
 } from 'react-icons/hi';
+import MawaznetyLogo from '../ui/MawaznetyLogo';
 
 const menuItems = [
   { path: '/', label: 'لوحة التحكم', icon: HiOutlineHome },
@@ -49,16 +50,8 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
       >
         {/* Logo + Toggle */}
         <div className={`border-b border-primary-100/60 flex items-center ${collapsed ? 'px-2 py-4 flex-col gap-2' : 'px-5 py-5 justify-between'}`}>
-          <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-700 to-primary-900 rounded-xl flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0 2px 8px -2px rgb(16 42 67 / 0.3)' }}>
-              <span className="text-white font-bold text-lg">م</span>
-            </div>
-            {!collapsed && (
-              <div>
-                <h1 className="font-bold text-primary-900 text-base">موازنتي</h1>
-                <p className="text-xs text-primary-500">موازنة المواطن 2026/2027</p>
-              </div>
-            )}
+          <div className={`${collapsed ? 'flex justify-center' : ''}`}>
+            <MawaznetyLogo size="sm" showText={!collapsed} />
           </div>
 
           {/* Toggle + Close buttons */}

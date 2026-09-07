@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import MawaznetyLogo from '../components/ui/MawaznetyLogo';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -72,10 +73,10 @@ const Login = () => {
       >
         <div className="bg-white rounded-3xl p-8" style={{ boxShadow: '0 20px 40px -12px rgb(0 0 0 / 0.1)' }}>
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary-700 to-primary-900 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-              <span className="text-2xl font-bold text-white">م</span>
+            <div className="flex justify-center mb-2">
+              <MawaznetyLogo size="lg" showText={false} />
             </div>
-            <h1 className="text-xl font-bold text-primary-900">موازنتي</h1>
+            <h1 className="text-xl font-bold text-primary-900" style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>موازنتي</h1>
             <p className="text-sm text-primary-500 mt-1">نظام مسابقة 2026</p>
           </div>
 
