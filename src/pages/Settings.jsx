@@ -4,8 +4,8 @@ import { HiOutlineSave } from 'react-icons/hi';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
-    siteName: 'مسابقة وزارة التربية والتعليم',
-    siteDescription: 'نظام إدارة مسابقة وزارة التربية والتعليم 2024',
+    siteName: 'موازنتي',
+    siteDescription: 'مشروع تعليمي مستقل لموازنة المواطن المصرية 2026/2027',
     allowRegistration: true,
     requireApproval: false,
     emailNotifications: true,
@@ -29,7 +29,7 @@ const Settings = () => {
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">الإعدادات</h1>
-        <p className="text-gray-500">إدارة إعدادات النظام</p>
+        <p className="text-primary-600">إدارة إعدادات النظام</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

@@ -141,12 +141,13 @@ export default function ChatBot() {
                   </div>
                   <div>
                     <h3 className="text-white text-sm font-bold">اسأل موازنتي</h3>
-                    <p className="text-white/60 text-[11px]">ذكاء اصطناعي — بيانات رسمية</p>
+                    <p className="text-white/70 text-[11px]">مساعد تعليمي — بيانات من موازنة المواطن</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+                  aria-label="إغلاق المحادثة"
                 >
                   <HiXMark className="w-5 h-5 text-white/80" />
                 </button>
@@ -186,8 +187,10 @@ export default function ChatBot() {
               {/* Input */}
               <div className="px-3 pb-3 pt-1 flex-shrink-0">
                 <div className="flex items-center gap-2 bg-primary-50/80 rounded-xl px-3 py-2 border border-primary-100/60 focus-within:border-primary-300 focus-within:bg-white transition-all">
+                  <label htmlFor="chat-input" className="sr-only">اكتب سؤالك هنا</label>
                   <input
                     ref={inputRef}
+                    id="chat-input"
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -199,6 +202,7 @@ export default function ChatBot() {
                     onClick={() => handleSend()}
                     disabled={!input.trim() || isTyping}
                     className="w-8 h-8 rounded-lg bg-primary-700 hover:bg-primary-800 disabled:bg-primary-300 flex items-center justify-center transition-colors flex-shrink-0"
+                    aria-label="إرسال"
                   >
                     <HiPaperAirplane className="w-4 h-4 text-white -rotate-90" />
                   </button>
@@ -217,6 +221,9 @@ export default function ChatBot() {
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
         style={{ boxShadow: '0 8px 30px -8px rgb(16 42 67 / 0.4)' }}
+        aria-label={isOpen ? 'إغلاق المحادثة' : 'فتح المحادثة'}
+        aria-expanded={isOpen}
+        aria-controls="chat-window"
       >
         <AnimatePresence mode="wait">
           {isOpen ? (

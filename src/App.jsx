@@ -12,6 +12,10 @@ import FinanceMinister from './pages/FinanceMinister';
 import MasterDashboard from './pages/MasterDashboard';
 import NotFound from './pages/NotFound';
 import Download from './pages/Download';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
+import CookiesPolicy from './pages/CookiesPolicy';
+import RefundPolicy from './pages/RefundPolicy';
 import LoadingScreen from './components/ui/LoadingScreen';
 import { AuthProvider } from './context/AuthContext';
 
@@ -35,8 +39,12 @@ function App() {
         <div className="min-h-screen bg-surface-warm">
           <AnimatePresence mode="wait">
             <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/download" element={<Download />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/download" element={<Download />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/cookies" element={<CookiesPolicy />} />
+            <Route path="/refund" element={<RefundPolicy />} />
               <Route path="/" element={<Layout />}>
                 <Route index element={<MasterDashboard />} />
                 <Route path="budget100" element={<Budget100 />} />

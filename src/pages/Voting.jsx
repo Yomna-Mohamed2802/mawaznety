@@ -8,13 +8,14 @@ const Voting = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(false);
 
   const currentCategory = votingCategories.find(c => c.id === selectedCategory);
   const candidates = currentCategory?.options || [];
   const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
 
   const handleVote = () => {
-    if (selectedCandidate !== null) {
+    if (selectedCandidate !== null && consentGiven) {
       setHasVoted(true);
       setShowResults(true);
     }
@@ -28,7 +29,7 @@ const Voting = () => {
     <div className="max-w-4xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">التصويت</h1>
-        <p className="text-gray-500">اختر مرشحك المفضل</p>
+        <p className="text-primary-600">اختر مرشحك المفضل</p>
       </div>
 
       {!showResults ? (
@@ -42,6 +43,10 @@ const Voting = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedCandidate(candidate.id)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedCandidate(candidate.id); } }}
+              role="radio"
+              aria-checked={selectedCandidate === candidate.id}
+              tabIndex={0}
               className={`bg-white rounded-2xl shadow-lg p-6 cursor-pointer border-2 transition-all ${
                 selectedCandidate === candidate.id
                   ? 'border-primary-500 bg-primary-50'
@@ -137,9 +142,24 @@ const Voting = () => {
           animate={{ opacity: 1 }}
           className="mt-6"
         >
+          <div className="bg-white rounded-2xl shadow-lg p-4 mb-4">
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={consentGiven}
+                onChange={(e) => setConsentGiven(e.target.checked)}
+                className="mt-1 w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+              />
+              <span className="text-xs text-primary-600 leading-relaxed">
+                أوافق على{' '}
+                <a href="/terms" className="underline hover:text-primary-800">الشروط والأحكام</a>
+                {' '}وأؤكد أن بياناتي لن تُستخدم لأغراض أخرى
+              </span>
+            </label>
+          </div>
           <button
             onClick={handleVote}
-            disabled={selectedCandidate === null}
+            disabled={selectedCandidate === null || !consentGiven}
             className="w-full bg-primary-600 text-white py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             تأيد التصويت

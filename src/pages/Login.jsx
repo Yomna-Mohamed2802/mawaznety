@@ -11,12 +11,17 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const { login, loginWithGoogle, logout, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const googleBtnRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!agreeTerms) {
+      setError('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية أولاً');
+      return;
+    }
     setError('');
     setLoading(true);
 
@@ -84,7 +89,7 @@ const Login = () => {
               <MawaznetyLogo size="lg" showText={false} />
             </div>
             <h1 className="text-xl font-bold text-primary-900" style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>موازنتي</h1>
-            <p className="text-sm text-primary-500 mt-1">نظام مسابقة 2026</p>
+            <p className="text-sm text-primary-500 mt-1">مشروع تعليمي مستقل — موازنة المواطن 2026/2027</p>
           </div>
 
           {isAuthenticated ? (
@@ -154,6 +159,23 @@ const Login = () => {
                 </button>
               </form>
 
+              <div className="mt-4">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                  />
+                  <span className="text-xs text-primary-600 leading-relaxed">
+                    أوافق على{' '}
+                    <a href="/terms" className="underline hover:text-primary-800">الشروط والأحكام</a>
+                    {' '}و{' '}
+                    <a href="/privacy" className="underline hover:text-primary-800">سياسة الخصوصية</a>
+                  </span>
+                </label>
+              </div>
+
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-primary-200/60"></div>
@@ -175,7 +197,7 @@ const Login = () => {
                   }}
                   className="w-full flex items-center justify-center gap-3 py-3.5 border-2 border-primary-200 rounded-xl hover:bg-primary-50 transition-colors text-sm font-medium text-primary-700"
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" role="img" aria-label="Google logo">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>

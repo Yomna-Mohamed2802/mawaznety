@@ -43,7 +43,7 @@ const Quiz = () => {
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">اختبار المعرفة</h1>
-        <p className="text-gray-500">اختبر معلوماتك في مسابقة وزارة التربية</p>
+        <p className="text-primary-600">اختبر معلوماتك في موازنة المواطن المصرية</p>
       </div>
 
       {/* Progress */}
@@ -76,7 +76,7 @@ const Quiz = () => {
               {questions[currentQuestion].question}
             </h2>
 
-            <div className="space-y-3">
+            <div className="space-y-3" role="radiogroup" aria-label="خيارات الإجابة">
               {questions[currentQuestion].options.map((option, index) => {
                 const isCorrect = index === questions[currentQuestion].correct;
                 const isSelected = selectedAnswer === index;
@@ -89,6 +89,10 @@ const Quiz = () => {
                     whileHover={{ scale: showResult ? 1 : 1.02 }}
                     whileTap={{ scale: showResult ? 1 : 0.98 }}
                     onClick={() => handleAnswer(index)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleAnswer(index); } }}
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={option}
                     className={`w-full p-4 rounded-xl border-2 text-right transition-all flex items-center justify-between ${
                       showCorrect
                         ? 'border-green-500 bg-green-50'

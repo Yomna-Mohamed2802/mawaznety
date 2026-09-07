@@ -1,5 +1,6 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -46,6 +47,20 @@ const Layout = () => {
             <Outlet />
           </motion.div>
         </main>
+        <footer className="border-t border-primary-100/60 bg-white/50 py-6 px-4">
+          <div className="max-w-6xl mx-auto text-center space-y-3">
+            <p className="text-xs text-primary-500 leading-relaxed">
+              <strong>تنبيه:</strong> موازنتي مشروع تعليمي مستقل وليس تابعاً لأي جهة حكومية أو رسمية. البيانات المعروضة مأخوذة من موازنة المواطن الرسمية 2026/2027 لأغراض تعليمية فقط.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 text-xs">
+              <Link to="/privacy" className="text-primary-500 hover:text-primary-700 underline">سياسة الخصوصية</Link>
+              <Link to="/terms" className="text-primary-500 hover:text-primary-700 underline">الشروط والأحكام</Link>
+              <Link to="/cookies" className="text-primary-500 hover:text-primary-700 underline">ملفات تعريف الارتباط</Link>
+              <Link to="/refund" className="text-primary-500 hover:text-primary-700 underline">سياسة الاسترداد</Link>
+            </div>
+            <p className="text-[10px] text-primary-400">© 2026 موازنتي. جميع الحقوق محفوظة.</p>
+          </div>
+        </footer>
       </div>
       <CookieConsent />
     </div>

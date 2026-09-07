@@ -13,7 +13,7 @@ const MawaznetyLogo = ({ size = 'md', showText = true, className = '' }) => {
         className="relative flex-shrink-0"
         style={{ width: s.icon, height: s.icon }}
       >
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" role="img" aria-label="شعار موازنتي">
           <defs>
             <linearGradient id="logoBg" x1="0" y1="0" x2="100" y2="100">
               <stop offset="0%" stopColor="#102a43" />
