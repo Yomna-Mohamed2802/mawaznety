@@ -13,6 +13,7 @@ import StatCard from '../components/dashboard/StatCard';
 import ExpenditureDonut from '../components/charts/ExpenditureDonut';
 import DebtTrendChart from '../components/charts/DebtTrendChart';
 import InvestmentChart from '../components/charts/InvestmentChart';
+import ChatBot from '../components/chatbot/ChatBot';
 import {
   budgetOverview, budget100, revenues, expenditures, debt,
   education, health, social, infrastructure, economy,
@@ -928,7 +929,11 @@ export default function MasterDashboard() {
             </div>
 
             <button
-              onClick={() => showToast('ميزة اسأل موازنتي قادمة قريباً — تابع التحديثات')}
+              onClick={() => {
+                const el = document.querySelector('[data-chatbot-bubble]');
+                if (el) el.click();
+                else showToast('اضغط على زر الدردشة في أسفل الشاشة');
+              }}
               className="btn-primary bg-white text-primary-900 hover:bg-white/90" style={{ boxShadow: '0 10px 30px -10px rgb(0 0 0 / 0.25)' }}
             >
               اسأل موازنتي
@@ -965,6 +970,9 @@ export default function MasterDashboard() {
 
       {/* ─── Source Drawer ───────────────────────────────── */}
       <SourceDrawer figure={drawerFigure} onClose={() => setDrawerFigure(null)} />
+
+      {/* ─── ChatBot ──────────────────────────────────────── */}
+      <ChatBot />
 
       {/* Lightweight toast — no new dep, no redesign */}
       <AnimatePresence>
