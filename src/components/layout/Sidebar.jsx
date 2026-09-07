@@ -8,7 +8,7 @@ import {
   HiOutlineCog,
   HiOutlineX,
   HiOutlineDocumentText,
-  HiOutlineChevronRight,
+  HiOutlineChevronLeft,
 } from 'react-icons/hi';
 
 const menuItems = [
@@ -40,29 +40,16 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
         )}
       </AnimatePresence>
 
-      {/* Desktop collapse toggle */}
-      <button
-        onClick={onToggleCollapse}
-        className="hidden lg:flex fixed top-4 z-50 items-center justify-center w-8 h-8 rounded-lg bg-white border border-primary-200/60 hover:bg-primary-50 transition-colors shadow-sm"
-        style={{ right: collapsed ? '0.5rem' : '16.5rem' }}
-        aria-label={collapsed ? 'توسيع القائمة' : 'طي القائمة'}
-      >
-        <HiOutlineChevronRight className={`w-4 h-4 text-primary-600 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`} />
-      </button>
-
       {/* Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{
-          x: isOpen ? 0 : '100%',
-        }}
-        transition={{ type: 'spring', stiffness: 350, damping: 35 }}
-        className={`fixed right-0 top-0 h-full bg-white border-l border-primary-100/60 z-50 lg:translate-x-0 flex flex-col transition-all duration-300 ${collapsed ? 'lg:w-16' : 'lg:w-64'}`}
-        style={{ transform: isOpen ? 'translateX(0)' : 'translateX(100%)', width: collapsed ? undefined : undefined, boxShadow: '0 0 30px -10px rgb(16 42 67 / 0.06)' }}
+      <aside
+        className={`fixed right-0 top-0 h-full bg-white border-l border-primary-100/60 z-50 lg:translate-x-0 flex flex-col transition-all duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+        } ${collapsed ? 'lg:w-[4.5rem]' : 'lg:w-64'}`}
+        style={{ boxShadow: '0 0 30px -10px rgb(16 42 67 / 0.06)' }}
       >
-        {/* Logo */}
-        <div className={`border-b border-primary-100/60 flex items-center ${collapsed ? 'px-2 py-4 justify-center' : 'px-5 py-5 justify-between'}`}>
-          <div className="flex items-center gap-3">
+        {/* Logo + Toggle */}
+        <div className={`border-b border-primary-100/60 flex items-center ${collapsed ? 'px-2 py-4 flex-col gap-2' : 'px-5 py-5 justify-between'}`}>
+          <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>
             <div className="w-10 h-10 bg-gradient-to-br from-primary-700 to-primary-900 rounded-xl flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0 2px 8px -2px rgb(16 42 67 / 0.3)' }}>
               <span className="text-white font-bold text-lg">م</span>
             </div>
@@ -73,14 +60,25 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
               </div>
             )}
           </div>
-          {!collapsed && (
+
+          {/* Toggle + Close buttons */}
+          <div className={`flex items-center ${collapsed ? 'flex-col gap-1' : 'gap-1'}`}>
+            {/* Desktop toggle */}
+            <button
+              onClick={onToggleCollapse}
+              className="hidden lg:flex p-1.5 rounded-lg hover:bg-primary-100 transition-colors"
+              title={collapsed ? 'توسيع القائمة' : 'طي القائمة'}
+            >
+              <HiOutlineChevronLeft className={`w-4 h-4 text-primary-500 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`} />
+            </button>
+            {/* Mobile close */}
             <button
               onClick={onClose}
-              className="lg:hidden p-1.5 rounded-lg hover:bg-primary-50 transition-colors"
+              className="lg:hidden p-1.5 rounded-lg hover:bg-primary-100 transition-colors"
             >
               <HiOutlineX className="w-4 h-4 text-primary-500" />
             </button>
-          )}
+          </div>
         </div>
 
         {/* Navigation */}
@@ -95,7 +93,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
                     to={item.path}
                     title={collapsed ? item.label : undefined}
                     className={`relative flex items-center gap-3 rounded-xl transition-all duration-200 text-sm ${
-                      collapsed ? 'px-3 py-2.5 justify-center' : 'px-3.5 py-2.5'
+                      collapsed ? 'px-0 py-2.5 justify-center' : 'px-3.5 py-2.5'
                     } ${
                       isActive
                         ? 'bg-primary-800 text-white font-semibold'
@@ -123,7 +121,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
             </div>
           </div>
         )}
-      </motion.aside>
+      </aside>
     </>
   );
 };
