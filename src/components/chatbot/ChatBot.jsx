@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineChatBubbleLeftRight, HiXMark, HiPaperAirplane } from 'react-icons/hi2';
 import { getChatResponse, suggestedQuestions } from '../../data/chatResponses';
+import { sendToGemini } from '../../services/gemini';
 
 const BOT_AVATAR = (
   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-700 to-primary-900 flex items-center justify-center flex-shrink-0">
@@ -30,7 +31,7 @@ function TypingIndicator() {
   );
 }
 
-function MessageBubble({ msg, isLast }) {
+function MessageBubble({ msg }) {
   const isBot = msg.sender === 'bot';
   return (
     <motion.div
@@ -84,7 +85,7 @@ export default function ChatBot() {
     }
   }, [isOpen]);
 
-  const handleSend = (text) => {
+  const handleSend = async (text) => {
     const query = text || input.trim();
     if (!query) return;
 
@@ -93,13 +94,22 @@ export default function ChatBot() {
     setInput('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = getChatResponse(query);
-      const botMsg = { id: Date.now() + 1, sender: 'bot', text: response.reply };
+    try {
+      // Try Gemini AI first
+      const history = messages.slice(1).map((m) => ({ sender: m.sender, text: m.text }));
+      const reply = await sendToGemini(query, history);
+      const botMsg = { id: Date.now() + 1, sender: 'bot', text: reply };
       setMessages((prev) => [...prev, botMsg]);
+    } catch (err) {
+      // Fallback to local keyword matching
+      console.warn('Gemini failed, using local fallback:', err.message);
+      const fallback = getChatResponse(query);
+      const botMsg = { id: Date.now() + 1, sender: 'bot', text: fallback.reply };
+      setMessages((prev) => [...prev, botMsg]);
+    } finally {
       setIsTyping(false);
       if (!isOpen) setHasNewMessage(true);
-    }, 600 + Math.random() * 400);
+    }
   };
 
   const handleKeyDown = (e) => {
