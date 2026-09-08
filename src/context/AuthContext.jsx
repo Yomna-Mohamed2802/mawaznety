@@ -11,6 +11,9 @@ import {
 import { auth, googleProvider } from '../services/firebase';
 import { createUserProfile, getUserProfile, updateUserProfile } from '../services/firestore';
 
+// UI-only hint for early admin badge display. NOT the source of truth.
+// Admin status is determined by Firestore: /users/{uid}.isAdmin
+// Firestore Rules enforce admin authorization independently of this list.
 const ADMIN_EMAILS = ['yomna2008.mm@gmail.com', 'yomna@gmail.com'];
 
 const AuthContext = createContext(null);
@@ -23,32 +26,41 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
+        setIsAuthenticated(true);
+
         const profileData = {
           email: firebaseUser.email,
           name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
           avatar: firebaseUser.photoURL || null,
           provider: firebaseUser.providerData?.[0]?.providerId || 'unknown',
-          isAdmin,
           emailVerified: firebaseUser.emailVerified,
         };
 
-        const userData = { uid: firebaseUser.uid, ...profileData };
-        setUser(userData);
-        setIsAuthenticated(true);
-        setLoading(false);
-
         try {
+          // Fetch Firestore profile FIRST — this is the authoritative source for isAdmin.
+          // We keep loading=true until Firestore resolves so the UI never renders
+          // with a client-only isAdmin guess.
           let firestoreProfile = await getUserProfile(firebaseUser.uid);
           if (!firestoreProfile) {
             firestoreProfile = await createUserProfile(firebaseUser.uid, profileData);
           } else {
             await updateUserProfile(firebaseUser.uid, profileData);
           }
-          setUser({ uid: firebaseUser.uid, ...(firestoreProfile || profileData), isAdmin, emailVerified: firebaseUser.emailVerified });
+
+          // Firestore profile is the source of truth for isAdmin.
+          // NEVER override with ADMIN_EMAILS — Firestore Rules enforce isAdmin
+          // independently. The UI must reflect the Firestore value.
+          setUser({ uid: firebaseUser.uid, ...(firestoreProfile || profileData) });
         } catch (e) {
           console.warn('Firestore profile error:', e);
+          // Fallback: use auth-only data if Firestore is unreachable.
+          // ADMIN_EMAILS is used only here as a temporary UI hint;
+          // Firestore Rules still block unauthorized admin actions server-side.
+          const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
+          setUser({ uid: firebaseUser.uid, ...profileData, isAdmin });
         }
+
+        setLoading(false);
       } else {
         setUser(null);
         setIsAuthenticated(false);

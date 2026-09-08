@@ -21,10 +21,13 @@ import { AuthProvider } from './context/AuthContext';
 import { LangProvider } from './context/LangContext';
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('mawaznety-splash-shown');
+  });
 
   const handleLoadingComplete = useCallback(() => {
     document.documentElement.classList.add('splash-done');
+    sessionStorage.setItem('mawaznety-splash-shown', '1');
     setShowSplash(false);
   }, []);
 
