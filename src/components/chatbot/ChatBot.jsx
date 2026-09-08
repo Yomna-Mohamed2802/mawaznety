@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineChatBubbleLeftRight, HiXMark, HiPaperAirplane, HiArrowPath } from 'react-icons/hi2';
-import { sendToGemini } from '../../services/gemini';
+import { sendToAI } from '../../services/chat';
 import { incrementCounter } from '../../services/firestore';
 import { useLang } from '../../context/LangContext';
 
@@ -128,7 +128,7 @@ export default function ChatBot() {
       .filter(m => m.id !== 1)
       .map(m => ({ role: m.sender, content: m.text }));
 
-    return await sendToGemini(userMessage, history);
+    return await sendToAI(userMessage, history);
   };
 
   const handleSend = async (text) => {
