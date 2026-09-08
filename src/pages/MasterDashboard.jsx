@@ -728,7 +728,7 @@ export default function MasterDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="card-base p-5">
+            <div className="card-base p-5 overflow-visible">
               <div className="mb-4">
                 <h3 className="font-bold text-primary-900 text-sm">الاستثمارات حسب القطاع</h3>
                 <p className="text-xs text-primary-500 mt-1">توزيع الاستثمارات على القطاعات الرئيسية خلال عام المالية {FISCAL_YEAR}</p>
@@ -736,7 +736,7 @@ export default function MasterDashboard() {
               <InvestmentChart data={investSectors} />
               <p className="text-xs text-primary-500 mt-3 leading-relaxed">القيم بالمليار جنيه · المصدر: ملحق الاستثمارات، صفحة 65</p>
             </div>
-            <div className="card-base p-5">
+            <div className="card-base p-5 overflow-visible">
               <div className="mb-4">
                 <h3 className="font-bold text-primary-900 text-sm">الاستثمارات العامة حسب الجهة</h3>
                 <p className="text-xs text-primary-500 mt-1">توزيع الاستثمارات العامة على الجهات الحكومية</p>
