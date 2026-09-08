@@ -195,14 +195,14 @@ export default function MasterDashboard() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-wrap justify-center gap-3"
             >
-              <a href="#kpi" className="btn-primary bg-white text-primary-900 hover:bg-white/90" style={{ boxShadow: '0 10px 30px -10px rgb(0 0 0 / 0.3)' }}>
+              <a href="#kpi" className="btn-primary bg-primary-900 text-white hover:bg-primary-800" style={{ boxShadow: '0 10px 30px -10px rgb(0 0 0 / 0.3)' }}>
                 ابدأ الاستكشاف
               </a>
               <button
                 onClick={() => {
                   window.location.href = '/download';
                 }}
-                className="btn-secondary bg-white/8 text-white border-white/20 hover:bg-white/15"
+                className="btn-secondary bg-white/15 text-white border-white/30 hover:bg-white/25"
               >
                 <HiOutlineDocumentText className="w-4 h-4" />
                 تحميل موازنة المواطن
