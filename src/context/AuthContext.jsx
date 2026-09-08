@@ -24,7 +24,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        await reload(firebaseUser);
+        try {
+          await reload(firebaseUser);
+        } catch (e) {
+          console.warn('reload failed:', e);
+        }
         const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
         const profileData = {
           email: firebaseUser.email,
@@ -35,16 +39,21 @@ export const AuthProvider = ({ children }) => {
           emailVerified: firebaseUser.emailVerified,
         };
 
-        let firestoreProfile = await getUserProfile(firebaseUser.uid);
-        if (!firestoreProfile) {
-          firestoreProfile = await createUserProfile(firebaseUser.uid, profileData);
-        } else {
-          await updateUserProfile(firebaseUser.uid, profileData);
+        let firestoreProfile = null;
+        try {
+          firestoreProfile = await getUserProfile(firebaseUser.uid);
+          if (!firestoreProfile) {
+            firestoreProfile = await createUserProfile(firebaseUser.uid, profileData);
+          } else {
+            await updateUserProfile(firebaseUser.uid, profileData);
+          }
+        } catch (e) {
+          console.warn('Firestore profile error:', e);
         }
 
         const userData = {
           uid: firebaseUser.uid,
-          ...firestoreProfile,
+          ...(firestoreProfile || profileData),
           isAdmin,
           emailVerified: firebaseUser.emailVerified,
         };
