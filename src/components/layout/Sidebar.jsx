@@ -113,8 +113,8 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
         {!collapsed && (
           <div className="p-3 border-t border-primary-100/60">
             <div className="bg-gradient-to-l from-primary-50 to-surface-warm rounded-xl p-3.5 border border-primary-100/40">
-              <p className="text-xs font-semibold text-primary-700">مشروع تعليمي مستقل</p>
-              <p className="text-xs text-primary-500 mt-0.5">موازنة المواطن 2026/2027</p>
+              <p className="text-xs font-semibold text-primary-700">{t.sidebarProject}</p>
+              <p className="text-xs text-primary-500 mt-0.5">{t.sidebarBudget}</p>
             </div>
           </div>
         )}

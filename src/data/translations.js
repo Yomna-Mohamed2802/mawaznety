@@ -7,6 +7,7 @@ const translations = {
     noNotifications: 'لا توجد إشعارات جديدة',
     logout: 'تسجيل الخروج',
     language: 'اللغة',
+    openMenu: 'فتح القائمة',
 
     // Sidebar
     home: 'لوحة التحكم',
@@ -16,8 +17,11 @@ const translations = {
     voting: 'التصويت',
     reports: 'التقارير',
     settings: 'الإعدادات',
+    sidebarProject: 'مشروع تعليمي مستقل',
+    sidebarBudget: 'موازنة المواطن 2026/2027',
 
     // Hero
+    heroBadge: 'موازنة المواطن {year} · الإصدار الثالث عشر',
     heroTitle: 'الموازنة في دقيقة',
     heroDesc: 'شوف الصورة الكبيرة لموازنة الدولة 2026/2027، وافهم فلوس الدولة بتروح فين وبتأثر عليك إزاي.',
     exploreBtn: 'ابدأ الاستكشاف',
@@ -60,21 +64,210 @@ const translations = {
     debtTitle: 'الدين بيتغير إزاي؟',
     debtSubtitle: 'نسبة الدين للناتج المحلي عبر الزمن',
     debtGoal: 'هدف 2030 (70%)',
+    debtRatio: 'نسبة الدين',
 
     // Investment
     invEyebrow: 'الاستثمار',
     invTitle: 'الاستثمار رايح فين؟',
     invSubtitle: 'خطة الاستثمارات لعام المالية 2026/2027',
+    invBySector: 'الاستثمارات حسب القطاع',
+    invByEntity: 'الاستثمارات العامة حسب الجهة',
+    invTooltip: 'مليار جنيه',
+    sectorTransport: 'النقل',
+    sectorIndustry: 'الصناعة التحويلية',
+    sectorAgriculture: 'الزراعة والري',
+    entityEconomic: 'الهيئات الاقتصادية',
+    entityGovernment: 'الجهاز الحكومي',
+    entityPublic: 'قطاع الأعمال العام',
+    entityLocal: 'الإدارة المحلية',
 
     // Citizen
     citizenEyebrow: 'المواطن',
     citizenTitle: 'طيب... الكلام ده يخصني أنا إزاي؟',
     citizenSubtitle: 'اختار هويتك واشوف الموازنة بتأثر عليك إزاي',
+    profileStudent: 'طالب',
+    profileWorker: 'شاب عامل',
+    profileFamily: 'أسرة',
+    profileEntrepreneur: 'صاحب مشروع',
+    profileHealth: 'مهتم بالصحة',
+    profileEnvironment: 'مهتم بالبيئة',
+
+    // KPI
+    kpiSource: 'المصدر: موازنة المواطن {year} — صفحة 12',
+
+    // Expenditure detail
+    expValue: 'القيمة',
+    expPercent: 'النسبة',
+    expStatus: 'الحالة',
+
+    // Revenue detail
+    revTaxNote: '⚠ تفاصيل الضرائب (دخل، ضريبة قيمة مضافة، جمارك، دمغة) غير متاحة في المصدر الرسمي الحالي.',
+    revPctTotal: '% من إجمالي الإيرادات',
+    revPage: 'صفحة {page}',
+
+    // Economy indicators
+    ecoGrowthRate: 'النمو المستهدف',
+    ecoInflation: 'التضخم',
+    ecoUnemployment: 'البطالة المستهدفة',
+    ecoInvestmentRate: 'معدل الاستثمار',
+    ecoSavingsRate: 'الادخار',
+    ecoInterestRate: 'سعر الفائدة',
+    ecoExportGrowth: 'نمو الصادرات',
+    ecoPrioritySectors: 'حصة القطاعات الأولوية',
+
+    // Sector cards
+    sectorHealth: 'الصحة',
+    secHealthDesc: 'الخدمات الصحية والمستشفيات والتأمين الصحي',
+    secProcurement: 'هيئة الشراء الموحد',
+    secTreatment: 'العلاج على نفقة الدولة',
+    secMedicine: 'الأدوية',
+    secMedicalSupplies: 'المستلزمات الطبية',
+    sectorEducation: 'التعليم',
+    secEducationDesc: 'التعليم العام والجامعي والبحث العلمي',
+    secBudgetIncrease: 'زيادة الموازنة',
+    secTextbooks: 'الكتب الدراسية',
+    secSchoolMeals: 'الوجبات المدرسية',
+    secResearch: 'البحث العلمي',
+    sectorSocial: 'الحماية الاجتماعية',
+    secSocialDesc: 'الدعم المباشر والتأمينات الاجتماعية',
+    secFoodSubsidy: 'دعم السلع التموينية',
+    secElectricitySubsidy: 'دعم الكهرباء',
+    secTakaful: 'تكافل وكرامة',
+    secMinWage: 'الحد الأدنى للأجور',
+    sectorResearch: 'البحث العلمي',
+    secResearchDesc: 'البحث العلمي والتطوير',
+    sectorInvestment: 'الاستثمار',
+    secInvestmentDesc: 'الاستثمارات الكلية متضمنة التغير في المخزون',
+    secPrivateInvest: 'استثمارات خاصة',
+    secPublicInvest: 'استثمارات عامة',
+    secPrivateInvestValue: '2.2 تريليون جنيه',
+    secPublicInvestValue: '1.56 تريليون جنيه',
+    secIncreaseNote: '⚠ وردت نسبتان للزيادة في صفحات مختلفة من المصدر (30% تقريبية في صفحة 26، و39.6% دقيقة في صفحة 27)، لذلك يتم عرضهما منفصلتين حفاظًا على دقة المصدر.',
+
+    // Debt
+    debtExternal: 'الدين الخارجي',
+    debtLocalShare: 'حصة الدين المحلي',
+    debtLocalAvgMaturity: 'متوسط أجل الدين المحلي',
+    debtMaturityTarget: 'المستهدف',
+    debtInterestToRevenue: 'الفوائد / الإيرادات',
+    debtServiceToExpenditure: 'خدمة الدين / المصروفات',
+    debtInterestPayments: 'فوائد الدين',
+    debtCitizenBond: 'عائد سند المواطن',
+    debtActualRatio: 'النسبة الفعلية للدين / الناتج المحلي',
+    debtDataNote: '⚠ نسب الدين 2018/19–2023/24 غير مدخلة — تتطلب التحقق البصري من صفحة 50',
+    debtDiscrepancy: '⚠ تباين: النص يذكر 84.2% (يونيو 2026) والرسم البياني يظهر 82.4%. قد يكون بسبب تاريخ مرجعي مختلف.',
+
+    // Decent Life
+    decentLifeTitle: 'مشروع حياة كريمة',
+    decentLifeNote: '⚠ أرقام متعددة السنوات — ليست ميزانية سنة مالية واحدة',
+    decentLifeTotalPhases: 'إجمالي المراحل الثلاث',
+    decentLifePhase1: 'المرحلة الأولى',
+    decentLifeExecuted1: 'المنفذ من الأولى',
+    decentLifeAlloc2026: 'مخصص 2026/27 للثانية',
+
+    // Investment additional
+    invAssumptions: 'جدول الافتراضات (صفحة 11)',
+    invApproxValue: 'قيمة تقريبية',
+    invAppendix: 'ملحق الاستثمارات (صفحة 65)',
+    invInclStock: 'شاملة التغير في المخزون',
+    invPrivatePublic: 'الاستثمارات الخاصة والعامة',
+    invPrivate: 'استثمارات خاصة',
+    invPublic: 'استثمارات عامة',
+    invSectorDesc: 'توزيع الاستثمارات على القطاعات الرئيسية خلال عام المالية {year}',
+    invEntityDesc: 'توزيع الاستثمارات العامة على الجهات الحكومية',
+    invDiscrepancyNote: '⚠ تباين: صفحة 65 تذكر 58.8%/41.2% وصفحة 66 تذكر 58.5%/41.5%. النسب المحسوبة أعلاه من القيم المطلقة.',
+    invCalcNote58: '58.5% — نسبة محسوبة من القيم المطلقة (2.2/3.76)',
+    invCalcNote41: '41.5% — نسبة محسوبة من القيم المطلقة (1.56/3.76)',
+
+    // Debt value strings
+    debtExternalValue: '78.5 مليار دولار',
+    debtAvgMaturityValue: '3 سنوات',
+    debtMaturityTargetValue: '4.5–5 سنوات',
+    debtServiceTargetValue: '35% (مستهدف)',
+
+    // Decent Life value strings
+    decentLifeTotalValue: '≈1.0 تريليون',
+    decentLifePhase1Value: '350 مليار',
+    decentLifeExecuted1Value: '300.6 مليار (88%)',
+    decentLifeAlloc2026Value: '45 مليار',
+
+    // Allocation (Finance Minister)
+    allocInterest: 'فوائد الدين',
+    allocSubsidies: 'الدعم والحماية الاجتماعية',
+    allocWages: 'الأجور',
+    allocInvestments: 'الاستثمارات',
+    allocGoods: 'السلع والخدمات',
+    allocOther: 'أخرى',
+    ministerAlloc: 'اختار توزيعك',
+    ministerComplete: 'تم التوزيع بالكامل',
+    ministerRemaining: 'متبقي',
+    ministerOver: 'زيادة',
+    ministerComparison: 'مقارنة بالتوزيع الفعلي',
+    ministerActualNote: 'النسب الفعلية من التقرير',
+    ministerYourAlloc: 'توزيعك',
+    ministerActualAlloc: 'فعلي',
+    ministerCalcNote: 'نسب محسوبة من التصنيف الاقتصادي للمصروفات في التقرير الرسمي',
+    egp: 'جنيه',
+
+    // Budget 100
+    budget100Title: 'موازنتك بين إيديك',
+    budget100Subtitle: 'اعرف فلوسك بتطلع فين من ضرائبك',
+    budget100Dist: 'توزيع 100 جنيه',
+    budget100Source: 'المصدر: موازنة المواطن 2026/2027',
+    close: 'إغلاق',
+    budgetLocalDebt: 'الدين المحلي',
+    budgetExternalDebt: 'الدين الخارجي',
+    budgetWages: 'الأجور',
+    budgetBonuses: 'المكافآت',
+    budgetSocialInsurance: 'التأمينات الاجتماعية',
+    budgetSubsidies: 'الدعم',
+    budgetPensions: 'المعاشات',
+    budgetInfrastructure: 'البنية التحتية',
+    budgetHousing: 'الإسكان',
+    budgetUtilities: 'المرافق',
+    budgetHealth: 'الصحة',
+    budgetEducation: 'التعليم',
+    budgetDefense: 'الدفاع',
+    budgetSecurity: 'الأمن',
+    budgetOther: 'أخرى',
+
+    // Sources
+    sourcesSection: 'المصادر',
+    sourcesTitle: 'كل رقم له مصدر',
+    sourcesDesc: 'جميع البيانات مأخوذة من ملف موازنة المواطن الرسمي',
+    sourcesDocTitle: 'موازنة المواطن {year}',
+    sourcesDocInfo: 'وزارة المالية المصرية · الإصدار الثالث عشر · 70 صفحة',
+    sourcesNote: 'النسب المحسوبة موضحة بوضوح · أي تباين في الأرقام يتم توضيحه من المصدر',
 
     // Finance Minister
     ministerEyebrow: 'تجربة تفاعلية',
     ministerTitle: 'لو إنت مكان وزير المالية',
     ministerSubtitle: 'جرّب توزع الميزانية علىsectors المختلفة',
+
+    // Finance Minister (100 EGP page)
+    fmTitle: 'لو انت وزير المالية',
+    fmSubtitle: 'وزّع 100 جنيه من ميزانية الدولة زي ما تحب',
+    currency: 'جنيه',
+    fmRemaining: 'متبقية',
+    fmExcess: 'زيادة',
+    fmReal: 'الحقيقي',
+    fmComparison: 'مقارنة مع الموازنة الحقيقية',
+    fmScore: 'تقييمك',
+    fmPoints: 'نقطة من 100',
+    fmShare: 'توزيعي للـ 100 جنيه:',
+    fmShareTitle: 'توزيعي — موازنتي',
+    fmShareBtn: 'شارك توزيعك',
+    fmSource: 'المصدر: موازنة المواطن 2026/2027',
+    fmScoreExcellent: 'ممتاز! قريب جداً من الموازنة الحقيقية 👏',
+    fmScoreGood: 'جيد! في تقارب مع الأولويات الحقيقية 👍',
+    fmScoreOk: 'مقبول! مختلفة شوية عن الواقع 🤔',
+    fmScoreBad: 'تختلف بشكل كبير عن الموازنة الحقيقية 💡',
+    fmCatEducation: 'التعليم',
+    fmCatHealth: 'الصحة',
+    fmCatSocial: 'الحماية الاجتماعية',
+    fmCatInfrastructure: 'البنية التحتية',
+    fmCatDefense: 'الدفاع والأمن',
+    fmCatOther: 'أخرى',
 
     // Quiz
     quizTitle: 'اختبار المعرفة',
@@ -161,6 +354,48 @@ const translations = {
     verificationSent: 'تم إرسال رابط التأكيد على بريدك الإلكتروني. يجب تأكيد البريد قبل تسجيل الدخول.',
     loginRequiredTitle: 'يجب تسجيل الدخول',
 
+    // ChatBot
+    chatWelcome: 'اهلا بيك في موازنتي! اسألني أي سؤال عن موازنة المواطن 2026/2027.',
+    chatTitle: 'اسأل موازنتي',
+    chatSubtitle: 'مساعد تعليمي — بيانات من موازنة المواطن',
+    chatPlaceholder: 'اكتب سؤالك هنا...',
+    chatSend: 'إرسال',
+    chatClose: 'إغلاق المحادثة',
+    chatOpen: 'فتح المحادثة',
+
+    // Not Found
+    notFoundTitle: 'الصفحة غير موجودة',
+    notFoundDesc: 'عذراً، الصفحة التي تبحث عنها غير موجودة',
+    notFoundHome: 'العودة للرئيسية',
+
+    // Source Drawer
+    drawerTitle: 'تفاصيل الرقم',
+    drawerValue: 'القيمة',
+    drawerName: 'الاسم',
+    drawerId: 'المعرّف',
+    drawerStatus: 'حالة التوثيق',
+    drawerSource: 'المصدر',
+    drawerUnspecified: 'غير محدد',
+    drawerPage: 'رقم الصفحة',
+    drawerYear: 'السنة المالية',
+    drawerType: 'نوع الرقم',
+    drawerOfficial: 'رسمي',
+    drawerDerived: 'مشتق',
+    drawerIllustrative: 'توضيحي',
+    drawerDerivedFrom: 'مُشتق من',
+    drawerFormula: 'المعادلة',
+    drawerNote: 'ملاحظة',
+
+    // Source Badge
+    badgeVerified: 'موثق',
+    badgeUnverified: 'غير موثق',
+    badgeUnavailable: 'غير متوفر',
+
+    // Donut
+    donutTotal: 'من إجمالي المصروفات',
+    donutMillion: 'مليون جنيه',
+    donutEgp: 'جنيه مصري',
+
     // Common
     source: 'المصدر',
     page: 'صفحة',
@@ -177,6 +412,7 @@ const translations = {
     noNotifications: 'No new notifications',
     logout: 'Logout',
     language: 'Language',
+    openMenu: 'Open menu',
 
     // Sidebar
     home: 'Dashboard',
@@ -186,8 +422,11 @@ const translations = {
     voting: 'Voting',
     reports: 'Reports',
     settings: 'Settings',
+    sidebarProject: 'Independent Educational Project',
+    sidebarBudget: 'Citizen Budget 2026/2027',
 
     // Hero
+    heroBadge: 'Citizen Budget {year} · 13th Edition',
     heroTitle: 'Budget in a Minute',
     heroDesc: 'See the big picture of the national budget 2026/2027, and understand where the money goes and how it affects you.',
     exploreBtn: 'Start Exploring',
@@ -230,21 +469,210 @@ const translations = {
     debtTitle: 'How Does Debt Change?',
     debtSubtitle: 'Debt-to-GDP ratio over time',
     debtGoal: '2030 Target (70%)',
+    debtRatio: 'Debt Ratio',
 
     // Investment
     invEyebrow: 'Investment',
     invTitle: 'Where Is Investment Going?',
     invSubtitle: 'Investment plan for fiscal year 2026/2027',
+    invBySector: 'Investment by Sector',
+    invByEntity: 'Public Investment by Entity',
+    invTooltip: 'Billion EGP',
+    sectorTransport: 'Transport',
+    sectorIndustry: 'Transformative Industry',
+    sectorAgriculture: 'Agriculture & Irrigation',
+    entityEconomic: 'Economic Authorities',
+    entityGovernment: 'Government Bodies',
+    entityPublic: 'Public Business Sector',
+    entityLocal: 'Local Administration',
 
     // Citizen
     citizenEyebrow: 'Citizen',
     citizenTitle: 'How Does This Affect Me?',
     citizenSubtitle: 'Choose your identity and see how the budget affects you',
+    profileStudent: 'Student',
+    profileWorker: 'Young Worker',
+    profileFamily: 'Family',
+    profileEntrepreneur: 'Entrepreneur',
+    profileHealth: 'Health Interested',
+    profileEnvironment: 'Environment Interested',
+
+    // KPI
+    kpiSource: 'Source: Citizen Budget {year} — Page 12',
+
+    // Expenditure detail
+    expValue: 'Value',
+    expPercent: 'Percentage',
+    expStatus: 'Status',
+
+    // Revenue detail
+    revTaxNote: '⚠ Tax details (income, VAT, customs, stamps) not available in the current official source.',
+    revPctTotal: '% of Total Revenues',
+    revPage: 'Page {page}',
+
+    // Economy indicators
+    ecoGrowthRate: 'Target Growth',
+    ecoInflation: 'Inflation',
+    ecoUnemployment: 'Target Unemployment',
+    ecoInvestmentRate: 'Investment Rate',
+    ecoSavingsRate: 'Savings Rate',
+    ecoInterestRate: 'Interest Rate',
+    ecoExportGrowth: 'Export Growth',
+    ecoPrioritySectors: 'Priority Sectors Share',
+
+    // Sector cards
+    sectorHealth: 'Health',
+    secHealthDesc: 'Health services, hospitals, and health insurance',
+    secProcurement: 'Unified Procurement Authority',
+    secTreatment: 'State-funded Treatment',
+    secMedicine: 'Medicine',
+    secMedicalSupplies: 'Medical Supplies',
+    sectorEducation: 'Education',
+    secEducationDesc: 'General, university education and scientific research',
+    secBudgetIncrease: 'Budget Increase',
+    secTextbooks: 'Textbooks',
+    secSchoolMeals: 'School Meals',
+    secResearch: 'Scientific Research',
+    sectorSocial: 'Social Protection',
+    secSocialDesc: 'Direct subsidies and social insurance',
+    secFoodSubsidy: 'Food Commodity Subsidy',
+    secElectricitySubsidy: 'Electricity Subsidy',
+    secTakaful: 'Takaful & Karama',
+    secMinWage: 'Minimum Wage',
+    sectorResearch: 'Scientific Research',
+    secResearchDesc: 'Scientific Research and Development',
+    sectorInvestment: 'Investment',
+    secInvestmentDesc: 'Total investment including change in stock',
+    secPrivateInvest: 'Private Investment',
+    secPublicInvest: 'Public Investment',
+    secPrivateInvestValue: '2.2 Trillion EGP',
+    secPublicInvestValue: '1.56 Trillion EGP',
+    secIncreaseNote: '⚠ Two increase ratios appeared in different pages of the source (approximate 30% on page 26, exact 39.6% on page 27), so they are displayed separately to maintain source accuracy.',
+
+    // Debt
+    debtExternal: 'External Debt',
+    debtLocalShare: 'Local Debt Share',
+    debtLocalAvgMaturity: 'Local Debt Avg. Maturity',
+    debtMaturityTarget: 'Target',
+    debtInterestToRevenue: 'Interest / Revenues',
+    debtServiceToExpenditure: 'Debt Service / Expenditures',
+    debtInterestPayments: 'Debt Interest',
+    debtCitizenBond: 'Citizen Bond Yield',
+    debtActualRatio: 'Actual Debt / GDP Ratio',
+    debtDataNote: '⚠ Debt ratios for 2018/19–2023/24 not entered — require visual verification from page 50',
+    debtDiscrepancy: '⚠ Discrepancy: Text mentions 84.2% (June 2026) but chart shows 82.4%. Could be due to different reference dates.',
+
+    // Decent Life
+    decentLifeTitle: 'Decent Life Initiative',
+    decentLifeNote: '⚠ Multi-year figures — not a single fiscal year budget',
+    decentLifeTotalPhases: 'Total Three Phases',
+    decentLifePhase1: 'First Phase',
+    decentLifeExecuted1: 'Executed from First Phase',
+    decentLifeAlloc2026: 'Allocated 2026/27 for Second Phase',
+
+    // Investment additional
+    invAssumptions: 'Assumptions Table (Page 11)',
+    invApproxValue: 'Approximate value',
+    invAppendix: 'Investment Appendix (Page 65)',
+    invInclStock: 'Including change in stock',
+    invPrivatePublic: 'Private and Public Investments',
+    invPrivate: 'Private Investments',
+    invPublic: 'Public Investments',
+    invSectorDesc: 'Distribution of investments across key sectors for fiscal year {year}',
+    invEntityDesc: 'Distribution of public investments across government entities',
+    invDiscrepancyNote: '⚠ Discrepancy: Page 65 mentions 58.8%/41.2% and page 66 mentions 58.5%/41.5%. The calculated percentages above are from absolute values.',
+    invCalcNote58: '58.5% — Calculated from absolute values (2.2/3.76)',
+    invCalcNote41: '41.5% — Calculated from absolute values (1.56/3.76)',
+
+    // Debt value strings
+    debtExternalValue: '78.5 Billion USD',
+    debtAvgMaturityValue: '3 Years',
+    debtMaturityTargetValue: '4.5–5 Years',
+    debtServiceTargetValue: '35% (Target)',
+
+    // Decent Life value strings
+    decentLifeTotalValue: '≈1.0 Trillion',
+    decentLifePhase1Value: '350 Billion',
+    decentLifeExecuted1Value: '300.6 Billion (88%)',
+    decentLifeAlloc2026Value: '45 Billion',
+
+    // Allocation (Finance Minister)
+    allocInterest: 'Debt Interest',
+    allocSubsidies: 'Social Protection',
+    allocWages: 'Wages',
+    allocInvestments: 'Investments',
+    allocGoods: 'Goods & Services',
+    allocOther: 'Other',
+    ministerAlloc: 'Choose Your Allocation',
+    ministerComplete: 'Fully Allocated',
+    ministerRemaining: 'Remaining',
+    ministerOver: 'Over',
+    ministerComparison: 'Comparison with Actual',
+    ministerActualNote: 'Actual percentages from report',
+    ministerYourAlloc: 'Your Allocation',
+    ministerActualAlloc: 'Actual',
+    ministerCalcNote: 'Percentages calculated from the economic classification of expenditures in the official report',
+    egp: 'EGP',
+
+    // Budget 100
+    budget100Title: 'Your Budget in Your Hands',
+    budget100Subtitle: 'Find out where your tax money goes',
+    budget100Dist: 'Distribution of 100 EGP',
+    budget100Source: 'Source: Citizen Budget 2026/2027',
+    close: 'Close',
+    budgetLocalDebt: 'Local Debt',
+    budgetExternalDebt: 'External Debt',
+    budgetWages: 'Wages',
+    budgetBonuses: 'Bonuses',
+    budgetSocialInsurance: 'Social Insurance',
+    budgetSubsidies: 'Subsidies',
+    budgetPensions: 'Pensions',
+    budgetInfrastructure: 'Infrastructure',
+    budgetHousing: 'Housing',
+    budgetUtilities: 'Utilities',
+    budgetHealth: 'Health',
+    budgetEducation: 'Education',
+    budgetDefense: 'Defense',
+    budgetSecurity: 'Security',
+    budgetOther: 'Other',
+
+    // Sources
+    sourcesSection: 'Sources',
+    sourcesTitle: 'Every Number Has a Source',
+    sourcesDesc: 'All data from the official Citizen Budget document',
+    sourcesDocTitle: 'Citizen Budget {year}',
+    sourcesDocInfo: 'Egyptian Ministry of Finance · 13th Edition · 70 Pages',
+    sourcesNote: 'Calculated percentages are clearly marked · Any discrepancy in numbers is noted from source',
 
     // Finance Minister
     ministerEyebrow: 'Interactive Experience',
     ministerTitle: 'If You Were the Finance Minister',
     ministerSubtitle: 'Try allocating the budget across different sectors',
+
+    // Finance Minister (100 EGP page)
+    fmTitle: 'If You Were the Finance Minister',
+    fmSubtitle: 'Distribute 100 EGP from the state budget as you like',
+    currency: 'EGP',
+    fmRemaining: 'remaining',
+    fmExcess: 'excess',
+    fmReal: 'Actual',
+    fmComparison: 'Comparison with Actual Budget',
+    fmScore: 'Your Score',
+    fmPoints: 'out of 100',
+    fmShare: 'My distribution of 100 EGP:',
+    fmShareTitle: 'My Distribution — My Budget',
+    fmShareBtn: 'Share Your Distribution',
+    fmSource: 'Source: Citizen Budget 2026/2027',
+    fmScoreExcellent: 'Excellent! Very close to the actual budget 👏',
+    fmScoreGood: 'Good! Close to the real priorities 👍',
+    fmScoreOk: 'Acceptable! Slightly different from reality 🤔',
+    fmScoreBad: 'Significantly different from the actual budget 💡',
+    fmCatEducation: 'Education',
+    fmCatHealth: 'Health',
+    fmCatSocial: 'Social Protection',
+    fmCatInfrastructure: 'Infrastructure',
+    fmCatDefense: 'Defense & Security',
+    fmCatOther: 'Other',
 
     // Quiz
     quizTitle: 'Knowledge Quiz',
@@ -330,6 +758,48 @@ const translations = {
     privacyLink: 'Privacy Policy',
     verificationSent: 'A verification link has been sent to your email. Please verify before logging in.',
     loginRequiredTitle: 'Login Required',
+
+    // ChatBot
+    chatWelcome: 'Welcome to Mawaznety! Ask me anything about the Citizen Budget 2026/2027.',
+    chatTitle: 'Ask Mawaznety',
+    chatSubtitle: 'Educational assistant — Citizen Budget data',
+    chatPlaceholder: 'Type your question here...',
+    chatSend: 'Send',
+    chatClose: 'Close chat',
+    chatOpen: 'Open chat',
+
+    // Not Found
+    notFoundTitle: 'Page Not Found',
+    notFoundDesc: 'Sorry, the page you are looking for does not exist',
+    notFoundHome: 'Back to Home',
+
+    // Source Drawer
+    drawerTitle: 'Figure Details',
+    drawerValue: 'Value',
+    drawerName: 'Name',
+    drawerId: 'ID',
+    drawerStatus: 'Verification Status',
+    drawerSource: 'Source',
+    drawerUnspecified: 'Unspecified',
+    drawerPage: 'Page Number',
+    drawerYear: 'Fiscal Year',
+    drawerType: 'Figure Type',
+    drawerOfficial: 'Official',
+    drawerDerived: 'Derived',
+    drawerIllustrative: 'Illustrative',
+    drawerDerivedFrom: 'Derived From',
+    drawerFormula: 'Formula',
+    drawerNote: 'Note',
+
+    // Source Badge
+    badgeVerified: 'Verified',
+    badgeUnverified: 'Unverified',
+    badgeUnavailable: 'Unavailable',
+
+    // Donut
+    donutTotal: 'of Total Expenditures',
+    donutMillion: 'Million EGP',
+    donutEgp: 'Egyptian Pound',
 
     // Common
     source: 'Source',

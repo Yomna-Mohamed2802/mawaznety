@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { budget100 } from '../data';
+import { useLang } from '../context/LangContext';
 
 const Budget100 = () => {
+  const { lang, t } = useLang();
   const [selectedItem, setSelectedItem] = useState(null);
   const [hoveredItem, setHoveredItem] = useState(null);
 
@@ -16,11 +18,11 @@ const Budget100 = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-8"
       >
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">موازنتك بين إيديك</h1>
-        <p className="text-gray-600">اعرف فلوسك بتطلع فين من ضرائبك</p>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">{t.budget100Title}</h1>
+        <p className="text-gray-600">{t.budget100Subtitle}</p>
         <div className="mt-4 inline-flex items-center gap-2 bg-white px-6 py-3 rounded-full shadow-md">
           <span className="text-4xl font-bold text-primary-600">100</span>
-          <span className="text-lg text-gray-600">جنيه</span>
+          <span className="text-lg text-gray-600">{t.egp}</span>
         </div>
       </motion.div>
 
@@ -71,7 +73,7 @@ const Budget100 = () => {
                 100
               </text>
               <text x="100" y="115" textAnchor="middle" className="text-sm fill-gray-500">
-                جنيه
+                {t.egp}
               </text>
             </svg>
           </div>
@@ -107,8 +109,8 @@ const Budget100 = () => {
                       <div className="space-y-3">
                         {Object.entries(item.details).map(([key, value]) => (
                           <div key={key} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span className="text-gray-600">{formatDetailKey(key)}</span>
-                            <span className="font-semibold text-gray-800">{value} جنيه</span>
+                            <span className="text-gray-600">{formatDetailKey(key, t)}</span>
+                            <span className="font-semibold text-gray-800">{value} {t.egp}</span>
                           </div>
                         ))}
                       </div>
@@ -116,7 +118,7 @@ const Budget100 = () => {
                         onClick={() => setSelectedItem(null)}
                         className="mt-4 w-full py-2 text-gray-500 hover:text-gray-700 transition-colors"
                       >
-                        إغلاق
+                        {t.close}
                       </button>
                     </>
                   );
@@ -128,7 +130,7 @@ const Budget100 = () => {
                 animate={{ opacity: 1 }}
                 className="bg-white rounded-2xl shadow-xl p-6"
               >
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">توزيع 100 جنيه</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.budget100Dist}</h3>
                 <div className="space-y-3">
                   {budget100.map((item, index) => (
                     <motion.div
@@ -167,8 +169,8 @@ const Budget100 = () => {
 
           {/* Source */}
           <div className="text-center text-sm text-gray-500 mt-4">
-            <p>المصدر: موازنة المواطن 2026/2027</p>
-            <p>صفحة 12</p>
+            <p>{t.budget100Source}</p>
+            <p>{t.expPage} 12</p>
           </div>
         </div>
       </div>
@@ -176,23 +178,23 @@ const Budget100 = () => {
   );
 };
 
-const formatDetailKey = (key) => {
+const formatDetailKey = (key, t) => {
   const keyMap = {
-    localDebt: 'الدين المحلي',
-    externalDebt: 'الدين الخارجي',
-    wages: 'الأجور',
-    bonuses: 'المكافآت',
-    socialInsurance: 'التأمينات الاجتماعية',
-    subsidies: 'الدعم',
-    pensions: 'المعاشات',
-    infrastructure: 'البنية التحتية',
-    housing: 'الإسكان',
-    utilities: 'المرافق',
-    health: 'الصحة',
-    education: 'التعليم',
-    defense: 'الدفاع',
-    security: 'الأمن',
-    other: 'أخرى'
+    localDebt: t.budgetLocalDebt,
+    externalDebt: t.budgetExternalDebt,
+    wages: t.budgetWages,
+    bonuses: t.budgetBonuses,
+    socialInsurance: t.budgetSocialInsurance,
+    subsidies: t.budgetSubsidies,
+    pensions: t.budgetPensions,
+    infrastructure: t.budgetInfrastructure,
+    housing: t.budgetHousing,
+    utilities: t.budgetUtilities,
+    health: t.budgetHealth,
+    education: t.budgetEducation,
+    defense: t.budgetDefense,
+    security: t.budgetSecurity,
+    other: t.budgetOther
   };
   return keyMap[key] || key;
 };

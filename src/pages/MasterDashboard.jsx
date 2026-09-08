@@ -28,16 +28,6 @@ function fmt(val, unit = 'billion_EGP') {
   return formatValue({ value: val, unit });
 }
 
-function fmtT(val) {
-  if (val == null) return '—';
-  return `${(val / 1000).toFixed(2)} تريليون جنيه`;
-}
-
-function fmtB(val) {
-  if (val == null) return '—';
-  return `${val.toLocaleString('ar-EG')} مليار جنيه`;
-}
-
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
@@ -70,6 +60,16 @@ const DONUT_COLORS = ['#102a43', '#7c3aed', '#059669', '#d97706', '#dc2626', '#6
 export default function MasterDashboard() {
   const { lang, t } = useLang();
   const [drawerFigure, setDrawerFigure] = useState(null);
+
+  function fmtT(val) {
+    if (val == null) return '—';
+    return `${(val / 1000).toFixed(2)} ${t.trillion}`;
+  }
+
+  function fmtB(val) {
+    if (val == null) return '—';
+    return `${val.toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US')} ${t.billion}`;
+  }
   const [activeSector, setActiveSector] = useState(null);
   const [activeExpenditure, setActiveExpenditure] = useState(null);
   const [citizenProfile, setCitizenProfile] = useState(null);
@@ -112,27 +112,27 @@ export default function MasterDashboard() {
   /* ─── Investment data ────────────────────────────────── */
 
   const investSectors = [
-    { label: 'النقل', value: 640.1 },
-    { label: 'الصناعة التحويلية', value: 281.3 },
-    { label: 'الزراعة والري', value: 173.2 },
+    { label: t.sectorTransport, value: 640.1 },
+    { label: t.sectorIndustry, value: 281.3 },
+    { label: t.sectorAgriculture, value: 173.2 },
   ];
 
   const investPublic = [
-    { label: 'الهيئات الاقتصادية', value: 743.4 },
-    { label: 'الجهاز الحكومي', value: 553.7 },
-    { label: 'قطاع الأعمال العام', value: 262.9 },
-    { label: 'الإدارة المحلية', value: 37.4 },
+    { label: t.entityEconomic, value: 743.4 },
+    { label: t.entityGovernment, value: 553.7 },
+    { label: t.entityPublic, value: 262.9 },
+    { label: t.entityLocal, value: 37.4 },
   ];
 
   /* ─── Citizen profiles ───────────────────────────────── */
 
   const profiles = [
-    { id: 'student', icon: '🎓', label: 'طالب', figures: [education.totalBudget, education.percentageOfGDP, education.textbooks, education.schoolMeals, education.research.totalBudget] },
-    { id: 'worker', icon: '💼', label: 'شاب عامل', figures: [social.wagesTotal, social.wagesGrowth, social.minimumWage, budgetOverview.primarySurplus] },
-    { id: 'family', icon: '👨‍👩‍👧', label: 'أسرة', figures: [social.totalBudget, social.foodCommodity, social.takafulKarama, social.minimumWage, social.ramadanPackage] },
-    { id: 'entrepreneur', icon: '🚀', label: 'صاحب مشروع', figures: [infrastructure.totalInvestmentInclStock, economy.indicators.investmentRate, economy.indicators.savingsRate, economy.indicators.exportGrowth] },
-    { id: 'health_interested', icon: '🏥', label: 'مهتم بالصحة', figures: [health.totalBudget, health.percentageOfGDP, health.procurementAuthority, health.treatmentAtStateExpense, health.medicineAllocation] },
-    { id: 'environment', icon: '🌱', label: 'مهتم بالبيئة', figures: [infrastructure.agricultureSector, social.water, social.energyEfficiency, economy.indicators.prioritySectorsShare] },
+    { id: 'student', icon: '🎓', label: t.profileStudent, figures: [education.totalBudget, education.percentageOfGDP, education.textbooks, education.schoolMeals, education.research.totalBudget] },
+    { id: 'worker', icon: '💼', label: t.profileWorker, figures: [social.wagesTotal, social.wagesGrowth, social.minimumWage, budgetOverview.primarySurplus] },
+    { id: 'family', icon: '👨‍👩‍👧', label: t.profileFamily, figures: [social.totalBudget, social.foodCommodity, social.takafulKarama, social.minimumWage, social.ramadanPackage] },
+    { id: 'entrepreneur', icon: '🚀', label: t.profileEntrepreneur, figures: [infrastructure.totalInvestmentInclStock, economy.indicators.investmentRate, economy.indicators.savingsRate, economy.indicators.exportGrowth] },
+    { id: 'health_interested', icon: '🏥', label: t.profileHealth, figures: [health.totalBudget, health.percentageOfGDP, health.procurementAuthority, health.treatmentAtStateExpense, health.medicineAllocation] },
+    { id: 'environment', icon: '🌱', label: t.profileEnvironment, figures: [infrastructure.agricultureSector, social.water, social.energyEfficiency, economy.indicators.prioritySectorsShare] },
   ];
 
   const selectedProfile = profiles.find((p) => p.id === citizenProfile);
@@ -174,7 +174,7 @@ export default function MasterDashboard() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="inline-block px-4 py-1.5 mb-7 text-xs sm:text-sm font-medium bg-white/8 rounded-full border border-white/15 backdrop-blur-sm text-white/85"
             >
-              موازنة المواطن {FISCAL_YEAR} · الإصدار الثالث عشر
+              {t.heroBadge.replace('{year}', FISCAL_YEAR)}
             </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 12 }}
@@ -240,7 +240,7 @@ export default function MasterDashboard() {
             </motion.div>
           ))}
         </div>
-        <p className="text-center text-xs text-primary-500 mt-4">المصدر: موازنة المواطن {FISCAL_YEAR} — صفحة 12</p>
+        <p className="text-center text-xs text-primary-500 mt-4">{t.kpiSource.replace('{year}', FISCAL_YEAR)}</p>
       </Section>
 
       {/* ─── 02 — فلوس الدولة بتروح فين؟ ────────────────── */}
@@ -320,15 +320,15 @@ export default function MasterDashboard() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="bg-surface-warm rounded-xl p-3.5">
-                    <p className="text-xs text-primary-500 mb-1">القيمة</p>
+                    <p className="text-xs text-primary-500 mb-1">{t.expValue}</p>
                     <p className="text-base font-bold text-primary-900">{fmtB(item.value)}</p>
                   </div>
                   <div className="bg-surface-warm rounded-xl p-3.5">
-                    <p className="text-xs text-primary-500 mb-1">النسبة</p>
+                    <p className="text-xs text-primary-500 mb-1">{t.expPercent}</p>
                     <p className="text-base font-bold text-primary-900">{item.pct}%</p>
                   </div>
                   <div className="bg-surface-warm rounded-xl p-3.5">
-                    <p className="text-xs text-primary-500 mb-1">الحالة</p>
+                    <p className="text-xs text-primary-500 mb-1">{t.expStatus}</p>
                     <SourceBadge status={item.figure.verificationStatus} showLabel />
                   </div>
                   <div className="bg-surface-warm rounded-xl p-3.5">
@@ -391,8 +391,8 @@ export default function MasterDashboard() {
                     />
                   </div>
                   <div className="flex justify-between mt-2.5 text-xs text-primary-500">
-                    <span className="font-medium text-primary-600">{pct}% من إجمالي الإيرادات</span>
-                    <span>صفحة {cat.figure.page || '—'}</span>
+                    <span className="font-medium text-primary-600">{pct}{t.revPctTotal}</span>
+                    <span>{t.revPage.replace('{page}', cat.figure.page || '—')}</span>
                   </div>
                 </motion.div>
               );
@@ -400,7 +400,7 @@ export default function MasterDashboard() {
           </div>
 
           <div className="text-center mt-8 p-4 bg-amber-50 border border-amber-200/60 rounded-xl max-w-2xl mx-auto">
-            <p className="text-sm text-amber-700">⚠ تفاصيل الضرائب (دخل، ضريبة قيمة مضافة، جمارك، دمغة) غير متاحة في المصدر الرسمي الحالي.</p>
+            <p className="text-sm text-amber-700">{t.revTaxNote}</p>
           </div>
         </div>
       </Section>
@@ -415,14 +415,14 @@ export default function MasterDashboard() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {[
-            { label: 'النمو المستهدف', figure: economy.indicators.growthRate, color: 'green', icon: HiOutlineTrendingUp },
-            { label: 'التضخم', figure: economy.indicators.inflation, color: 'amber', icon: HiOutlineChartBar },
-            { label: 'البطالة المستهدفة', figure: economy.indicators.unemployment, color: 'red', icon: HiOutlineUsers },
-            { label: 'معدل الاستثمار', figure: economy.indicators.investmentRate, color: 'blue', icon: HiOutlineOfficeBuilding },
-            { label: 'الادخار', figure: economy.indicators.savingsRate, color: 'teal', icon: HiOutlineShieldCheck },
-            { label: 'سعر الفائدة', figure: economy.indicators.interestRate, color: 'purple', icon: HiOutlineLightBulb },
-            { label: 'نمو الصادرات', figure: economy.indicators.exportGrowth, color: 'green', icon: HiOutlineGlobeAlt },
-            { label: 'حصة القطاعات الأولوية', figure: economy.indicators.prioritySectorsShare, color: 'blue', icon: HiOutlineLocationMarker },
+            { label: t.ecoGrowthRate, figure: economy.indicators.growthRate, color: 'green', icon: HiOutlineTrendingUp },
+            { label: t.ecoInflation, figure: economy.indicators.inflation, color: 'amber', icon: HiOutlineChartBar },
+            { label: t.ecoUnemployment, figure: economy.indicators.unemployment, color: 'red', icon: HiOutlineUsers },
+            { label: t.ecoInvestmentRate, figure: economy.indicators.investmentRate, color: 'blue', icon: HiOutlineOfficeBuilding },
+            { label: t.ecoSavingsRate, figure: economy.indicators.savingsRate, color: 'teal', icon: HiOutlineShieldCheck },
+            { label: t.ecoInterestRate, figure: economy.indicators.interestRate, color: 'purple', icon: HiOutlineLightBulb },
+            { label: t.ecoExportGrowth, figure: economy.indicators.exportGrowth, color: 'green', icon: HiOutlineGlobeAlt },
+            { label: t.ecoPrioritySectors, figure: economy.indicators.prioritySectorsShare, color: 'blue', icon: HiOutlineLocationMarker },
           ].map((item, i) => {
             const colorMap = {
               green: { bg: 'bg-emerald-50', text: 'text-emerald-600' },
@@ -477,7 +477,7 @@ export default function MasterDashboard() {
               <SourceBadge status={economy.indicators.gdp.verificationStatus} showLabel />
             </button>
             <span className="text-white/50">·</span>
-            <span className="text-white/70">صفحة 11</span>
+            <span className="text-white/70">{t.page} 11</span>
           </div>
         </motion.div>
       </Section>
@@ -493,28 +493,28 @@ export default function MasterDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {[
-              { id: 'health', figure: health.totalBudget, gdpFigure: health.percentageOfGDP, icon: HiOutlineHeart, iconBg: 'bg-red-50', iconText: 'text-red-600', label: 'الصحة', desc: 'الخدمات الصحية والمستشفيات والتأمين الصحي', extra: [
-                { label: 'هيئة الشراء الموحد', figure: health.procurementAuthority },
-                { label: 'العلاج على نفقة الدولة', figure: health.treatmentAtStateExpense },
-                { label: 'الأدوية', figure: health.medicineAllocation },
-                { label: 'المستلزمات الطبية', figure: health.medicalSupplies },
+              { id: 'health', figure: health.totalBudget, gdpFigure: health.percentageOfGDP, icon: HiOutlineHeart, iconBg: 'bg-red-50', iconText: 'text-red-600', label: t.sectorHealth, desc: t.secHealthDesc, extra: [
+                { label: t.secProcurement, figure: health.procurementAuthority },
+                { label: t.secTreatment, figure: health.treatmentAtStateExpense },
+                { label: t.secMedicine, figure: health.medicineAllocation },
+                { label: t.secMedicalSupplies, figure: health.medicalSupplies },
               ]},
-              { id: 'education', figure: education.totalBudget, gdpFigure: education.percentageOfGDP, icon: HiOutlineUsers, iconBg: 'bg-primary-50', iconText: 'text-primary-600', label: 'التعليم', desc: 'التعليم العام والجامعي والبحث العلمي', extra: [
-                { label: 'زيادة الموازنة', figure: education.increasePercentage, suffix: '%' },
-                { label: 'الكتب الدراسية', figure: education.textbooks },
-                { label: 'الوجبات المدرسية', figure: education.schoolMeals },
-                { label: 'البحث العلمي', figure: education.research.totalBudget },
+              { id: 'education', figure: education.totalBudget, gdpFigure: education.percentageOfGDP, icon: HiOutlineUsers, iconBg: 'bg-primary-50', iconText: 'text-primary-600', label: t.sectorEducation, desc: t.secEducationDesc, extra: [
+                { label: t.secBudgetIncrease, figure: education.increasePercentage, suffix: '%' },
+                { label: t.secTextbooks, figure: education.textbooks },
+                { label: t.secSchoolMeals, figure: education.schoolMeals },
+                { label: t.secResearch, figure: education.research.totalBudget },
               ]},
-              { id: 'social', figure: social.totalBudget, gdpFigure: null, icon: HiOutlineShieldCheck, iconBg: 'bg-violet-50', iconText: 'text-violet-600', label: 'الحماية الاجتماعية', desc: 'الدعم المباشر والتأمينات الاجتماعية', extra: [
-                { label: 'دعم السلع التموينية', figure: social.foodCommodity },
-                { label: 'دعم الكهرباء', figure: social.electricity },
-                { label: 'تكافل وكرامة', figure: social.takafulKarama },
-                { label: 'الحد الأدنى للأجور', figure: social.minimumWage, suffix: ' جنيه' },
+              { id: 'social', figure: social.totalBudget, gdpFigure: null, icon: HiOutlineShieldCheck, iconBg: 'bg-violet-50', iconText: 'text-violet-600', label: t.sectorSocial, desc: t.secSocialDesc, extra: [
+                { label: t.secFoodSubsidy, figure: social.foodCommodity },
+                { label: t.secElectricitySubsidy, figure: social.electricity },
+                { label: t.secTakaful, figure: social.takafulKarama },
+                { label: t.secMinWage, figure: social.minimumWage, suffix: ` ${t.egp}` },
               ]},
-              { id: 'research', figure: education.research.totalBudget, gdpFigure: education.research.percentageOfGDP, icon: HiOutlineLightBulb, iconBg: 'bg-amber-50', iconText: 'text-amber-600', label: 'البحث العلمي', desc: 'البحث العلمي والتطوير', extra: [] },
-              { id: 'investment', figure: infrastructure.totalInvestmentInclStock, gdpFigure: null, icon: HiOutlineOfficeBuilding, iconBg: 'bg-teal-50', iconText: 'text-teal-600', label: 'الاستثمار', desc: 'الاستثمارات الكلية متضمنة التغير في المخزون', extra: [
-                { label: 'استثمارات خاصة', value: '2.2 تريليون جنيه' },
-                { label: 'استثمارات عامة', value: '1.56 تريليون جنيه' },
+              { id: 'research', figure: education.research.totalBudget, gdpFigure: education.research.percentageOfGDP, icon: HiOutlineLightBulb, iconBg: 'bg-amber-50', iconText: 'text-amber-600', label: t.sectorResearch, desc: t.secResearchDesc, extra: [] },
+              { id: 'investment', figure: infrastructure.totalInvestmentInclStock, gdpFigure: null, icon: HiOutlineOfficeBuilding, iconBg: 'bg-teal-50', iconText: 'text-teal-600', label: t.sectorInvestment, desc: t.secInvestmentDesc, extra: [
+                { label: t.secPrivateInvest, value: t.secPrivateInvestValue },
+                { label: t.secPublicInvest, value: t.secPublicInvestValue },
               ]},
             ].map((sector, i) => (
               <motion.div
@@ -584,7 +584,7 @@ export default function MasterDashboard() {
           </div>
 
           <div className="mt-8 bg-amber-50 border border-amber-200/60 rounded-xl p-4 max-w-2xl mx-auto text-center">
-            <p className="text-sm text-amber-700">⚠ وردت نسبتان للزيادة في صفحات مختلفة من المصدر (30% تقريبية في صفحة 26، و39.6% دقيقة في صفحة 27)، لذلك يتم عرضهما منفصلتين حفاظًا على دقة المصدر.</p>
+            <p className="text-sm text-amber-700">{t.secIncreaseNote}</p>
           </div>
         </div>
       </Section>
@@ -602,30 +602,30 @@ export default function MasterDashboard() {
           <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 justify-center text-xs text-primary-500">
             <span className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-primary-900" />
-              النسبة الفعلية للدين / الناتج المحلي
+              {t.debtActualRatio}
             </span>
             <span className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-accent-green" />
               {t.debtGoal}
             </span>
           </div>
-          <p className="text-center text-xs text-amber-700 mt-3">⚠ نسب الدين 2018/19–2023/24 غير مدخلة — تتطلب التحقق البصري من صفحة 50</p>
+          <p className="text-center text-xs text-amber-700 mt-3">{t.debtDataNote}</p>
         </div>
 
         <div className="bg-amber-50 border border-amber-200/60 rounded-xl p-4 mb-6 text-center">
-          <p className="text-sm text-amber-700">⚠ تباين: النص يذكر 84.2% (يونيو 2026) والرسم البياني يظهر 82.4%. قد يكون بسبب تاريخ مرجعي مختلف.</p>
+          <p className="text-sm text-amber-700">{t.debtDiscrepancy}</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {[
-            { label: 'الدين الخارجي', value: '78.5 مليار دولار', figure: debt.externalDebt },
-            { label: 'حصة الدين المحلي', value: '74%', figure: debt.localDebtShare },
-            { label: 'متوسط أجل الدين المحلي', value: '3 سنوات', figure: debt.localAvgMaturityCurrent },
-            { label: 'المستهدف', value: '4.5–5 سنوات', figure: debt.localAvgMaturityTarget },
-            { label: 'الفوائد / الإيرادات', value: '60%', figure: debt.interestToRevenue },
-            { label: 'خدمة الدين / المصروفات', value: '35% (مستهدف)', figure: debt.debtServiceToExpenditureTarget },
-            { label: 'فوائد الدين', value: fmtT(debt.interestPayments.value), figure: debt.interestPayments },
-            { label: 'عائد سند المواطن', value: '17.75%', figure: debt.citizenBondYield },
+            { label: t.debtExternal, value: t.debtExternalValue, figure: debt.externalDebt },
+            { label: t.debtLocalShare, value: '74%', figure: debt.localDebtShare },
+            { label: t.debtLocalAvgMaturity, value: t.debtAvgMaturityValue, figure: debt.localAvgMaturityCurrent },
+            { label: t.debtMaturityTarget, value: t.debtMaturityTargetValue, figure: debt.localAvgMaturityTarget },
+            { label: t.debtInterestToRevenue, value: '60%', figure: debt.interestToRevenue },
+            { label: t.debtServiceToExpenditure, value: t.debtServiceTargetValue, figure: debt.debtServiceToExpenditureTarget },
+            { label: t.debtInterestPayments, value: fmtT(debt.interestPayments.value), figure: debt.interestPayments },
+            { label: t.debtCitizenBond, value: '17.75%', figure: debt.citizenBondYield },
           ].map((item, i) => (
             <motion.div
               key={item.label}
@@ -648,15 +648,15 @@ export default function MasterDashboard() {
         <div className="mt-8 bg-gradient-to-l from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-200/40">
           <h3 className="font-bold text-primary-900 mb-4 flex items-center gap-2">
             <HiOutlineHeart className="w-5 h-5 text-accent-green" />
-            مشروع حياة كريمة
+            {t.decentLifeTitle}
           </h3>
-          <p className="text-xs text-amber-700 mb-3">⚠ أرقام متعددة السنوات — ليست ميزانية سنة مالية واحدة</p>
+          <p className="text-xs text-amber-700 mb-3">{t.decentLifeNote}</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: 'إجمالي المراحل الثلاث', value: '≈1.0 تريليون' },
-              { label: 'المرحلة الأولى', value: '350 مليار' },
-              { label: 'المنفذ من الأولى', value: '300.6 مليار (88%)' },
-              { label: 'مخصص 2026/27 للثانية', value: '45 مليار' },
+              { label: t.decentLifeTotalPhases, value: t.decentLifeTotalValue },
+              { label: t.decentLifePhase1, value: t.decentLifePhase1Value },
+              { label: t.decentLifeExecuted1, value: t.decentLifeExecuted1Value },
+              { label: t.decentLifeAlloc2026, value: t.decentLifeAlloc2026Value },
             ].map((item) => (
               <div key={item.label} className="bg-white rounded-xl p-3.5" style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.04)' }}>
                 <p className="text-xs text-primary-500">{item.label}</p>
@@ -684,9 +684,9 @@ export default function MasterDashboard() {
               className="card-interactive p-6"
               onClick={() => openSource(infrastructure.totalInvestmentInclStock)}
             >
-              <p className="text-xs text-primary-500 mb-1">جدول الافتراضات (صفحة 11)</p>
-              <p className="text-2xl sm:text-3xl font-bold text-primary-900">4.2 <span className="text-sm font-normal text-primary-500">تريليون جنيه</span></p>
-              <p className="text-xs text-primary-500 mt-2">قيمة تقريبية</p>
+              <p className="text-xs text-primary-500 mb-1">{t.invAssumptions}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary-900">4.2 <span className="text-sm font-normal text-primary-500">{t.trillion}</span></p>
+              <p className="text-xs text-primary-500 mt-2">{t.invApproxValue}</p>
               <div className="mt-2"><SourceBadge status={infrastructure.totalInvestmentInclStock.verificationStatus} /></div>
             </motion.div>
             <motion.div
@@ -696,54 +696,54 @@ export default function MasterDashboard() {
               className="card-interactive p-6"
               onClick={() => openSource(infrastructure.totalInvestmentInclStock)}
             >
-              <p className="text-xs text-primary-500 mb-1">ملحق الاستثمارات (صفحة 65)</p>
-              <p className="text-2xl sm:text-3xl font-bold text-primary-900">4.17 <span className="text-sm font-normal text-primary-500">تريليون جنيه</span></p>
-              <p className="text-xs text-primary-500 mt-2">شاملة التغير في المخزون</p>
+              <p className="text-xs text-primary-500 mb-1">{t.invAppendix}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary-900">4.17 <span className="text-sm font-normal text-primary-500">{t.trillion}</span></p>
+              <p className="text-xs text-primary-500 mt-2">{t.invInclStock}</p>
               <div className="mt-2"><SourceBadge status={infrastructure.totalInvestmentInclStock.verificationStatus} /></div>
             </motion.div>
           </div>
 
           <div className="card-base p-6 mb-8">
-            <h3 className="font-bold text-primary-900 mb-4">الاستثمارات الخاصة والعامة</h3>
+            <h3 className="font-bold text-primary-900 mb-4">{t.invPrivatePublic}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-2xl sm:text-3xl font-bold text-primary-700">2.2</span>
-                  <span className="text-xs text-primary-600">تريليون — استثمارات خاصة</span>
+                  <span className="text-xs text-primary-600">{t.trillion} — {t.invPrivate}</span>
                 </div>
                 <div className="w-full bg-primary-100/60 rounded-full h-2.5">
                   <div className="bg-primary-700 h-2.5 rounded-full transition-all duration-700" style={{ width: '58.5%' }} />
                 </div>
-                <p className="text-xs text-primary-500 mt-1.5">58.5% — نسبة محسوبة من القيم المطلقة (2.2/3.76)</p>
+                <p className="text-xs text-primary-500 mt-1.5">{t.invCalcNote58}</p>
               </div>
               <div>
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-2xl sm:text-3xl font-bold text-accent-green">1.56</span>
-                  <span className="text-xs text-primary-600">تريليون — استثمارات عامة</span>
+                  <span className="text-xs text-primary-600">{t.trillion} — {t.invPublic}</span>
                 </div>
                 <div className="w-full bg-primary-100/60 rounded-full h-2.5">
                   <div className="bg-accent-green h-2.5 rounded-full transition-all duration-700" style={{ width: '41.5%' }} />
                 </div>
-                <p className="text-xs text-primary-500 mt-1.5">41.5% — نسبة محسوبة من القيم المطلقة (1.56/3.76)</p>
+                <p className="text-xs text-primary-500 mt-1.5">{t.invCalcNote41}</p>
               </div>
             </div>
-            <p className="text-xs text-amber-700 mt-3">⚠ تباين: صفحة 65 تذكر 58.8%/41.2% وصفحة 66 تذكر 58.5%/41.5%. النسب المحسوبة أعلاه من القيم المطلقة.</p>
+            <p className="text-xs text-amber-700 mt-3">{t.invDiscrepancyNote}</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="card-base p-5 overflow-visible">
               <div className="mb-4">
-                <h3 className="font-bold text-primary-900 text-sm">الاستثمارات حسب القطاع</h3>
-                <p className="text-xs text-primary-500 mt-1">توزيع الاستثمارات على القطاعات الرئيسية خلال عام المالية {FISCAL_YEAR}</p>
+                <h3 className="font-bold text-primary-900 text-sm">{t.invBySector}</h3>
+                <p className="text-xs text-primary-500 mt-1">{t.invSectorDesc.replace('{year}', FISCAL_YEAR)}</p>
               </div>
-              <InvestmentChart data={investSectors} />
+              <InvestmentChart data={investSectors} t={t} />
             </div>
             <div className="card-base p-5 overflow-visible">
               <div className="mb-4">
-                <h3 className="font-bold text-primary-900 text-sm">الاستثمارات العامة حسب الجهة</h3>
-                <p className="text-xs text-primary-500 mt-1">توزيع الاستثمارات العامة على الجهات الحكومية</p>
+                <h3 className="font-bold text-primary-900 text-sm">{t.invByEntity}</h3>
+                <p className="text-xs text-primary-500 mt-1">{t.invEntityDesc}</p>
               </div>
-              <InvestmentChart data={investPublic} />
+              <InvestmentChart data={investPublic} t={t} />
             </div>
           </div>
         </div>
@@ -825,31 +825,31 @@ export default function MasterDashboard() {
               {/* Sliders column */}
               <div className="lg:col-span-3 p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-semibold text-primary-800">اختار توزيعك</h3>
+                  <h3 className="text-sm font-semibold text-primary-800">{t.ministerAlloc}</h3>
                   <div className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
                     remaining === 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' :
                     remaining > 0 ? 'bg-primary-50 text-primary-700 border border-primary-200/60' :
                     'bg-red-50 text-red-700 border border-red-200/60'
                   }`}>
-                    {remaining === 0 ? '✓ تم التوزيع بالكامل' : remaining > 0 ? `متبقي ${remaining} جنيه` : `زيادة ${Math.abs(remaining)} جنيه`}
+                    {remaining === 0 ? `✓ ${t.ministerComplete}` : remaining > 0 ? `${t.ministerRemaining} ${remaining} ${t.egp}` : `${t.ministerOver} ${Math.abs(remaining)} ${t.egp}`}
                   </div>
                 </div>
 
                 <div className="space-y-5">
                   {[
-                    { key: 'interest', label: 'فوائد الدين', color: '#102a43' },
-                    { key: 'subsidies', label: 'الدعم والحماية الاجتماعية', color: '#7c3aed' },
-                    { key: 'wages', label: 'الأجور', color: '#059669' },
-                    { key: 'investments', label: 'الاستثمارات', color: '#d97706' },
-                    { key: 'goods', label: 'السلع والخدمات', color: '#dc2626' },
-                    { key: 'other', label: 'أخرى', color: '#627d98' },
+                    { key: 'interest', label: t.allocInterest, color: '#102a43' },
+                    { key: 'subsidies', label: t.allocSubsidies, color: '#7c3aed' },
+                    { key: 'wages', label: t.allocWages, color: '#059669' },
+                    { key: 'investments', label: t.allocInvestments, color: '#d97706' },
+                    { key: 'goods', label: t.allocGoods, color: '#dc2626' },
+                    { key: 'other', label: t.allocOther, color: '#627d98' },
                   ].map((item) => (
                     <div key={item.key}>
                       <div className="flex justify-between items-baseline mb-2">
                         <span className="text-sm font-medium text-primary-700">{item.label}</span>
                         <div className="flex items-baseline gap-1.5">
                           <span className="text-lg font-bold tabular-nums" style={{ color: item.color }}>{allocations[item.key]}</span>
-                          <span className="text-xs text-primary-500">جنيه</span>
+                          <span className="text-xs text-primary-500">{t.egp}</span>
                         </div>
                       </div>
                       <input
@@ -869,8 +869,8 @@ export default function MasterDashboard() {
 
               {/* Comparison column */}
               <div className="lg:col-span-2 p-6 sm:p-8 bg-surface-warm/40">
-                <h3 className="text-sm font-semibold text-primary-800 mb-1">مقارنة بالتوزيع الفعلي</h3>
-                <p className="text-xs text-primary-500 mb-5">النسب الفعلية من التقرير</p>
+                <h3 className="text-sm font-semibold text-primary-800 mb-1">{t.ministerComparison}</h3>
+                <p className="text-xs text-primary-500 mb-5">{t.ministerActualNote}</p>
                 <div className="space-y-3.5">
                   {Object.entries(allocations).map(([key, val]) => {
                     const actual = actualPcts.find((a) => {
@@ -881,13 +881,13 @@ export default function MasterDashboard() {
                     return (
                       <div key={key} className="space-y-1.5">
                         <div className="flex justify-between items-baseline text-xs">
-                          <span className="text-primary-700 font-medium">{key === 'interest' ? 'فوائد الدين' : key === 'subsidies' ? 'الدعم' : key === 'wages' ? 'الأجور' : key === 'investments' ? 'الاستثمارات' : key === 'goods' ? 'السلع' : 'أخرى'}</span>
+                          <span className="text-primary-700 font-medium">{key === 'interest' ? t.allocInterest : key === 'subsidies' ? t.allocSubsidies : key === 'wages' ? t.allocWages : key === 'investments' ? t.allocInvestments : key === 'goods' ? t.allocGoods : t.allocOther}</span>
                           <div className="flex items-center gap-1.5 tabular-nums">
                             <span className="font-bold text-primary-900">{val}</span>
-                            <span className="text-primary-600 text-xs">توزيعك</span>
+                            <span className="text-primary-600 text-xs">{t.ministerYourAlloc}</span>
                             <span className="text-primary-400">·</span>
                             <span className="text-primary-600 font-medium">{actualVal}%</span>
-                            <span className="text-primary-600 text-xs">فعلي</span>
+                            <span className="text-primary-600 text-xs">{t.ministerActualAlloc}</span>
                           </div>
                         </div>
                         <div className="relative h-2 bg-primary-100/60 rounded-full overflow-hidden">
@@ -903,7 +903,7 @@ export default function MasterDashboard() {
                     );
                   })}
                 </div>
-                <p className="text-xs text-primary-500 mt-5 leading-relaxed">نسب محسوبة من التصنيف الاقتصادي للمصروفات في التقرير الرسمي</p>
+                <p className="text-xs text-primary-500 mt-5 leading-relaxed">{t.ministerCalcNote}</p>
               </div>
             </div>
           </div>
@@ -913,24 +913,24 @@ export default function MasterDashboard() {
       {/* ─── 11 — المصادر ────────────────────────────────── */}
       <Section id="sources" className="bg-white py-14 sm:py-20">
         <div className="section-container text-center">
-          <span className="section-eyebrow">المصادر</span>
-          <h2 className="section-heading mb-3">كل رقم له مصدر</h2>
-          <p className="section-subtitle mb-8">جميع البيانات مأخوذة من ملف موازنة المواطن الرسمي</p>
+          <span className="section-eyebrow">{t.sourcesSection}</span>
+          <h2 className="section-heading mb-3">{t.sourcesTitle}</h2>
+          <p className="section-subtitle mb-8">{t.sourcesDesc}</p>
 
           <div className="inline-flex flex-col items-center gap-4 bg-surface-warm/60 rounded-2xl p-6 sm:p-8 border border-primary-100/50 max-w-md mx-auto" style={{ boxShadow: '0 2px 8px -2px rgb(16 42 67 / 0.04)' }}>
             <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
               <HiOutlineDocumentText className="w-6 h-6 text-primary-700" />
             </div>
             <div>
-              <h3 className="font-bold text-primary-900 text-sm">موازنة المواطن {FISCAL_YEAR}</h3>
-              <p className="text-xs text-primary-500 mt-1">وزارة المالية المصرية · الإصدار الثالث عشر · 70 صفحة</p>
+              <h3 className="font-bold text-primary-900 text-sm">{t.sourcesDocTitle.replace('{year}', FISCAL_YEAR)}</h3>
+              <p className="text-xs text-primary-500 mt-1">{t.sourcesDocInfo}</p>
             </div>
             <div className="flex flex-wrap gap-1.5 justify-center">
               <SourceBadge status={VERIFICATION.VERIFIED} showLabel />
               <SourceBadge status={VERIFICATION.UNVERIFIED} showLabel />
               <SourceBadge status={VERIFICATION.UNAVAILABLE} showLabel />
             </div>
-            <p className="text-xs text-primary-500 leading-relaxed max-w-xs">النسب المحسوبة موضحة بوضوح · أي تباين في الأرقام يتم توضيحه من المصدر</p>
+            <p className="text-xs text-primary-500 leading-relaxed max-w-xs">{t.sourcesNote}</p>
           </div>
         </div>
       </Section>

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLang } from '../../context/LangContext';
 
 const LoadingScreen = ({ onComplete }) => {
+  const { lang, t } = useLang();
   const [show, setShow] = useState(true);
 
   useEffect(() => {
@@ -116,7 +118,7 @@ const LoadingScreen = ({ onComplete }) => {
 
                 {/* Egyptian eagle simplified */}
                 <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full p-[20px]">
-                  <text x="50" y="58" textAnchor="middle" fontFamily="Arial" fontSize="28" fontWeight="bold" fill="#102a43">ج.م</text>
+                  <text x="50" y="58" textAnchor="middle" fontFamily="Arial" fontSize="28" fontWeight="bold" fill="#102a43">EGP</text>
                   <text x="50" y="78" textAnchor="middle" fontFamily="Arial" fontSize="10" fill="#102a43" opacity="0.7">2026</text>
                 </svg>
 

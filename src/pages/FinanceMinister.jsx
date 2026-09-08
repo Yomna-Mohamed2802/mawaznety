@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { budget100 } from '../data';
+import { useLang } from '../context/LangContext';
 
 const FinanceMinister = () => {
+  const { lang, t } = useLang();
   const [allocations, setAllocations] = useState({
     education: 25,
     health: 25,
@@ -16,12 +18,12 @@ const FinanceMinister = () => {
   const remaining = 100 - total;
 
   const categories = [
-    { id: 'education', name: 'التعليم', icon: '🎓', color: '#2563EB', actual: 5.6 },
-    { id: 'health', name: 'الصحة', icon: '🏥', color: '#DC2626', actual: 5.6 },
-    { id: 'social', name: 'الحماية الاجتماعية', icon: '🛡️', color: '#7C3AED', actual: 10.7 },
-    { id: 'infrastructure', name: 'البنية التحتية', icon: '🏗️', color: '#D97706', actual: 10.6 },
-    { id: 'defense', name: 'الدفاع والأمن', icon: '⚔️', color: '#6B7280', actual: 8 },
-    { id: 'other', name: 'أخرى', icon: '📋', color: '#10B981', actual: 10.5 }
+    { id: 'education', name: t.fmCatEducation, icon: '🎓', color: '#2563EB', actual: 5.6 },
+    { id: 'health', name: t.fmCatHealth, icon: '🏥', color: '#DC2626', actual: 5.6 },
+    { id: 'social', name: t.fmCatSocial, icon: '🛡️', color: '#7C3AED', actual: 10.7 },
+    { id: 'infrastructure', name: t.fmCatInfrastructure, icon: '🏗️', color: '#D97706', actual: 10.6 },
+    { id: 'defense', name: t.fmCatDefense, icon: '⚔️', color: '#6B7280', actual: 8 },
+    { id: 'other', name: t.fmCatOther, icon: '📋', color: '#10B981', actual: 10.5 }
   ];
 
   const handleAllocation = (id, value) => {
@@ -43,12 +45,12 @@ const FinanceMinister = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">لو انت وزير المالية</h1>
-          <p className="text-gray-600">وزّع 100 جنيه من ميزانية الدولة زي ما تحب</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">{t.fmTitle}</h1>
+          <p className="text-gray-600">{t.fmSubtitle}</p>
           <div className="mt-4 flex items-center justify-center gap-4">
             <div className={`px-6 py-3 rounded-full ${remaining >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
               <span className="font-bold text-xl">{remaining}</span>
-              <span className="mr-1">جنيه {remaining >= 0 ? 'متبقية' : 'زيادة'}</span>
+              <span className="mr-1">{t.currency} {remaining >= 0 ? t.fmRemaining : t.fmExcess}</span>
             </div>
           </div>
         </motion.div>
@@ -69,7 +71,7 @@ const FinanceMinister = () => {
                     <span className="text-2xl">{cat.icon}</span>
                     <div>
                       <h3 className="font-semibold text-gray-800">{cat.name}</h3>
-                      <p className="text-xs text-gray-500">الحقيقي: {cat.actual}%</p>
+                      <p className="text-xs text-gray-500">{t.fmReal}: {cat.actual}%</p>
                     </div>
                   </div>
                   <div className="text-left">
@@ -108,7 +110,7 @@ const FinanceMinister = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="bg-white rounded-2xl shadow-xl p-6"
             >
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">مقارنة مع الموازنة الحقيقية</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.fmComparison}</h3>
               <div className="space-y-4">
                 {categories.map((cat) => (
                   <div key={cat.id} className="space-y-1">
@@ -144,13 +146,13 @@ const FinanceMinister = () => {
               animate={{ opacity: 1, y: 0 }}
               className="bg-white rounded-2xl shadow-xl p-6 text-center"
             >
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">تقييمك</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">{t.fmScore}</h3>
               <div className="text-6xl font-bold text-primary-600 mb-2">
                 {calculateScore(allocations, categories)}
               </div>
-              <p className="text-gray-500">نقطة من 100</p>
+              <p className="text-gray-500">{t.fmPoints}</p>
               <p className="text-sm text-gray-500 mt-2">
-                {getScoreMessage(calculateScore(allocations, categories))}
+                {getScoreMessage(calculateScore(allocations, categories), t)}
               </p>
             </motion.div>
 
@@ -159,22 +161,22 @@ const FinanceMinister = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={async () => {
-                const text = `توزيعي للـ 100 جنيه: ${Object.entries(allocations).map(([k,v])=> `${k}:${v}%`).join(' | ')}`;
+                const text = `${t.fmShare} ${Object.entries(allocations).map(([k,v])=> `${k}:${v}%`).join(' | ')}`;
                 try {
-                  if (navigator.share) { await navigator.share({ title: 'توزيعي — موازنتي', text }); return; }
+                  if (navigator.share) { await navigator.share({ title: t.fmShareTitle, text }); return; }
                   if (navigator.clipboard) { await navigator.clipboard.writeText(text); return; }
                 } catch {}
               }}
               className="w-full bg-primary-600 text-white py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors"
             >
-              شارك توزيعك 📤
+              {t.fmShareBtn} 📤
             </motion.button>
           </div>
         </div>
 
         {/* Source */}
         <div className="text-center text-sm text-gray-500 mt-8">
-          <p>المصدر: موازنة المواطن 2026/2027</p>
+          <p>{t.fmSource}</p>
         </div>
       </div>
     </div>
@@ -190,11 +192,11 @@ const calculateScore = (allocations, categories) => {
   return Math.max(0, Math.min(100, score));
 };
 
-const getScoreMessage = (score) => {
-  if (score >= 80) return "ممتاز! قريب جداً من الموازنة الحقيقية 👏";
-  if (score >= 60) return "جيد! في تقارب مع الأولويات الحقيقية 👍";
-  if (score >= 40) return "مقبول! مختلفة شوية عن الواقع 🤔";
-  return "تختلف بشكل كبير عن الموازنة الحقيقية 💡";
+const getScoreMessage = (score, t) => {
+  if (score >= 80) return t.fmScoreExcellent;
+  if (score >= 60) return t.fmScoreGood;
+  if (score >= 40) return t.fmScoreOk;
+  return t.fmScoreBad;
 };
 
 export default FinanceMinister;

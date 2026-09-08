@@ -17,7 +17,7 @@ const Header = ({ onMenuToggle }) => {
           <button
             onClick={onMenuToggle}
             className="p-2 rounded-xl hover:bg-primary-50 transition-colors lg:hidden"
-            aria-label="فتح القائمة"
+            aria-label={t.openMenu}
           >
             <HiOutlineMenu className="w-5 h-5 text-primary-600" />
           </button>

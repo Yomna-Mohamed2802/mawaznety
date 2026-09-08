@@ -1,12 +1,14 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { useLang } from '../../context/LangContext';
 
 const CustomTooltip = ({ active, payload, label }) => {
+  const { lang, t } = useLang();
   if (active && payload && payload.length) {
     return (
       <div className="bg-white rounded-xl border border-primary-100/60 px-4 py-3" dir="rtl" style={{ boxShadow: '0 20px 40px -12px rgb(0 0 0 / 0.1)' }}>
         <p className="text-sm font-semibold text-primary-900 mb-1">{label}</p>
         <p className="text-xs text-primary-600">
-          نسبة الدين: <span className="font-bold">{payload[0].value}%</span>
+          {t.debtRatio}: <span className="font-bold">{payload[0].value}%</span>
         </p>
       </div>
     );
@@ -15,6 +17,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function DebtTrendChart({ data, highlightId }) {
+  const { lang, t } = useLang();
   return (
     <ResponsiveContainer width="100%" height={320}>
       <LineChart data={data} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
@@ -41,7 +44,7 @@ export default function DebtTrendChart({ data, highlightId }) {
           strokeDasharray="6 4"
           strokeWidth={2}
           label={{
-            value: 'هدف 2030 (70%)',
+            value: t.debtGoal,
             position: 'insideTopRight',
             fill: '#059669',
             fontSize: 11,

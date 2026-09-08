@@ -1,30 +1,35 @@
 import { VERIFICATION } from '../../data/schema';
+import { useLang } from '../../context/LangContext';
 
-const badgeStyles = {
-  [VERIFICATION.VERIFIED]: {
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200/60',
-    dot: 'bg-emerald-500',
-    label: 'موثق',
-  },
-  [VERIFICATION.UNVERIFIED]: {
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    border: 'border-amber-200/60',
-    dot: 'bg-amber-500',
-    label: 'غير موثق',
-  },
-  [VERIFICATION.UNAVAILABLE]: {
-    bg: 'bg-gray-50',
-    text: 'text-gray-500',
-    border: 'border-gray-200/60',
-    dot: 'bg-gray-400',
-    label: 'غير متوفر',
-  },
+const useBadgeLabels = () => {
+  const { t } = useLang();
+  return {
+    [VERIFICATION.VERIFIED]: {
+      bg: 'bg-emerald-50',
+      text: 'text-emerald-700',
+      border: 'border-emerald-200/60',
+      dot: 'bg-emerald-500',
+      label: t.badgeVerified,
+    },
+    [VERIFICATION.UNVERIFIED]: {
+      bg: 'bg-amber-50',
+      text: 'text-amber-700',
+      border: 'border-amber-200/60',
+      dot: 'bg-amber-500',
+      label: t.badgeUnverified,
+    },
+    [VERIFICATION.UNAVAILABLE]: {
+      bg: 'bg-gray-50',
+      text: 'text-gray-500',
+      border: 'border-gray-200/60',
+      dot: 'bg-gray-400',
+      label: t.badgeUnavailable,
+    },
+  };
 };
 
 export default function SourceBadge({ status, showLabel = false, size = 'sm' }) {
+  const badgeStyles = useBadgeLabels();
   const style = badgeStyles[status] || badgeStyles[VERIFICATION.UNAVAILABLE];
 
   const sizeClasses = {

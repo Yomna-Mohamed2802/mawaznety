@@ -2,13 +2,13 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 
 const COLORS = ['#102a43', '#334e68', '#486581', '#627d98'];
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label, t }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white rounded-xl border border-primary-100/60 px-4 py-3" dir="rtl" style={{ boxShadow: '0 20px 40px -12px rgb(0 0 0 / 0.1)' }}>
         <p className="text-sm font-semibold text-primary-900 mb-1">{label}</p>
         <p className="text-xs text-primary-600">
-          {payload[0].value} مليار جنيه
+          {payload[0].value} {t.invTooltip}
         </p>
       </div>
     );
@@ -16,7 +16,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function InvestmentChart({ data }) {
+export default function InvestmentChart({ data, t }) {
   return (
     <div style={{ overflow: 'visible', paddingLeft: 20 }}>
       <ResponsiveContainer width="100%" height={Math.max(280, data.length * 56)}>
@@ -35,7 +35,7 @@ export default function InvestmentChart({ data }) {
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16, 42, 67, 0.04)' }} />
+          <Tooltip content={<CustomTooltip t={t} />} cursor={{ fill: 'rgba(16, 42, 67, 0.04)' }} />
           <Bar
             dataKey="value"
             radius={[0, 6, 6, 0]}

@@ -4,6 +4,7 @@ import { HiOutlineChatBubbleLeftRight, HiXMark, HiPaperAirplane } from 'react-ic
 import { getChatResponse, suggestedQuestions } from '../../data/chatResponses';
 import { sendToGemini } from '../../services/gemini';
 import { incrementCounter } from '../../services/firestore';
+import { useLang } from '../../context/LangContext';
 
 const BOT_AVATAR = (
   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-700 to-primary-900 flex items-center justify-center flex-shrink-0">
@@ -57,12 +58,13 @@ function MessageBubble({ msg }) {
 }
 
 export default function ChatBot() {
+  const { t } = useLang();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'bot',
-      text: 'اهلا بيك في موازنتي! اسألني أي سؤال عن موازنة المواطن 2026/2027.',
+      text: t.chatWelcome,
     },
   ]);
   const [input, setInput] = useState('');
@@ -142,14 +144,14 @@ export default function ChatBot() {
                     <span className="text-sm font-bold text-white">م</span>
                   </div>
                   <div>
-                    <h3 className="text-white text-sm font-bold">اسأل موازنتي</h3>
-                    <p className="text-white/70 text-[11px]">مساعد تعليمي — بيانات من موازنة المواطن</p>
+                    <h3 className="text-white text-sm font-bold">{t.chatTitle}</h3>
+                    <p className="text-white/70 text-[11px]">{t.chatSubtitle}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
-                  aria-label="إغلاق المحادثة"
+                  aria-label={t.chatClose}
                 >
                   <HiXMark className="w-5 h-5 text-white/80" />
                 </button>
@@ -197,14 +199,14 @@ export default function ChatBot() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="اكتب سؤالك هنا..."
+                    placeholder={t.chatPlaceholder}
                     className="flex-1 bg-transparent text-sm text-primary-900 placeholder-primary-400 outline-none"
                   />
                   <button
                     onClick={() => handleSend()}
                     disabled={!input.trim() || isTyping}
                     className="w-8 h-8 rounded-lg bg-primary-700 hover:bg-primary-800 disabled:bg-primary-300 flex items-center justify-center transition-colors flex-shrink-0"
-                    aria-label="إرسال"
+                    aria-label={t.chatSend}
                   >
                     <HiPaperAirplane className="w-4 h-4 text-white -rotate-90" />
                   </button>
@@ -223,7 +225,7 @@ export default function ChatBot() {
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
         style={{ boxShadow: '0 8px 30px -8px rgb(16 42 67 / 0.4)' }}
-        aria-label={isOpen ? 'إغلاق المحادثة' : 'فتح المحادثة'}
+        aria-label={isOpen ? t.chatClose : t.chatOpen}
         aria-expanded={isOpen}
         aria-controls="chat-window"
       >
