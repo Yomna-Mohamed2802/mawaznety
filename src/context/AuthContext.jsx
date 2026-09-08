@@ -9,7 +9,7 @@ import {
   updateProfile,
   reload,
 } from 'firebase/auth';
-import { auth, googleProvider, microsoftProvider } from '../services/firebase';
+import { auth, googleProvider } from '../services/firebase';
 
 const ADMIN_EMAILS = ['yomna2008.mm@gmail.com', 'yomna@gmail.com'];
 
@@ -20,24 +20,20 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const formatUser = async (firebaseUser) => {
-    await reload(firebaseUser);
-    const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
-    return {
-      uid: firebaseUser.uid,
-      email: firebaseUser.email,
-      name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-      avatar: firebaseUser.photoURL || null,
-      provider: firebaseUser.providerData?.[0]?.providerId || 'unknown',
-      isAdmin,
-      emailVerified: firebaseUser.emailVerified,
-    };
-  };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userData = await formatUser(firebaseUser);
+        await reload(firebaseUser);
+        const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
+        const userData = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+          avatar: firebaseUser.photoURL || null,
+          provider: firebaseUser.providerData?.[0]?.providerId || 'unknown',
+          isAdmin,
+          emailVerified: firebaseUser.emailVerified,
+        };
         setUser(userData);
         setIsAuthenticated(true);
       } else {
@@ -103,21 +99,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const loginWithMicrosoft = useCallback(async () => {
-    try {
-      await signInWithPopup(auth, microsoftProvider);
-      return { success: true };
-    } catch (error) {
-      if (error.code === 'auth/popup-closed-by-user') {
-        return { success: false, error: 'تم إغلاق نافذة تسجيل الدخول' };
-      }
-      if (error.code === 'auth/account-exists-with-different-credential') {
-        return { success: false, error: 'الحساب موجود بوسيلة تسجيل دخول مختلفة' };
-      }
-      return { success: false, error: 'حدث خطأ في تسجيل الدخول بـ Microsoft' };
-    }
-  }, []);
-
   const logout = async () => {
     try {
       await signOut(auth);
@@ -127,7 +108,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, register, loginWithGoogle, loginWithMicrosoft, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, register, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
