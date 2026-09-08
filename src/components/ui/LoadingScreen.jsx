@@ -7,8 +7,8 @@ const LoadingScreen = ({ onComplete }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false);
-      setTimeout(onComplete, 400);
-    }, 1500);
+      setTimeout(onComplete, 300);
+    }, 800);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
