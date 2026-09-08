@@ -220,7 +220,6 @@ const Login = () => {
                 </svg>
                 تسجيل الدخول بحساب Google
               </button>
-            </div>
 
               <p className="text-center text-xs text-primary-500 mt-6">
                 {isRegister ? (
