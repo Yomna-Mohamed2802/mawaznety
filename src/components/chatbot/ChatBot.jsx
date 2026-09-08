@@ -128,7 +128,7 @@ export default function ChatBot() {
       .filter(m => m.id !== 1)
       .map(m => ({ role: m.sender, content: m.text }));
 
-    return await sendToAI(userMessage, history);
+    return await sendToAI(userMessage, history, lang);
   };
 
   const handleSend = async (text) => {
