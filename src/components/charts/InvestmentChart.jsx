@@ -18,35 +18,37 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function InvestmentChart({ data }) {
   return (
-    <ResponsiveContainer width="100%" height={Math.max(280, data.length * 56)}>
-      <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-        <XAxis
-          type="number"
-          tick={{ fontSize: 11, fill: '#627d98' }}
-          axisLine={{ stroke: '#e5e7eb' }}
-          tickLine={false}
-        />
-        <YAxis
-          type="category"
-          dataKey="label"
-          tick={{ fontSize: 12, fill: '#334e68', fontWeight: 500 }}
-          width={180}
-          axisLine={false}
-          tickLine={false}
-        />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16, 42, 67, 0.04)' }} />
-        <Bar
-          dataKey="value"
-          radius={[0, 6, 6, 0]}
-          barSize={22}
-          animationDuration={800}
-          animationEasing="ease-out"
-        >
-          {data.map((_, i) => (
-            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div style={{ overflow: 'visible' }}>
+      <ResponsiveContainer width="100%" height={Math.max(280, data.length * 56)}>
+        <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+          <XAxis
+            type="number"
+            tick={{ fontSize: 11, fill: '#627d98' }}
+            axisLine={{ stroke: '#e5e7eb' }}
+            tickLine={false}
+          />
+          <YAxis
+            type="category"
+            dataKey="label"
+            tick={{ fontSize: 12, fill: '#334e68', fontWeight: 500 }}
+            width={180}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16, 42, 67, 0.04)' }} />
+          <Bar
+            dataKey="value"
+            radius={[0, 6, 6, 0]}
+            barSize={22}
+            animationDuration={800}
+            animationEasing="ease-out"
+          >
+            {data.map((_, i) => (
+              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
