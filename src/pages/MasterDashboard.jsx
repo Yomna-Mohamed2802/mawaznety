@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useLang } from '../context/LangContext';
 import { getDataLabel } from '../data/translateData';
@@ -56,11 +57,12 @@ const DONUT_COLORS = ['#102a43', '#7c3aed', '#059669', '#d97706', '#dc2626', '#6
 
 export default function MasterDashboard() {
   const { lang, t } = useLang();
+  const navigate = useNavigate();
   const [drawerFigure, setDrawerFigure] = useState(null);
 
   function fmtT(val) {
     if (val == null) return '—';
-    return `${(val / 1000).toFixed(2)} ${t.trillion}`;
+    return `${(val / 1000000).toFixed(2)} ${t.trillion}`;
   }
 
   function fmtB(val) {
@@ -209,7 +211,7 @@ export default function MasterDashboard() {
               </a>
               <button
                 onClick={() => {
-                  window.location.href = '/download';
+                  navigate('/download');
                 }}
                 className="btn-secondary bg-white/15 text-white border-white/30 hover:bg-white/25"
               >

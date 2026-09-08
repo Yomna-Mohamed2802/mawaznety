@@ -93,6 +93,7 @@ const FinanceMinister = () => {
                     style={{
                       background: `linear-gradient(to right, ${cat.color} ${allocations[cat.id] * 2}%, #e5e7eb ${allocations[cat.id] * 2}%)`
                     }}
+                    aria-label={cat.name}
                   />
                   <div className="flex justify-between mt-1">
                     <span className="text-xs text-gray-500">0%</span>

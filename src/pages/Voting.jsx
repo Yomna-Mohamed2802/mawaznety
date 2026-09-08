@@ -42,7 +42,7 @@ const Voting = () => {
   }, [selectedCategory]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.uid) return;
     const checkUserVote = async () => {
       const vote = await getUserVote(selectedCategory, user.uid);
       if (vote) {
@@ -59,6 +59,7 @@ const Voting = () => {
       setError(t.loginRequired);
       return;
     }
+    if (!user) return;
     if (selectedCandidate === null || !consentGiven) return;
 
     setLoading(true);

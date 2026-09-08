@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
@@ -198,9 +198,9 @@ const Login = () => {
                     />
                     <span className="text-xs text-primary-600 leading-relaxed">
                       {t.consentText}{' '}
-                      <a href="/terms" className="underline hover:text-primary-800">{t.termsLink}</a>
+                      <Link to="/terms" className="underline hover:text-primary-800">{t.termsLink}</Link>
                       {' '}و{' '}
-                      <a href="/privacy" className="underline hover:text-primary-800">{t.privacyLink}</a>
+                      <Link to="/privacy" className="underline hover:text-primary-800">{t.privacyLink}</Link>
                     </span>
                   </label>
                 </div>

@@ -93,6 +93,7 @@ const Budget100 = () => {
               >
                 {(() => {
                   const item = budget100.find(i => i.id === selectedItem);
+                  if (!item) return null;
                   return (
                     <>
                       <div className="flex items-center gap-4 mb-4">
