@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiOutlineSave } from 'react-icons/hi';
+import { useAuth } from '../context/AuthContext';
+import { getSettings, saveSettings } from '../services/firestore';
 
 const Settings = () => {
+  const { user, isAuthenticated } = useAuth();
   const [settings, setSettings] = useState({
     siteName: 'موازنتي',
     siteDescription: 'مشروع تعليمي مستقل لموازنة المواطن المصرية 2026/2027',
@@ -11,6 +14,22 @@ const Settings = () => {
     emailNotifications: true,
     maintenanceMode: false,
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const data = await getSettings();
+        setSettings(data);
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+      }
+      setLoading(false);
+    };
+    loadSettings();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -18,12 +37,43 @@ const Settings = () => {
       ...settings,
       [name]: type === 'checkbox' ? checked : value,
     });
+    setMessage('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('تم حفظ الإعدادات بنجاح!');
+    if (!user?.isAdmin) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      await saveSettings(settings);
+      setMessage('تم حفظ الإعدادات بنجاح!');
+    } catch (err) {
+      setMessage('حدث خطأ أثناء الحفظ');
+    }
+    setSaving(false);
   };
+
+  if (!isAuthenticated || !user?.isAdmin) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">غير مصرح</h2>
+          <p className="text-gray-500">ليس لديك صلاحية للوصول إلى هذه الصفحة</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <p className="text-gray-500">جاري التحميل...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -31,6 +81,14 @@ const Settings = () => {
         <h1 className="text-2xl font-bold text-gray-800">الإعدادات</h1>
         <p className="text-primary-600">إدارة إعدادات النظام</p>
       </div>
+
+      {message && (
+        <div className={`mb-4 p-3 rounded-xl text-sm text-center ${
+          message.includes('خطأ') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+        }`}>
+          {message}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <motion.div
@@ -148,10 +206,11 @@ const Settings = () => {
         >
           <button
             type="submit"
+            disabled={saving}
             className="w-full bg-primary-600 text-white py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
           >
             <HiOutlineSave className="w-5 h-5" />
-            <span>حفظ الإعدادات</span>
+            <span>{saving ? 'جاري الحفظ...' : 'حفظ الإعدادات'}</span>
           </button>
         </motion.div>
       </form>

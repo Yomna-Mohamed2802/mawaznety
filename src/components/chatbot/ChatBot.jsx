@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineChatBubbleLeftRight, HiXMark, HiPaperAirplane } from 'react-icons/hi2';
 import { getChatResponse, suggestedQuestions } from '../../data/chatResponses';
 import { sendToGemini } from '../../services/gemini';
+import { incrementCounter } from '../../services/firestore';
 
 const BOT_AVATAR = (
   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-700 to-primary-900 flex items-center justify-center flex-shrink-0">
@@ -109,6 +110,7 @@ export default function ChatBot() {
     } finally {
       setIsTyping(false);
       if (!isOpen) setHasNewMessage(true);
+      incrementCounter('questionsAsked').catch(() => {});
     }
   };
 

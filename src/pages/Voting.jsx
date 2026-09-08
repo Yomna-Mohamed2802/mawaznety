@@ -1,29 +1,82 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { HiOutlineCheck } from 'react-icons/hi';
 import { votingCategories } from '../data';
+import { useAuth } from '../context/AuthContext';
+import {
+  saveVote,
+  getUserVote,
+  subscribeToVoteCounts,
+  incrementCounter,
+} from '../services/firestore';
 
 const Voting = () => {
+  const { user, isAuthenticated } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('budget_priorities');
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
+  const [voteCounts, setVoteCounts] = useState({});
+  const [userVotes, setUserVotes] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const currentCategory = votingCategories.find(c => c.id === selectedCategory);
   const candidates = currentCategory?.options || [];
-  const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
+  const totalVotes = voteCounts.total || 0;
 
-  const handleVote = () => {
-    if (selectedCandidate !== null && consentGiven) {
-      setHasVoted(true);
-      setShowResults(true);
+  useEffect(() => {
+    const unsub = subscribeToVoteCounts(selectedCategory, (data) => {
+      setVoteCounts(data);
+    });
+    return () => unsub();
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    if (!user) return;
+    const checkUserVote = async () => {
+      const vote = await getUserVote(selectedCategory, user.uid);
+      if (vote) {
+        setUserVotes((prev) => ({ ...prev, [selectedCategory]: vote }));
+        setHasVoted(true);
+        setShowResults(true);
+      }
+    };
+    checkUserVote();
+  }, [selectedCategory, user]);
+
+  const handleVote = useCallback(async () => {
+    if (!isAuthenticated) {
+      setError('يجب تسجيل الدخول أولاً');
+      return;
     }
+    if (selectedCandidate === null || !consentGiven) return;
+
+    setLoading(true);
+    setError('');
+    try {
+      const result = await saveVote(selectedCategory, selectedCandidate, user.uid);
+      if (result.success) {
+        setHasVoted(true);
+        setShowResults(true);
+        setUserVotes((prev) => ({ ...prev, [selectedCategory]: selectedCandidate }));
+        await incrementCounter('totalVotes');
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('حدث خطأ أثناء حفظ التصويت');
+    }
+    setLoading(false);
+  }, [selectedCategory, selectedCandidate, consentGiven, user, isAuthenticated]);
+
+  const getPercentage = (optionId) => {
+    const votes = voteCounts[optionId] || 0;
+    return totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : '0.0';
   };
 
-  const getPercentage = (votes) => {
-    return ((votes / totalVotes) * 100).toFixed(1);
-  };
+  const getVotes = (optionId) => voteCounts[optionId] || 0;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -91,7 +144,7 @@ const Voting = () => {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    candidate.id === selectedCandidate
+                    candidate.id === userVotes[selectedCategory]
                       ? 'bg-primary-500 text-white'
                       : 'bg-gray-200 text-gray-600'
                   }`}>
@@ -103,17 +156,17 @@ const Voting = () => {
                   </div>
                 </div>
                 <div className="text-left">
-                  <p className="text-2xl font-bold text-primary-600">{getPercentage(candidate.votes)}%</p>
-                  <p className="text-sm text-gray-500">{candidate.votes} صوت</p>
+                  <p className="text-2xl font-bold text-primary-600">{getPercentage(candidate.id)}%</p>
+                  <p className="text-sm text-gray-500">{getVotes(candidate.id)} صوت</p>
                 </div>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${getPercentage(candidate.votes)}%` }}
+                  animate={{ width: `${getPercentage(candidate.id)}%` }}
                   transition={{ duration: 1, delay: index * 0.2 }}
                   className={`h-3 rounded-full ${
-                    candidate.id === selectedCandidate ? 'bg-primary-500' : 'bg-gray-400'
+                    candidate.id === userVotes[selectedCategory] ? 'bg-primary-500' : 'bg-gray-400'
                   }`}
                 />
               </div>
@@ -127,12 +180,19 @@ const Voting = () => {
                 setShowResults(false);
                 setHasVoted(false);
                 setSelectedCandidate(null);
+                setError('');
               }}
               className="bg-primary-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors"
             >
               إعادة التصويت
             </button>
           </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-4 bg-red-50 text-red-700 p-3 rounded-xl text-sm text-center">
+          {error}
         </div>
       )}
 
@@ -157,12 +217,19 @@ const Voting = () => {
               </span>
             </label>
           </div>
+
+          {!isAuthenticated && (
+            <div className="mb-4 bg-yellow-50 text-yellow-700 p-3 rounded-xl text-sm text-center">
+              يجب تسجيل الدخول للتصويت
+            </div>
+          )}
+
           <button
             onClick={handleVote}
-            disabled={selectedCandidate === null || !consentGiven}
+            disabled={selectedCandidate === null || !consentGiven || loading || !isAuthenticated}
             className="w-full bg-primary-600 text-white py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            تأيد التصويت
+            {loading ? 'جاري الحفظ...' : 'تأيد التصويت'}
           </button>
         </motion.div>
       )}

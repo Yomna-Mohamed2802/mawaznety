@@ -1,17 +1,24 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import CookieConsent from '../ui/CookieConsent';
 import { useAuth } from '../../context/AuthContext';
+import { incrementCounter } from '../../services/firestore';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      incrementCounter('totalVisitors').catch(() => {});
+    }
+  }, [isAuthenticated]);
 
   if (loading) {
     return (

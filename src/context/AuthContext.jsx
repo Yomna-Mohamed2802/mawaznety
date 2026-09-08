@@ -10,6 +10,7 @@ import {
   reload,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
+import { createUserProfile, getUserProfile, updateUserProfile } from '../services/firestore';
 
 const ADMIN_EMAILS = ['yomna2008.mm@gmail.com', 'yomna@gmail.com'];
 
@@ -25,12 +26,25 @@ export const AuthProvider = ({ children }) => {
       if (firebaseUser) {
         await reload(firebaseUser);
         const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
-        const userData = {
-          uid: firebaseUser.uid,
+        const profileData = {
           email: firebaseUser.email,
           name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
           avatar: firebaseUser.photoURL || null,
           provider: firebaseUser.providerData?.[0]?.providerId || 'unknown',
+          isAdmin,
+          emailVerified: firebaseUser.emailVerified,
+        };
+
+        let firestoreProfile = await getUserProfile(firebaseUser.uid);
+        if (!firestoreProfile) {
+          firestoreProfile = await createUserProfile(firebaseUser.uid, profileData);
+        } else {
+          await updateUserProfile(firebaseUser.uid, profileData);
+        }
+
+        const userData = {
+          uid: firebaseUser.uid,
+          ...firestoreProfile,
           isAdmin,
           emailVerified: firebaseUser.emailVerified,
         };
