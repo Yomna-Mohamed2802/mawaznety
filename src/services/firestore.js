@@ -175,10 +175,15 @@ const DEFAULT_SETTINGS = {
 
 export const getSettings = async () => {
   const settingsRef = doc(db, 'config', 'siteSettings');
-  const snap = await getDoc(settingsRef);
-  if (snap.exists()) return snap.data();
-  await setDoc(settingsRef, DEFAULT_SETTINGS);
-  return DEFAULT_SETTINGS;
+  try {
+    const snap = await getDoc(settingsRef);
+    if (snap.exists()) return snap.data();
+    await setDoc(settingsRef, DEFAULT_SETTINGS);
+    return DEFAULT_SETTINGS;
+  } catch (e) {
+    console.warn('Firestore settings unavailable, using defaults');
+    return DEFAULT_SETTINGS;
+  }
 };
 
 export const saveSettings = async (settings) => {
@@ -189,23 +194,32 @@ export const saveSettings = async (settings) => {
 // ==================== ANALYTICS ====================
 
 export const incrementCounter = async (field) => {
-  const analyticsRef = doc(db, 'analytics', 'counters');
-  const snap = await getDoc(analyticsRef);
-  if (snap.exists()) {
-    await updateDoc(analyticsRef, { [field]: increment(1) });
-  } else {
-    const initial = { totalVisitors: 0, questionsAsked: 0, quizzesCompleted: 0, totalVotes: 0 };
-    initial[field] = 1;
-    await setDoc(analyticsRef, initial);
+  try {
+    const analyticsRef = doc(db, 'analytics', 'counters');
+    const snap = await getDoc(analyticsRef);
+    if (snap.exists()) {
+      await updateDoc(analyticsRef, { [field]: increment(1) });
+    } else {
+      const initial = { totalVisitors: 0, questionsAsked: 0, quizzesCompleted: 0, totalVotes: 0 };
+      initial[field] = 1;
+      await setDoc(analyticsRef, initial);
+    }
+  } catch (e) {
+    console.warn('Analytics increment failed:', e);
   }
 };
 
 export const getAnalytics = async () => {
-  const analyticsRef = doc(db, 'analytics', 'counters');
-  const snap = await getDoc(analyticsRef);
-  return snap.exists()
-    ? snap.data()
-    : { totalVisitors: 0, questionsAsked: 0, quizzesCompleted: 0, totalVotes: 0 };
+  try {
+    const analyticsRef = doc(db, 'analytics', 'counters');
+    const snap = await getDoc(analyticsRef);
+    return snap.exists()
+      ? snap.data()
+      : { totalVisitors: 0, questionsAsked: 0, quizzesCompleted: 0, totalVotes: 0 };
+  } catch (e) {
+    console.warn('Analytics fetch failed:', e);
+    return { totalVisitors: 0, questionsAsked: 0, quizzesCompleted: 0, totalVotes: 0 };
+  }
 };
 
 export const subscribeToAnalytics = (callback) => {

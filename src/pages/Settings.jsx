@@ -22,9 +22,9 @@ const Settings = () => {
     const loadSettings = async () => {
       try {
         const data = await getSettings();
-        setSettings(data);
+        if (data) setSettings(data);
       } catch (err) {
-        console.error('Failed to load settings:', err);
+        console.warn('Settings load failed, using defaults:', err);
       }
       setLoading(false);
     };
