@@ -42,7 +42,7 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
 };
 
-function Section({ children, className = '', id }) {
+function Section({ children, className = '', id, style }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   return (
@@ -53,6 +53,7 @@ function Section({ children, className = '', id }) {
       animate={isInView ? 'visible' : 'hidden'}
       variants={fadeUp}
       className={className}
+      style={style}
     >
       {children}
     </motion.section>
