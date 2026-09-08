@@ -20,10 +20,13 @@ import LoadingScreen from './components/ui/LoadingScreen';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('splash_seen');
+  });
 
   const handleLoadingComplete = useCallback(() => {
     document.documentElement.classList.add('splash-done');
+    sessionStorage.setItem('splash_seen', '1');
     setShowSplash(false);
   }, []);
 
