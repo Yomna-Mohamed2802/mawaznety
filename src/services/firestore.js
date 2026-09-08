@@ -29,7 +29,7 @@ export const createUserProfile = async (uid, data) => {
     name: data.name || 'User',
     avatar: data.avatar || null,
     provider: data.provider || 'unknown',
-    isAdmin: data.isAdmin || false,
+    isAdmin: false, // Firestore rules enforce isAdmin:false on create; admins promoted via Console
     emailVerified: data.emailVerified || false,
     createdAt: serverTimestamp(),
     lastLogin: serverTimestamp(),
