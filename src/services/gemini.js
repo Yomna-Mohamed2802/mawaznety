@@ -1,11 +1,9 @@
 /**
  * Gemini AI Service
  *
- * Uses Google Gemini API (free tier: 15 RPM) to power the chatbot.
- * Sends budget context + user question and returns an intelligent response.
+ * Uses server-side proxy (api/gemini.js) to call Gemini API.
+ * The API key stays server-side for security.
  */
-
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 const BUDGET_CONTEXT = `
 أنت "موازنتي" — مساعد ذكي متخصص في شرح موازنة المواطن المصرية 2026/2027.
@@ -59,62 +57,38 @@ const BUDGET_CONTEXT = `
 `;
 
 /**
- * Send a message to Gemini and get a response.
+ * Send a message to Gemini via the serverless proxy.
  *
  * @param {string} message - User's message
- * @param {Array<{role: string, text: string}>} history - Chat history
+ * @param {Array<{sender: string, text: string}>} history - Chat history
  * @returns {Promise<string>} - Bot's response
  */
 export async function sendToGemini(message, history = []) {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-  if (!apiKey) {
-    throw new Error('Gemini API key not configured');
-  }
-
-  // Build conversation contents
-  const contents = [
-    // System context as first user message
-    { role: 'user', parts: [{ text: BUDGET_CONTEXT }] },
-    { role: 'model', parts: [{ text: 'تمام! أنا موازنتي، جاهز أساعدك في أي سؤال عن الموازنة المصرية. اسألني!' }] },
-    // Chat history
+  const proxyHistory = [
+    { role: 'user', content: BUDGET_CONTEXT },
+    { role: 'model', content: 'تمام! أنا موازنتي، جاهز أساعدك في أي سؤال عن الموازنة المصرية. اسألني!' },
     ...history.map((msg) => ({
       role: msg.sender === 'bot' ? 'model' : 'user',
-      parts: [{ text: msg.text }],
+      content: msg.text,
     })),
-    // Current message
-    { role: 'user', parts: [{ text: message }] },
   ];
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+  const response = await fetch('/api/gemini', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents,
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 300,
-        topP: 0.9,
-      },
-      safetySettings: [
-        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-      ],
-    }),
+    body: JSON.stringify({ prompt: message, history: proxyHistory }),
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    console.error('Gemini API error:', err);
-    throw new Error(`API error: ${response.status}`);
+    const err = await response.json().catch(() => ({ error: 'Unknown error' }));
+    console.error('Gemini proxy error:', err);
+    throw new Error(err.error || `API error: ${response.status}`);
   }
 
   const data = await response.json();
 
-  if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-    return data.candidates[0].content.parts[0].text;
+  if (data.text) {
+    return data.text;
   }
 
   throw new Error('Empty response from Gemini');

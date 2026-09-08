@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useInView, useReducedMotion } from 'framer-motion';
 import { useLang } from '../context/LangContext';
 import { getDataLabel } from '../data/translateData';
 import {
@@ -58,6 +58,7 @@ const DONUT_COLORS = ['#102a43', '#7c3aed', '#059669', '#d97706', '#dc2626', '#6
 export default function MasterDashboard() {
   const { lang, t } = useLang();
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
   const [drawerFigure, setDrawerFigure] = useState(null);
 
   function fmtT(val) {
@@ -172,37 +173,37 @@ export default function MasterDashboard() {
         </div>
         <div className="section-container relative py-16 sm:py-20 md:py-24 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+            animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
             <motion.span
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+              animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               className="inline-block px-4 py-1.5 mb-7 text-xs sm:text-sm font-medium bg-white/8 rounded-full border border-white/15 backdrop-blur-sm text-white/85"
             >
               {t.heroBadge.replace('{year}', FISCAL_YEAR)}
             </motion.span>
             <motion.h1
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+              animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-bold mb-5 leading-[1.1] tracking-tight text-balance"
             >
               {t.heroTitle}
             </motion.h1>
             <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+              animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-9 leading-relaxed"
             >
               {t.heroDesc}
             </motion.p>
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+              animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-wrap justify-center gap-3"
             >
@@ -235,8 +236,8 @@ export default function MasterDashboard() {
           ].map((item, i) => (
             <motion.div
               key={item.figure.id}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              animate={prefersReducedMotion ? false : { opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, duration: 0.4, ease: 'easeOut' }}
             >
               <StatCard

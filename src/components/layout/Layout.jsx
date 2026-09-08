@@ -39,6 +39,12 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen bg-surface">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg focus:text-primary-700"
+      >
+        {t.skipToContent || 'Skip to content'}
+      </a>
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -47,7 +53,7 @@ const Layout = () => {
       />
       <div className={`transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'lg:mr-16' : 'lg:mr-64'}`}>
         <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="pt-2 pb-8">
+        <main id="main-content" className="pt-2 pb-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { HiOutlineCheck } from 'react-icons/hi';
 import { votingCategories } from '../data';
@@ -33,6 +33,8 @@ const Voting = () => {
     translatedDesc: getDataLabel(lang, 'voting', c.id)?.desc || c.description,
   }));
   const totalVotes = voteCounts.total || 0;
+
+  const candidateRefs = useRef([]);
 
   useEffect(() => {
     const unsub = subscribeToVoteCounts(selectedCategory, (data) => {
@@ -99,13 +101,27 @@ const Voting = () => {
           {translatedCandidates.map((candidate, index) => (
             <motion.div
               key={candidate.id}
+              ref={(el) => { candidateRefs.current[index] = el; }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedCandidate(candidate.id)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedCandidate(candidate.id); } }}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                  e.preventDefault();
+                  const next = (index + 1) % translatedCandidates.length;
+                  candidateRefs.current[next]?.focus();
+                } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                  e.preventDefault();
+                  const prev = (index - 1 + translatedCandidates.length) % translatedCandidates.length;
+                  candidateRefs.current[prev]?.focus();
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedCandidate(candidate.id);
+                }
+              }}
               role="radio"
               aria-checked={selectedCandidate === candidate.id}
               tabIndex={0}
