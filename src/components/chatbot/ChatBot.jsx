@@ -1,10 +1,27 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiOutlineChatBubbleLeftRight, HiXMark, HiPaperAirplane } from 'react-icons/hi2';
-import { getChatResponse, suggestedQuestions } from '../../data/chatResponses';
+import { HiOutlineChatBubbleLeftRight, HiXMark, HiPaperAirplane, HiArrowPath } from 'react-icons/hi2';
 import { sendToGemini } from '../../services/gemini';
 import { incrementCounter } from '../../services/firestore';
 import { useLang } from '../../context/LangContext';
+
+const SUGGESTED_QUESTIONS_AR = [
+  "إيه أكبر بند في المصروفات؟",
+  "التعليم واخد كام؟",
+  "يعني إيه عجز أصلاً؟",
+  "100 جنيه بتروح فين؟",
+  "الصحة وضعها إيه؟",
+  "الموازنة دي بتأثر عليا إزاي؟",
+];
+
+const SUGGESTED_QUESTIONS_EN = [
+  "What's the biggest spending item?",
+  "How much goes to education?",
+  "What does deficit mean?",
+  "Where does 100 EGP go?",
+  "How's the health sector doing?",
+  "How does this budget affect me?",
+];
 
 const BOT_AVATAR = (
   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-700 to-primary-900 flex items-center justify-center flex-shrink-0">
@@ -33,8 +50,9 @@ function TypingIndicator() {
   );
 }
 
-function MessageBubble({ msg }) {
+function MessageBubble({ msg, onRetry }) {
   const isBot = msg.sender === 'bot';
+  const isError = msg.isError;
   return (
     <motion.div
       initial={{ opacity: 0, y: 8, scale: 0.96 }}
@@ -43,14 +61,27 @@ function MessageBubble({ msg }) {
       className={`flex gap-2 ${isBot ? 'justify-start' : 'justify-end'}`}
     >
       {isBot && BOT_AVATAR}
-      <div
-        className={`max-w-[80%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
-          isBot
-            ? 'bg-primary-50 text-primary-800 rounded-2xl rounded-tr-md border border-primary-100/60'
-            : 'bg-primary-700 text-white rounded-2xl rounded-tl-md'
-        }`}
-      >
-        {msg.text}
+      <div className="max-w-[80%]">
+        <div
+          className={`px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
+            isError
+              ? 'bg-red-50 text-red-700 rounded-2xl rounded-tr-md border border-red-200/60'
+              : isBot
+                ? 'bg-primary-50 text-primary-800 rounded-2xl rounded-tr-md border border-primary-100/60'
+                : 'bg-primary-700 text-white rounded-2xl rounded-tl-md'
+          }`}
+        >
+          {msg.text}
+        </div>
+        {isError && onRetry && (
+          <button
+            onClick={() => onRetry(msg.retryText)}
+            className="mt-1.5 flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 transition-colors"
+          >
+            <HiArrowPath className="w-3 h-3" />
+            إعادة المحاولة
+          </button>
+        )}
       </div>
       {!isBot && USER_AVATAR}
     </motion.div>
@@ -58,13 +89,15 @@ function MessageBubble({ msg }) {
 }
 
 export default function ChatBot() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'bot',
-      text: t.chatWelcome,
+      text: lang === 'ar'
+        ? 'أهلاً! أنا مساعد موازنتي.\nاسألني أي حاجة عن الموازنة العامة المصرية، وأنا هشرحها لك ببساطة.'
+        : 'Hi! I\'m Mawaznety Assistant.\nAsk me anything about Egypt\'s public budget and I\'ll explain it simply.',
     },
   ]);
   const [input, setInput] = useState('');
@@ -72,6 +105,8 @@ export default function ChatBot() {
   const [hasNewMessage, setHasNewMessage] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  const suggestedQuestions = lang === 'ar' ? SUGGESTED_QUESTIONS_AR : SUGGESTED_QUESTIONS_EN;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -88,9 +123,17 @@ export default function ChatBot() {
     }
   }, [isOpen]);
 
+  const callAI = async (userMessage, conversationHistory) => {
+    const history = conversationHistory
+      .filter(m => m.id !== 1)
+      .map(m => ({ role: m.sender, content: m.text }));
+
+    return await sendToGemini(userMessage, history);
+  };
+
   const handleSend = async (text) => {
     const query = text || input.trim();
-    if (!query) return;
+    if (!query || isTyping) return;
 
     const userMsg = { id: Date.now(), sender: 'user', text: query };
     setMessages((prev) => [...prev, userMsg]);
@@ -98,22 +141,32 @@ export default function ChatBot() {
     setIsTyping(true);
 
     try {
-      // Try Gemini AI first
-      const history = messages.slice(1).map((m) => ({ sender: m.sender, text: m.text }));
-      const reply = await sendToGemini(query, history);
+      const reply = await callAI(query, [...messages, userMsg]);
       const botMsg = { id: Date.now() + 1, sender: 'bot', text: reply };
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
-      // Fallback to local keyword matching
-      console.warn('Gemini failed, using local fallback:', err.message);
-      const fallback = getChatResponse(query);
-      const botMsg = { id: Date.now() + 1, sender: 'bot', text: fallback.reply };
-      setMessages((prev) => [...prev, botMsg]);
+      console.warn('AI error:', err.message);
+      const errorText = lang === 'ar'
+        ? 'حصلت مشكلة وأنا بحاول أجاوبك. جرّب تاني بعد لحظات.'
+        : 'Something went wrong. Please try again in a moment.';
+      const errorMsg = {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: errorText,
+        isError: true,
+        retryText: query,
+      };
+      setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setIsTyping(false);
       if (!isOpen) setHasNewMessage(true);
       incrementCounter('questionsAsked').catch(() => {});
     }
+  };
+
+  const handleRetry = async (retryText) => {
+    setMessages((prev) => prev.filter(m => !m.isError));
+    await handleSend(retryText);
   };
 
   const handleKeyDown = (e) => {
@@ -160,7 +213,7 @@ export default function ChatBot() {
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 overscroll-contain">
                 {messages.map((msg) => (
-                  <MessageBubble key={msg.id} msg={msg} />
+                  <MessageBubble key={msg.id} msg={msg} onRetry={handleRetry} />
                 ))}
                 {isTyping && (
                   <div className="flex gap-2 justify-start">
@@ -191,7 +244,9 @@ export default function ChatBot() {
               {/* Input */}
               <div className="px-3 pb-3 pt-1 flex-shrink-0">
                 <div className="flex items-center gap-2 bg-primary-50/80 rounded-xl px-3 py-2 border border-primary-100/60 focus-within:border-primary-300 focus-within:bg-white transition-all">
-                  <label htmlFor="chat-input" className="sr-only">اكتب سؤالك هنا</label>
+                  <label htmlFor="chat-input" className="sr-only">
+                    {lang === 'ar' ? 'اكتب سؤالك هنا' : 'Type your question here'}
+                  </label>
                   <input
                     ref={inputRef}
                     id="chat-input"
