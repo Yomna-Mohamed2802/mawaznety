@@ -5,9 +5,13 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  sendEmailVerification,
   updateProfile,
+  reload,
 } from 'firebase/auth';
-import { auth, googleProvider } from '../services/firebase';
+import { auth, googleProvider, microsoftProvider } from '../services/firebase';
+
+const ADMIN_EMAILS = ['yomna2008.mm@gmail.com', 'yomna@gmail.com'];
 
 const AuthContext = createContext(null);
 
@@ -16,16 +20,24 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const formatUser = async (firebaseUser) => {
+    await reload(firebaseUser);
+    const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
+    return {
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+      avatar: firebaseUser.photoURL || null,
+      provider: firebaseUser.providerData?.[0]?.providerId || 'unknown',
+      isAdmin,
+      emailVerified: firebaseUser.emailVerified,
+    };
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userData = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-          avatar: firebaseUser.photoURL || null,
-          provider: firebaseUser.providerData?.[0]?.providerId || 'password',
-        };
+        const userData = await formatUser(firebaseUser);
         setUser(userData);
         setIsAuthenticated(true);
       } else {
@@ -40,7 +52,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      if (!result.user.emailVerified) {
+        await sendEmailVerification(result.user);
+        return { success: false, error: 'يجب تأكيد بريدك الإلكتروني أولاً. تم إرسال رابط التأكيد مرة أخرى.' };
+      }
       return { success: true };
     } catch (error) {
       const messages = {
@@ -60,7 +76,8 @@ export const AuthProvider = ({ children }) => {
       if (name) {
         await updateProfile(result.user, { displayName: name });
       }
-      return { success: true };
+      await sendEmailVerification(result.user);
+      return { success: true, message: 'تم إرسال رابط التأكيد على بريدك الإلكتروني. يجب تأكيد البريد قبل تسجيل الدخول.' };
     } catch (error) {
       const messages = {
         'auth/email-already-in-use': 'البريد الإلكتروني مستخدم بالفعل',
@@ -79,7 +96,25 @@ export const AuthProvider = ({ children }) => {
       if (error.code === 'auth/popup-closed-by-user') {
         return { success: false, error: 'تم إغلاق نافذة تسجيل الدخول' };
       }
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        return { success: false, error: 'الحساب موجود بوسيلة تسجيل دخول مختلفة' };
+      }
       return { success: false, error: 'حدث خطأ في تسجيل الدخول بـ Google' };
+    }
+  }, []);
+
+  const loginWithMicrosoft = useCallback(async () => {
+    try {
+      await signInWithPopup(auth, microsoftProvider);
+      return { success: true };
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'تم إغلاق نافذة تسجيل الدخول' };
+      }
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        return { success: false, error: 'الحساب موجود بوسيلة تسجيل دخول مختلفة' };
+      }
+      return { success: false, error: 'حدث خطأ في تسجيل الدخول بـ Microsoft' };
     }
   }, []);
 
@@ -92,7 +127,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, register, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, register, loginWithGoogle, loginWithMicrosoft, logout }}>
       {children}
     </AuthContext.Provider>
   );
