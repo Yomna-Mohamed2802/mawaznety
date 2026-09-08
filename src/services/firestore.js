@@ -46,7 +46,8 @@ export const getUserProfile = async (uid) => {
 
 export const updateUserProfile = async (uid, data) => {
   const userRef = doc(db, 'users', uid);
-  await updateDoc(userRef, { ...data, lastLogin: serverTimestamp() });
+  const { isAdmin: _, ...safeData } = data;
+  await updateDoc(userRef, { ...safeData, lastLogin: serverTimestamp() });
 };
 
 // ==================== VOTES ====================

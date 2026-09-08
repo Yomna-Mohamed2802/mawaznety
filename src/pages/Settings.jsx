@@ -66,6 +66,17 @@ const Settings = () => {
     );
   }
 
+  if (!user?.isAdmin) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">{t.unauthorized}</h2>
+          <p className="text-gray-500">{t.adminRequired || 'يجب أن تكون مديراً للوصول لهذه الصفحة'}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto">

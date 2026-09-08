@@ -339,6 +339,7 @@ const translations = {
     loading: 'جاري التحميل...',
     unauthorized: 'غير مصرح',
     loginRequired: 'يجب تسجيل الدخول أولاً',
+    adminRequired: 'يجب أن تكون مديراً للوصول لهذه الصفحة',
 
     // Login
     loginTitle: 'تسجيل الدخول',
@@ -885,6 +886,7 @@ const translations = {
     loading: 'Loading...',
     unauthorized: 'Unauthorized',
     loginRequired: 'Please login first',
+    adminRequired: 'Admin access required',
 
     // Login
     loginTitle: 'Login',
