@@ -40,7 +40,7 @@ export default function SourceDrawer({ figure, onClose }) {
             <div className="p-6 space-y-5">
               <div>
                 <p className="text-xs text-primary-500 mb-1">{t.drawerValue}</p>
-                <p className="text-2xl sm:text-3xl font-bold text-primary-900">{formatValue(figure)}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-primary-900">{formatValue(figure, lang)}</p>
               </div>
 
               <div>

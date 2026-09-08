@@ -25,10 +25,6 @@ import { totalTaxes } from '../data/budget';
 
 /* ─── Helpers ──────────────────────────────────────────── */
 
-function fmt(val, unit = 'billion_EGP') {
-  return formatValue({ value: val, unit });
-}
-
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
@@ -580,7 +576,7 @@ export default function MasterDashboard() {
                               <div key={ex.label} className="flex justify-between items-center text-sm">
                                 <span className="text-primary-600">{ex.label}</span>
                                 <span className="font-semibold text-primary-900">
-                                  {ex.figure ? formatValue(ex.figure) : ex.value}
+                                   {ex.figure ? formatValue(ex.figure, lang) : ex.value}
                                 </span>
                               </div>
                             ))}
@@ -806,7 +802,7 @@ export default function MasterDashboard() {
                     onClick={() => openSource(fig)}
                   >
                     <p className="text-xs text-primary-500 mb-1">{fig.label}</p>
-                    <p className="text-lg font-bold text-primary-900">{formatValue(fig)}</p>
+                    <p className="text-lg font-bold text-primary-900">{formatValue(fig, lang)}</p>
                     <div className="mt-2">
                       <SourceBadge status={fig.verificationStatus} />
                     </div>

@@ -235,32 +235,49 @@ export function placeholder(id, label, unit = UNITS.TEXT, fiscalYear = "2026/202
 // ─── Formatting Utilities ────────────────────────────────
 
 /**
- * Unit display labels in Arabic.
+ * Unit display labels in Arabic and English.
  */
 const UNIT_LABELS = {
-  [UNITS.EGP]: "جنيه",
-  [UNITS.BILLION_EGP]: "مليار جنيه",
-  [UNITS.TRILLION_EGP]: "تريليون جنيه",
-  [UNITS.PERCENT]: "%",
-  [UNITS.USD_BILLION]: "مليار دولار",
-  [UNITS.EGP_PER_USD]: "جنيه/دولار",
-  [UNITS.COUNT]: "",
-  [UNITS.TEXT]: "",
+  ar: {
+    [UNITS.EGP]: "جنيه",
+    [UNITS.BILLION_EGP]: "مليار جنيه",
+    [UNITS.TRILLION_EGP]: "تريليون جنيه",
+    [UNITS.PERCENT]: "%",
+    [UNITS.USD_BILLION]: "مليار دولار",
+    [UNITS.EGP_PER_USD]: "جنيه/دولار",
+    [UNITS.COUNT]: "",
+    [UNITS.TEXT]: "",
+  },
+  en: {
+    [UNITS.EGP]: "EGP",
+    [UNITS.BILLION_EGP]: "billion EGP",
+    [UNITS.TRILLION_EGP]: "trillion EGP",
+    [UNITS.PERCENT]: "%",
+    [UNITS.USD_BILLION]: "billion USD",
+    [UNITS.EGP_PER_USD]: "EGP/USD",
+    [UNITS.COUNT]: "",
+    [UNITS.TEXT]: "",
+  },
 };
+
+const UNAVAILABLE_MESSAGES = { ar: "بيانات غير متوفرة", en: "Data unavailable" };
 
 /**
  * Format a BudgetFigure value for display.
  *
  * @param {BudgetFigure} figure
+ * @param {string} [lang="ar"] - Current language ("ar" or "en")
  * @returns {string}
  */
-export function formatValue(figure) {
-  if (figure.value === null) return "بيانات غير متوفرة";
+export function formatValue(figure, lang = "ar") {
+  if (figure.value === null) return UNAVAILABLE_MESSAGES[lang] || UNAVAILABLE_MESSAGES.ar;
 
-  const unitLabel = UNIT_LABELS[figure.unit] || figure.unit;
+  const labels = UNIT_LABELS[lang] || UNIT_LABELS.ar;
+  const unitLabel = labels[figure.unit] || figure.unit;
+  const locale = lang === "en" ? "en-US" : "ar-EG";
 
   if (figure.unit === UNITS.PERCENT) {
-    return `${figure.value}%`;
+    return `${figure.value.toLocaleString(locale)}%`;
   }
 
   if (
@@ -268,28 +285,30 @@ export function formatValue(figure) {
     figure.unit === UNITS.TRILLION_EGP ||
     figure.unit === UNITS.USD_BILLION
   ) {
-    return `${figure.value.toLocaleString("ar-EG")} ${unitLabel}`;
+    return `${figure.value.toLocaleString(locale)} ${unitLabel}`;
   }
 
   if (figure.unit === UNITS.EGP_PER_USD) {
-    return `${figure.value.toLocaleString("ar-EG")} ${unitLabel}`;
+    return `${figure.value.toLocaleString(locale)} ${unitLabel}`;
   }
 
   if (figure.unit === UNITS.COUNT) {
-    return figure.value.toLocaleString("ar-EG");
+    return figure.value.toLocaleString(locale);
   }
 
-  return `${figure.value.toLocaleString("ar-EG")} ${unitLabel}`;
+  return `${figure.value.toLocaleString(locale)} ${unitLabel}`;
 }
 
 /**
- * Get the Arabic label for a unit.
+ * Get the label for a unit.
  *
  * @param {Unit} unit
+ * @param {string} [lang="ar"]
  * @returns {string}
  */
-export function getUnitLabel(unit) {
-  return UNIT_LABELS[unit] || unit;
+export function getUnitLabel(unit, lang = "ar") {
+  const labels = UNIT_LABELS[lang] || UNIT_LABELS.ar;
+  return labels[unit] || unit;
 }
 
 /**

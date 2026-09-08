@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import SourceBadge from './SourceBadge';
 import { formatValue } from '../../data/schema';
+import { useLang } from '../../context/LangContext';
 
 const colorStyles = {
   blue: {
@@ -36,6 +37,7 @@ const colorStyles = {
 };
 
 export default function StatCard({ figure, icon: Icon, color = 'blue', delay = 0, onClick, label }) {
+  const { lang } = useLang();
   const style = colorStyles[color] || colorStyles.blue;
 
   return (
@@ -56,7 +58,7 @@ export default function StatCard({ figure, icon: Icon, color = 'blue', delay = 0
         )}
       </div>
       <p className="text-2xl sm:text-[1.7rem] font-bold text-primary-900 tracking-tight leading-none mb-3">
-        {figure ? formatValue(figure) : '—'}
+        {figure ? formatValue(figure, lang) : '—'}
       </p>
       {figure && (
         <div className="flex items-center gap-1.5">
