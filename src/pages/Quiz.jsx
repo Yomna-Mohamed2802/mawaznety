@@ -1,14 +1,26 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineCheckCircle, HiOutlineXCircle, HiOutlineArrowRight } from 'react-icons/hi';
-import { quizQuestions as questions, quizSettings } from '../data';
+import { quizQuestions as originalQuestions, quizSettings } from '../data';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import { getDataLabel } from '../data/translateData';
 import { saveQuizScore, getUserQuizScores, getLeaderboard, incrementCounter } from '../services/firestore';
 
 const Quiz = () => {
   const { lang, t } = useLang();
   const { user, isAuthenticated } = useAuth();
+
+  const translatedQuestions = originalQuestions.map((q) => {
+    const translation = getDataLabel(lang, 'quiz', q.id);
+    return {
+      ...q,
+      question: translation?.q || q.question,
+      options: translation?.options || q.options,
+      explanation: translation?.explanation || q.explanation,
+    };
+  });
+  const questions = translatedQuestions;
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);

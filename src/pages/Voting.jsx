@@ -4,6 +4,7 @@ import { HiOutlineCheck } from 'react-icons/hi';
 import { votingCategories } from '../data';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
+import { getDataLabel } from '../data/translateData';
 import {
   saveVote,
   getUserVote,
@@ -26,6 +27,11 @@ const Voting = () => {
 
   const currentCategory = votingCategories.find(c => c.id === selectedCategory);
   const candidates = currentCategory?.options || [];
+  const translatedCandidates = candidates.map(c => ({
+    ...c,
+    translatedLabel: getDataLabel(lang, 'voting', c.id)?.label || c.name,
+    translatedDesc: getDataLabel(lang, 'voting', c.id)?.desc || c.description,
+  }));
   const totalVotes = voteCounts.total || 0;
 
   useEffect(() => {
@@ -89,7 +95,7 @@ const Voting = () => {
 
       {!showResults ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {candidates.map((candidate, index) => (
+          {translatedCandidates.map((candidate, index) => (
             <motion.div
               key={candidate.id}
               initial={{ opacity: 0, y: 20 }}
@@ -112,12 +118,12 @@ const Voting = () => {
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
                     <span className="text-2xl font-bold text-white">
-                      {candidate.name.charAt(0)}
+                      {candidate.translatedLabel.charAt(0)}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-800">{candidate.name}</h3>
-                    <p className="text-sm text-gray-500">{candidate.description}</p>
+                    <h3 className="font-semibold text-gray-800">{candidate.translatedLabel}</h3>
+                    <p className="text-sm text-gray-500">{candidate.translatedDesc}</p>
                   </div>
                 </div>
                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
@@ -135,7 +141,7 @@ const Voting = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {candidates.map((candidate, index) => (
+          {translatedCandidates.map((candidate, index) => (
             <motion.div
               key={candidate.id}
               initial={{ opacity: 0, x: -20 }}
@@ -150,11 +156,11 @@ const Voting = () => {
                       ? 'bg-primary-500 text-white'
                       : 'bg-gray-200 text-gray-600'
                   }`}>
-                    <span className="text-xl font-bold">{candidate.name.charAt(0)}</span>
+                    <span className="text-xl font-bold">{candidate.translatedLabel.charAt(0)}</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-800">{candidate.name}</h3>
-                    <p className="text-sm text-gray-500">{candidate.description}</p>
+                    <h3 className="font-semibold text-gray-800">{candidate.translatedLabel}</h3>
+                    <p className="text-sm text-gray-500">{candidate.translatedDesc}</p>
                   </div>
                 </div>
                 <div className="text-left">

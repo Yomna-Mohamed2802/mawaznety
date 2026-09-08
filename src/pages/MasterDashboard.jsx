@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useLang } from '../context/LangContext';
+import { getDataLabel } from '../data/translateData';
 import {
   HiOutlineArrowDown, HiOutlineArrowUp, HiOutlineChartBar,
   HiOutlineChevronDown, HiOutlineDocumentText,
@@ -86,7 +87,7 @@ export default function MasterDashboard() {
 
   const expData = budget100.map((item) => ({
     id: item.id,
-    label: item.name,
+    label: getDataLabel(lang, 'budget100', item.id),
     value: item.amountM,
     pct: item.percentage,
     figure: item.figure,
@@ -150,7 +151,16 @@ export default function MasterDashboard() {
     }
   };
 
-  const actualPcts = expData.map((d) => ({ label: d.label, actual: d.pct }));
+  const actualPcts = expData.map((d) => ({ id: d.id, label: d.label, actual: d.pct }));
+
+  const fmToBudget100Id = {
+    interest: 'debt_interest',
+    subsidies: 'social_solidarity',
+    wages: 'salaries',
+    investments: 'investments',
+    goods: 'goods_services',
+    other: 'other',
+  };
 
   /* ─── Render ─────────────────────────────────────────── */
 
@@ -373,7 +383,7 @@ export default function MasterDashboard() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ['#102a43', '#059669', '#d97706'][i] }} />
-                      <span className="font-semibold text-primary-800">{cat.label}</span>
+                      <span className="font-semibold text-primary-800">{getDataLabel(lang, 'revenues', cat.id)}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-bold text-primary-900">{fmtB(cat.figure.value)}</span>
@@ -415,14 +425,14 @@ export default function MasterDashboard() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {[
-            { label: t.ecoGrowthRate, figure: economy.indicators.growthRate, color: 'green', icon: HiOutlineTrendingUp },
-            { label: t.ecoInflation, figure: economy.indicators.inflation, color: 'amber', icon: HiOutlineChartBar },
-            { label: t.ecoUnemployment, figure: economy.indicators.unemployment, color: 'red', icon: HiOutlineUsers },
-            { label: t.ecoInvestmentRate, figure: economy.indicators.investmentRate, color: 'blue', icon: HiOutlineOfficeBuilding },
-            { label: t.ecoSavingsRate, figure: economy.indicators.savingsRate, color: 'teal', icon: HiOutlineShieldCheck },
-            { label: t.ecoInterestRate, figure: economy.indicators.interestRate, color: 'purple', icon: HiOutlineLightBulb },
-            { label: t.ecoExportGrowth, figure: economy.indicators.exportGrowth, color: 'green', icon: HiOutlineGlobeAlt },
-            { label: t.ecoPrioritySectors, figure: economy.indicators.prioritySectorsShare, color: 'blue', icon: HiOutlineLocationMarker },
+            { label: getDataLabel(lang, 'economy', 'growthRate'), figure: economy.indicators.growthRate, color: 'green', icon: HiOutlineTrendingUp },
+            { label: getDataLabel(lang, 'economy', 'inflation'), figure: economy.indicators.inflation, color: 'amber', icon: HiOutlineChartBar },
+            { label: getDataLabel(lang, 'economy', 'unemployment'), figure: economy.indicators.unemployment, color: 'red', icon: HiOutlineUsers },
+            { label: getDataLabel(lang, 'economy', 'investmentRate'), figure: economy.indicators.investmentRate, color: 'blue', icon: HiOutlineOfficeBuilding },
+            { label: getDataLabel(lang, 'economy', 'savingsRate'), figure: economy.indicators.savingsRate, color: 'teal', icon: HiOutlineShieldCheck },
+            { label: getDataLabel(lang, 'economy', 'interestRate'), figure: economy.indicators.interestRate, color: 'purple', icon: HiOutlineLightBulb },
+            { label: getDataLabel(lang, 'economy', 'exportGrowth'), figure: economy.indicators.exportGrowth, color: 'green', icon: HiOutlineGlobeAlt },
+            { label: getDataLabel(lang, 'economy', 'prioritySectorsShare'), figure: economy.indicators.prioritySectorsShare, color: 'blue', icon: HiOutlineLocationMarker },
           ].map((item, i) => {
             const colorMap = {
               green: { bg: 'bg-emerald-50', text: 'text-emerald-600' },
@@ -493,26 +503,26 @@ export default function MasterDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {[
-              { id: 'health', figure: health.totalBudget, gdpFigure: health.percentageOfGDP, icon: HiOutlineHeart, iconBg: 'bg-red-50', iconText: 'text-red-600', label: t.sectorHealth, desc: t.secHealthDesc, extra: [
+              { id: 'health', figure: health.totalBudget, gdpFigure: health.percentageOfGDP, icon: HiOutlineHeart, iconBg: 'bg-red-50', iconText: 'text-red-600', label: getDataLabel(lang, 'sectors', 'health'), desc: getDataLabel(lang, 'sectorDesc', 'health'), extra: [
                 { label: t.secProcurement, figure: health.procurementAuthority },
                 { label: t.secTreatment, figure: health.treatmentAtStateExpense },
                 { label: t.secMedicine, figure: health.medicineAllocation },
                 { label: t.secMedicalSupplies, figure: health.medicalSupplies },
               ]},
-              { id: 'education', figure: education.totalBudget, gdpFigure: education.percentageOfGDP, icon: HiOutlineUsers, iconBg: 'bg-primary-50', iconText: 'text-primary-600', label: t.sectorEducation, desc: t.secEducationDesc, extra: [
+              { id: 'education', figure: education.totalBudget, gdpFigure: education.percentageOfGDP, icon: HiOutlineUsers, iconBg: 'bg-primary-50', iconText: 'text-primary-600', label: getDataLabel(lang, 'sectors', 'education'), desc: getDataLabel(lang, 'sectorDesc', 'education'), extra: [
                 { label: t.secBudgetIncrease, figure: education.increasePercentage, suffix: '%' },
                 { label: t.secTextbooks, figure: education.textbooks },
                 { label: t.secSchoolMeals, figure: education.schoolMeals },
                 { label: t.secResearch, figure: education.research.totalBudget },
               ]},
-              { id: 'social', figure: social.totalBudget, gdpFigure: null, icon: HiOutlineShieldCheck, iconBg: 'bg-violet-50', iconText: 'text-violet-600', label: t.sectorSocial, desc: t.secSocialDesc, extra: [
+              { id: 'social', figure: social.totalBudget, gdpFigure: null, icon: HiOutlineShieldCheck, iconBg: 'bg-violet-50', iconText: 'text-violet-600', label: getDataLabel(lang, 'sectors', 'social'), desc: getDataLabel(lang, 'sectorDesc', 'social'), extra: [
                 { label: t.secFoodSubsidy, figure: social.foodCommodity },
                 { label: t.secElectricitySubsidy, figure: social.electricity },
                 { label: t.secTakaful, figure: social.takafulKarama },
                 { label: t.secMinWage, figure: social.minimumWage, suffix: ` ${t.egp}` },
               ]},
-              { id: 'research', figure: education.research.totalBudget, gdpFigure: education.research.percentageOfGDP, icon: HiOutlineLightBulb, iconBg: 'bg-amber-50', iconText: 'text-amber-600', label: t.sectorResearch, desc: t.secResearchDesc, extra: [] },
-              { id: 'investment', figure: infrastructure.totalInvestmentInclStock, gdpFigure: null, icon: HiOutlineOfficeBuilding, iconBg: 'bg-teal-50', iconText: 'text-teal-600', label: t.sectorInvestment, desc: t.secInvestmentDesc, extra: [
+              { id: 'research', figure: education.research.totalBudget, gdpFigure: education.research.percentageOfGDP, icon: HiOutlineLightBulb, iconBg: 'bg-amber-50', iconText: 'text-amber-600', label: getDataLabel(lang, 'sectors', 'research'), desc: getDataLabel(lang, 'sectorDesc', 'research'), extra: [] },
+              { id: 'investment', figure: infrastructure.totalInvestmentInclStock, gdpFigure: null, icon: HiOutlineOfficeBuilding, iconBg: 'bg-teal-50', iconText: 'text-teal-600', label: getDataLabel(lang, 'sectors', 'investment'), desc: t.secInvestmentDesc, extra: [
                 { label: t.secPrivateInvest, value: t.secPrivateInvestValue },
                 { label: t.secPublicInvest, value: t.secPublicInvestValue },
               ]},
@@ -837,12 +847,12 @@ export default function MasterDashboard() {
 
                 <div className="space-y-5">
                   {[
-                    { key: 'interest', label: t.allocInterest, color: '#102a43' },
-                    { key: 'subsidies', label: t.allocSubsidies, color: '#7c3aed' },
-                    { key: 'wages', label: t.allocWages, color: '#059669' },
-                    { key: 'investments', label: t.allocInvestments, color: '#d97706' },
-                    { key: 'goods', label: t.allocGoods, color: '#dc2626' },
-                    { key: 'other', label: t.allocOther, color: '#627d98' },
+                    { key: 'interest', label: getDataLabel(lang, 'fmCategories', 'interest'), color: '#102a43' },
+                    { key: 'subsidies', label: getDataLabel(lang, 'fmCategories', 'subsidies'), color: '#7c3aed' },
+                    { key: 'wages', label: getDataLabel(lang, 'fmCategories', 'wages'), color: '#059669' },
+                    { key: 'investments', label: getDataLabel(lang, 'fmCategories', 'investments'), color: '#d97706' },
+                    { key: 'goods', label: getDataLabel(lang, 'fmCategories', 'goods'), color: '#dc2626' },
+                    { key: 'other', label: getDataLabel(lang, 'fmCategories', 'other'), color: '#627d98' },
                   ].map((item) => (
                     <div key={item.key}>
                       <div className="flex justify-between items-baseline mb-2">
@@ -873,15 +883,12 @@ export default function MasterDashboard() {
                 <p className="text-xs text-primary-500 mb-5">{t.ministerActualNote}</p>
                 <div className="space-y-3.5">
                   {Object.entries(allocations).map(([key, val]) => {
-                    const actual = actualPcts.find((a) => {
-                      const map = { interest: 'فوائد الدين', subsidies: 'الدعم والحماية الاجتماعية', wages: 'الأجور', investments: 'الاستثمارات', goods: 'السلع والخدمات', other: 'أخرى' };
-                      return a.label === map[key];
-                    });
+                    const actual = actualPcts.find((a) => a.id === fmToBudget100Id[key]);
                     const actualVal = actual?.actual || 0;
                     return (
                       <div key={key} className="space-y-1.5">
                         <div className="flex justify-between items-baseline text-xs">
-                          <span className="text-primary-700 font-medium">{key === 'interest' ? t.allocInterest : key === 'subsidies' ? t.allocSubsidies : key === 'wages' ? t.allocWages : key === 'investments' ? t.allocInvestments : key === 'goods' ? t.allocGoods : t.allocOther}</span>
+                          <span className="text-primary-700 font-medium">{getDataLabel(lang, 'fmCategories', key)}</span>
                           <div className="flex items-center gap-1.5 tabular-nums">
                             <span className="font-bold text-primary-900">{val}</span>
                             <span className="text-primary-600 text-xs">{t.ministerYourAlloc}</span>

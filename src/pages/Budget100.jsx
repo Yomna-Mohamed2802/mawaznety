@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { budget100 } from '../data';
 import { useLang } from '../context/LangContext';
+import { getDataLabel } from '../data/translateData';
 
 const Budget100 = () => {
   const { lang, t } = useLang();
@@ -102,14 +103,14 @@ const Budget100 = () => {
                           {item.percentage}%
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-gray-800">{item.name}</h3>
+                          <h3 className="text-xl font-bold text-gray-800">{getDataLabel(lang, 'budget100', item.id)}</h3>
                           <p className="text-gray-500">{item.description}</p>
                         </div>
                       </div>
                       <div className="space-y-3">
                         {Object.entries(item.details).map(([key, value]) => (
                           <div key={key} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                            <span className="text-gray-600">{formatDetailKey(key, t)}</span>
+                            <span className="text-gray-600">{formatDetailKey(key, lang)}</span>
                             <span className="font-semibold text-gray-800">{value} {t.egp}</span>
                           </div>
                         ))}
@@ -147,7 +148,7 @@ const Budget100 = () => {
                       />
                       <div className="flex-1">
                         <div className="flex justify-between">
-                          <span className="font-medium text-gray-800">{item.name}</span>
+                          <span className="font-medium text-gray-800">{getDataLabel(lang, 'budget100', item.id)}</span>
                           <span className="font-bold text-gray-800">{item.percentage}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
@@ -178,25 +179,8 @@ const Budget100 = () => {
   );
 };
 
-const formatDetailKey = (key, t) => {
-  const keyMap = {
-    localDebt: t.budgetLocalDebt,
-    externalDebt: t.budgetExternalDebt,
-    wages: t.budgetWages,
-    bonuses: t.budgetBonuses,
-    socialInsurance: t.budgetSocialInsurance,
-    subsidies: t.budgetSubsidies,
-    pensions: t.budgetPensions,
-    infrastructure: t.budgetInfrastructure,
-    housing: t.budgetHousing,
-    utilities: t.budgetUtilities,
-    health: t.budgetHealth,
-    education: t.budgetEducation,
-    defense: t.budgetDefense,
-    security: t.budgetSecurity,
-    other: t.budgetOther
-  };
-  return keyMap[key] || key;
+const formatDetailKey = (key, lang) => {
+  return getDataLabel(lang, 'budget100Details', key);
 };
 
 export default Budget100;

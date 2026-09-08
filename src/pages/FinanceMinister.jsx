@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { budget100 } from '../data';
 import { useLang } from '../context/LangContext';
+import { getDataLabel } from '../data/translateData';
 
 const FinanceMinister = () => {
   const { lang, t } = useLang();
@@ -18,12 +19,12 @@ const FinanceMinister = () => {
   const remaining = 100 - total;
 
   const categories = [
-    { id: 'education', name: t.fmCatEducation, icon: '🎓', color: '#2563EB', actual: 5.6 },
-    { id: 'health', name: t.fmCatHealth, icon: '🏥', color: '#DC2626', actual: 5.6 },
-    { id: 'social', name: t.fmCatSocial, icon: '🛡️', color: '#7C3AED', actual: 10.7 },
-    { id: 'infrastructure', name: t.fmCatInfrastructure, icon: '🏗️', color: '#D97706', actual: 10.6 },
-    { id: 'defense', name: t.fmCatDefense, icon: '⚔️', color: '#6B7280', actual: 8 },
-    { id: 'other', name: t.fmCatOther, icon: '📋', color: '#10B981', actual: 10.5 }
+    { id: 'education', name: getDataLabel(lang, 'fmCategories', 'education'), icon: '🎓', color: '#2563EB', actual: 5.6 },
+    { id: 'health', name: getDataLabel(lang, 'fmCategories', 'health'), icon: '🏥', color: '#DC2626', actual: 5.6 },
+    { id: 'social', name: getDataLabel(lang, 'fmCategories', 'social'), icon: '🛡️', color: '#7C3AED', actual: 10.7 },
+    { id: 'infrastructure', name: getDataLabel(lang, 'fmCategories', 'infrastructure'), icon: '🏗️', color: '#D97706', actual: 10.6 },
+    { id: 'defense', name: getDataLabel(lang, 'fmCategories', 'defense'), icon: '⚔️', color: '#6B7280', actual: 8 },
+    { id: 'other', name: getDataLabel(lang, 'fmCategories', 'other'), icon: '📋', color: '#10B981', actual: 10.5 }
   ];
 
   const handleAllocation = (id, value) => {

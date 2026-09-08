@@ -6,12 +6,14 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import CookieConsent from '../ui/CookieConsent';
 import { useAuth } from '../../context/AuthContext';
+import { useLang } from '../../context/LangContext';
 import { incrementCounter } from '../../services/firestore';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const { isAuthenticated, loading } = useAuth();
+  const { t } = useLang();
   const location = useLocation();
 
   useEffect(() => {
@@ -25,7 +27,7 @@ const Layout = () => {
       <div className="min-h-screen flex items-center justify-center bg-surface">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-[3px] border-primary-200 border-t-primary-700 rounded-full animate-spin" />
-          <p className="text-sm text-primary-500 font-medium">جاري التحميل...</p>
+          <p className="text-sm text-primary-500 font-medium">{t.loading}</p>
         </div>
       </div>
     );
@@ -57,15 +59,15 @@ const Layout = () => {
         <footer className="border-t border-primary-100/60 bg-white/50 py-6 px-4">
           <div className="max-w-6xl mx-auto text-center space-y-3">
             <p className="text-xs text-primary-500 leading-relaxed">
-              <strong>تنبيه:</strong> موازنتي مشروع تعليمي مستقل وليس تابعاً لأي جهة حكومية أو رسمية. البيانات المعروضة مأخوذة من موازنة المواطن الرسمية 2026/2027 لأغراض تعليمية فقط.
+              {t.footerDisclaimer}
             </p>
             <div className="flex flex-wrap justify-center gap-3 text-xs">
-              <Link to="/privacy" className="text-primary-500 hover:text-primary-700 underline">سياسة الخصوصية</Link>
-              <Link to="/terms" className="text-primary-500 hover:text-primary-700 underline">الشروط والأحكام</Link>
-              <Link to="/cookies" className="text-primary-500 hover:text-primary-700 underline">ملفات تعريف الارتباط</Link>
-              <Link to="/refund" className="text-primary-500 hover:text-primary-700 underline">سياسة الاسترداد</Link>
+              <Link to="/privacy" className="text-primary-500 hover:text-primary-700 underline">{t.footerPrivacy}</Link>
+              <Link to="/terms" className="text-primary-500 hover:text-primary-700 underline">{t.footerTerms}</Link>
+              <Link to="/cookies" className="text-primary-500 hover:text-primary-700 underline">{t.footerCookies}</Link>
+              <Link to="/refund" className="text-primary-500 hover:text-primary-700 underline">{t.footerRefund}</Link>
             </div>
-            <p className="text-[10px] text-primary-400">© 2026 موازنتي. جميع الحقوق محفوظة.</p>
+            <p className="text-[10px] text-primary-400">{t.footerCopyright}</p>
           </div>
         </footer>
       </div>
