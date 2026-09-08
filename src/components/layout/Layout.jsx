@@ -10,7 +10,7 @@ import { incrementCounter } from '../../services/firestore';
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
