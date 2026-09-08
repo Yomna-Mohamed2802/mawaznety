@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function InvestmentChart({ data }) {
   return (
-    <div style={{ overflow: 'visible' }}>
+    <div style={{ overflow: 'visible', paddingLeft: 20 }}>
       <ResponsiveContainer width="100%" height={Math.max(280, data.length * 56)}>
         <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
           <XAxis
@@ -30,8 +30,8 @@ export default function InvestmentChart({ data }) {
           <YAxis
             type="category"
             dataKey="label"
-            tick={{ fontSize: 12, fill: '#334e68', fontWeight: 500 }}
-            width={180}
+            tick={{ fontSize: 11, fill: '#334e68', fontWeight: 500 }}
+            width={160}
             axisLine={false}
             tickLine={false}
           />
