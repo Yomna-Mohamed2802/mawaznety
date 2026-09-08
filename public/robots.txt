@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /settings
+Disallow: /reports
+
+Sitemap: https://mawaznety.vercel.app/sitemap.xml

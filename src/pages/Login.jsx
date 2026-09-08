@@ -13,11 +13,13 @@ const Login = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
   const { login, register, loginWithGoogle, logout, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (honeypot) return;
     if (!agreeTerms) {
       setError('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية أولاً');
       return;
@@ -168,6 +170,19 @@ const Login = () => {
                     placeholder="٦ أحرف على الأقل"
                     required
                     minLength={6}
+                  />
+                </div>
+
+                <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, width: 0, overflow: 'hidden' }}>
+                  <label htmlFor="website">Leave this empty</label>
+                  <input
+                    id="website"
+                    type="text"
+                    name="website"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
                   />
                 </div>
 
