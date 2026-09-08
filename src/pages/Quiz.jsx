@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineCheckCircle, HiOutlineXCircle, HiOutlineArrowRight } from 'react-icons/hi';
 import { quizQuestions as questions, quizSettings } from '../data';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import { saveQuizScore, getUserQuizScores, getLeaderboard, incrementCounter } from '../services/firestore';
 
 const Quiz = () => {
+  const { lang, t } = useLang();
   const { user, isAuthenticated } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -75,22 +77,22 @@ const Quiz = () => {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">اختبار المعرفة</h1>
-        <p className="text-primary-600">اختبر معلوماتك في موازنة المواطن المصرية</p>
+        <h1 className="text-2xl font-bold text-gray-800">{t.quizTitle}</h1>
+        <p className="text-primary-600">{t.quizSubtitle}</p>
       </div>
 
       {isAuthenticated && userStats && !showLeaderboard && (
         <div className="mb-4 bg-primary-50 rounded-xl p-4 flex justify-between text-sm">
-          <span className="text-primary-700">أفضل نتيجة: <strong>{userStats.bestScore}/{questions.length}</strong></span>
-          <span className="text-primary-700">عدد المحاولات: <strong>{userStats.totalAttempts}</strong></span>
+          <span className="text-primary-700">{t.quizBestScore} <strong>{userStats.bestScore}/{questions.length}</strong></span>
+          <span className="text-primary-700">{t.quizAttempts} <strong>{userStats.totalAttempts}</strong></span>
         </div>
       )}
 
       {/* Progress */}
       <div className="mb-6">
         <div className="flex justify-between text-sm text-gray-500 mb-2">
-          <span>السؤال {currentQuestion + 1} من {questions.length}</span>
-          <span>النتيجة: {score}/{questions.length}</span>
+          <span>{t.quizQuestion} {currentQuestion + 1} {t.quizFrom} {questions.length}</span>
+          <span>{t.quizScore}: {score}/{questions.length}</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <motion.div
@@ -165,7 +167,7 @@ const Quiz = () => {
                   disabled={saving}
                   className="w-full bg-primary-600 text-white py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
                 >
-                  <span>{currentQuestion === questions.length - 1 ? (saving ? 'جاري الحفظ...' : 'عرض النتائج') : 'السؤال التالي'}</span>
+                  <span>{currentQuestion === questions.length - 1 ? (saving ? t.saving : t.quizFinish) : t.quizNext}</span>
                   <HiOutlineArrowRight className="w-5 h-5" />
                 </button>
               </motion.div>
@@ -181,27 +183,27 @@ const Quiz = () => {
               <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-4xl font-bold text-primary-600">{score}</span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">انتهى الاختبار!</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">{t.quizEnded}</h2>
               <p className="text-gray-500 mb-2">
-                نتيجتك: {score} من {questions.length}
+                {t.quizResult} {score} {t.quizFrom} {questions.length}
               </p>
               <p className="text-lg mb-4">
                 {score === questions.length
-                  ? 'ممتاز! أداء رائع!'
+                  ? t.quizExcellent
                   : score >= questions.length / 2
-                  ? 'جيد! واصل التقدم!'
-                  : 'حاول مرة أخرى!'}
+                  ? t.quizGood
+                  : t.quizRetry}
               </p>
               {isAuthenticated && userStats && (
                 <p className="text-sm text-primary-600 mb-4">
-                  أفضل نتيجة سابقة: {userStats.bestScore}/{questions.length}
+                  {t.quizBestScore} {userStats.bestScore}/{questions.length}
                 </p>
               )}
             </div>
 
             {leaderboard.length > 0 && (
               <div className="mb-6">
-                <h3 className="font-semibold text-gray-800 mb-3 text-center">أفضل النتائج</h3>
+                <h3 className="font-semibold text-gray-800 mb-3 text-center">{t.quizLeaderboard}</h3>
                 <div className="space-y-2">
                   {leaderboard.map((entry, i) => (
                     <div
@@ -217,7 +219,7 @@ const Quiz = () => {
                           {i + 1}
                         </span>
                         <span className="text-sm font-medium text-gray-700">
-                          {entry.id === user?.uid ? 'أنت' : `مستخدم ${entry.id.slice(0, 4)}`}
+                          {entry.id === user?.uid ? t.quizYou : `مستخدم ${entry.id.slice(0, 4)}`}
                         </span>
                       </div>
                       <span className="font-bold text-primary-600">{entry.bestScore}/{questions.length}</span>
@@ -231,7 +233,7 @@ const Quiz = () => {
               onClick={restartQuiz}
               className="w-full bg-primary-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors"
             >
-              إعادة الاختبار
+              {t.quizRestart}
             </button>
           </motion.div>
         ) : (
@@ -243,22 +245,22 @@ const Quiz = () => {
             <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-4xl font-bold text-primary-600">{score}</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">انتهى الاختبار!</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">{t.quizEnded}</h2>
             <p className="text-gray-500 mb-6">
-              نتيجتك: {score} من {questions.length}
+              {t.quizResult} {score} {t.quizFrom} {questions.length}
             </p>
             <p className="text-lg mb-6">
               {score === questions.length
-                ? 'ممتاز! أداء رائع!'
+                ? t.quizExcellent
                 : score >= questions.length / 2
-                ? 'جيد! واصل التقدم!'
-                : 'حاول مرة أخرى!'}
+                ? t.quizGood
+                : t.quizRetry}
             </p>
             <button
               onClick={restartQuiz}
               className="bg-primary-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors"
             >
-              إعادة الاختبار
+              {t.quizRestart}
             </button>
           </motion.div>
         )}

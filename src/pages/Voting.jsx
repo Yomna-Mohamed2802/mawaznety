@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { HiOutlineCheck } from 'react-icons/hi';
 import { votingCategories } from '../data';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import {
   saveVote,
   getUserVote,
@@ -11,6 +12,7 @@ import {
 } from '../services/firestore';
 
 const Voting = () => {
+  const { lang, t } = useLang();
   const { user, isAuthenticated } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('budget_priorities');
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -48,7 +50,7 @@ const Voting = () => {
 
   const handleVote = useCallback(async () => {
     if (!isAuthenticated) {
-      setError('يجب تسجيل الدخول أولاً');
+      setError(t.loginRequired);
       return;
     }
     if (selectedCandidate === null || !consentGiven) return;
@@ -66,7 +68,7 @@ const Voting = () => {
         setError(result.error);
       }
     } catch (err) {
-      setError('حدث خطأ أثناء حفظ التصويت');
+      setError(t.voteError);
     }
     setLoading(false);
   }, [selectedCategory, selectedCandidate, consentGiven, user, isAuthenticated]);
@@ -81,8 +83,8 @@ const Voting = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">التصويت</h1>
-        <p className="text-primary-600">اختر مرشحك المفضل</p>
+        <h1 className="text-2xl font-bold text-gray-800">{t.voteTitle}</h1>
+        <p className="text-primary-600">{t.voteSubtitle}</p>
       </div>
 
       {!showResults ? (
@@ -174,7 +176,7 @@ const Voting = () => {
           ))}
           
           <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
-            <p className="text-gray-500 mb-4">إجمالي الأصوات: {totalVotes}</p>
+            <p className="text-gray-500 mb-4">{t.voteTotal} {totalVotes}</p>
             <button
               onClick={() => {
                 setShowResults(false);
@@ -184,7 +186,7 @@ const Voting = () => {
               }}
               className="bg-primary-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors"
             >
-              إعادة التصويت
+              {t.voteAgain}
             </button>
           </div>
         </div>
@@ -211,16 +213,14 @@ const Voting = () => {
                 className="mt-1 w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
               />
               <span className="text-xs text-primary-600 leading-relaxed">
-                أوافق على{' '}
-                <a href="/terms" className="underline hover:text-primary-800">الشروط والأحكام</a>
-                {' '}وأؤكد أن بياناتي لن تُستخدم لأغراض أخرى
+                {t.voteConsent}
               </span>
             </label>
           </div>
 
           {!isAuthenticated && (
             <div className="mb-4 bg-yellow-50 text-yellow-700 p-3 rounded-xl text-sm text-center">
-              يجب تسجيل الدخول للتصويت
+              {t.voteLogin}
             </div>
           )}
 
@@ -229,7 +229,7 @@ const Voting = () => {
             disabled={selectedCandidate === null || !consentGiven || loading || !isAuthenticated}
             className="w-full bg-primary-600 text-white py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'جاري الحفظ...' : 'تأيد التصويت'}
+            {loading ? t.voteSaving : t.voteConfirm}
           </button>
         </motion.div>
       )}

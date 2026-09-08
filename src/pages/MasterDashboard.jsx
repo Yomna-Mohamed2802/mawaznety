@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { useLang } from '../context/LangContext';
 import {
   HiOutlineArrowDown, HiOutlineArrowUp, HiOutlineChartBar,
   HiOutlineChevronDown, HiOutlineDocumentText,
@@ -67,6 +68,7 @@ const DONUT_COLORS = ['#102a43', '#7c3aed', '#059669', '#d97706', '#dc2626', '#6
 /* ─── Main Component ───────────────────────────────────── */
 
 export default function MasterDashboard() {
+  const { lang, t } = useLang();
   const [drawerFigure, setDrawerFigure] = useState(null);
   const [activeSector, setActiveSector] = useState(null);
   const [activeExpenditure, setActiveExpenditure] = useState(null);
@@ -180,7 +182,7 @@ export default function MasterDashboard() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-bold mb-5 leading-[1.1] tracking-tight text-balance"
             >
-              الموازنة في دقيقة
+              {t.heroTitle}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 12 }}
@@ -188,7 +190,7 @@ export default function MasterDashboard() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-9 leading-relaxed"
             >
-              شوف الصورة الكبيرة لموازنة الدولة {FISCAL_YEAR}، وافهم فلوس الدولة بتروح فين وبتأثر عليك إزاي.
+              {t.heroDesc}
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -197,7 +199,7 @@ export default function MasterDashboard() {
               className="flex flex-wrap justify-center gap-3"
             >
               <a href="#kpi" className="btn-primary bg-primary-900 text-white hover:bg-primary-800" style={{ boxShadow: '0 10px 30px -10px rgb(0 0 0 / 0.3)' }}>
-                ابدأ الاستكشاف
+                {t.exploreBtn}
               </a>
               <button
                 onClick={() => {
@@ -206,7 +208,7 @@ export default function MasterDashboard() {
                 className="btn-secondary bg-white/15 text-white border-white/30 hover:bg-white/25"
               >
                 <HiOutlineDocumentText className="w-4 h-4" />
-                تحميل موازنة المواطن
+                {t.downloadBtn}
               </button>
             </motion.div>
           </motion.div>
@@ -244,10 +246,10 @@ export default function MasterDashboard() {
       {/* ─── 02 — فلوس الدولة بتروح فين؟ ────────────────── */}
       <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #fca5a5 0%, #ffffff 70%)' }}>
         <div className="text-center mb-10 sm:mb-12">
-          <span className="section-eyebrow">المصروفات</span>
-          <h2 className="section-heading">فلوس الدولة بتروح فين؟</h2>
-          <p className="section-subtitle">توزيع 100 جنيه من مصروفات الموازنة</p>
-          <p className="text-xs text-amber-700 mt-2">⚠ النسب محسوبة من بيانات التقرير — ليست نسب رسمية</p>
+          <span className="section-eyebrow">{t.expEyebrow}</span>
+          <h2 className="section-heading">{t.expTitle}</h2>
+          <p className="section-subtitle">{t.expSubtitle}</p>
+          <p className="text-xs text-amber-700 mt-2">⚠ {t.expWarning}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -330,9 +332,9 @@ export default function MasterDashboard() {
                     <SourceBadge status={item.figure.verificationStatus} showLabel />
                   </div>
                   <div className="bg-surface-warm rounded-xl p-3.5">
-                    <p className="text-xs text-primary-500 mb-1">المصدر</p>
+                    <p className="text-xs text-primary-500 mb-1">{t.expSource}</p>
                     <button onClick={() => openSource(item.figure)} className="text-sm text-primary-600 hover:text-primary-800 hover:underline flex items-center gap-1 transition-colors">
-                      صفحة {item.figure.page || '—'}
+                      {t.expPage} {item.figure.page || '—'}
                       <HiOutlineExternalLink className="w-3 h-3" />
                     </button>
                   </div>
@@ -350,9 +352,9 @@ export default function MasterDashboard() {
       <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #6ee7b7 0%, #ffffff 70%)' }}>
         <div className="section-container">
           <div className="text-center mb-10 sm:mb-12">
-            <span className="section-eyebrow">الإيرادات</span>
-            <h2 className="section-heading">منين بتيجي فلوس الدولة؟</h2>
-            <p className="section-subtitle">مصادر الإيرادات الرئيسية للموازنة</p>
+            <span className="section-eyebrow">{t.revEyebrow}</span>
+            <h2 className="section-heading">{t.revTitle}</h2>
+            <p className="section-subtitle">{t.revSubtitle}</p>
           </div>
 
           <div className="max-w-3xl mx-auto space-y-3">
@@ -406,9 +408,9 @@ export default function MasterDashboard() {
       {/* ─── 04 — مؤشرات الاقتصاد ───────────────────────── */}
       <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #c4b5fd 0%, #ffffff 70%)' }}>
         <div className="text-center mb-10 sm:mb-12">
-          <span className="section-eyebrow">المؤشرات</span>
-          <h2 className="section-heading">الاقتصاد رايح فين؟</h2>
-          <p className="section-subtitle">المؤشرات الاقتصادية الرئيسية للموازنة</p>
+          <span className="section-eyebrow">{t.ecoEyebrow}</span>
+          <h2 className="section-heading">{t.ecoTitle}</h2>
+          <p className="section-subtitle">{t.ecoSubtitle}</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -465,10 +467,10 @@ export default function MasterDashboard() {
           className="mt-10 rounded-2xl p-10 sm:p-12 text-white text-center transition-shadow duration-300"
           style={{ background: 'linear-gradient(135deg, #102a43 0%, #243b53 50%, #334e68 100%)', boxShadow: '0 20px 40px -12px rgb(0 0 0 / 0.15), inset 0 1px 0 rgba(255,255,255,0.08)' }}
         >
-          <p className="text-xs sm:text-sm text-white/70 mb-2.5 tracking-wide">الناتج المحلي الإجمالي · بسعر السوق</p>
+          <p className="text-xs sm:text-sm text-white/70 mb-2.5 tracking-wide">{t.gdpLabel}</p>
           <p className="text-5xl sm:text-6xl font-bold tracking-tight leading-none">
             24.5
-            <span className="text-base sm:text-lg font-normal text-white/70 mr-2">تريليون جنيه</span>
+            <span className="text-base sm:text-lg font-normal text-white/70 mr-2">{t.gdpUnit}</span>
           </p>
           <div className="mt-5 flex justify-center items-center gap-3 text-xs">
             <button onClick={() => openSource(economy.indicators.gdp)} className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity">
@@ -484,9 +486,9 @@ export default function MasterDashboard() {
       <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #5eead4 0%, #ffffff 70%)' }}>
         <div className="section-container">
           <div className="text-center mb-10 sm:mb-12">
-            <span className="section-eyebrow">القطاعات</span>
-            <h2 className="section-heading">القطاعات الأهم</h2>
-            <p className="section-subtitle">القطاعات اللي فلوس الضرائب بتروح فيها</p>
+            <span className="section-eyebrow">{t.secEyebrow}</span>
+            <h2 className="section-heading">{t.secTitle}</h2>
+            <p className="section-subtitle">{t.secSubtitle}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
@@ -535,14 +537,14 @@ export default function MasterDashboard() {
                   </div>
                   <div className="flex items-baseline gap-2 mb-2">
                     <span className="text-2xl sm:text-3xl font-bold text-primary-900">{sector.figure.value != null ? sector.figure.value.toLocaleString('ar-EG') : '—'}</span>
-                    <span className="text-xs text-primary-500">مليار جنيه</span>
+                    <span className="text-xs text-primary-500">{t.secBillion}</span>
                   </div>
                   {sector.gdpFigure && (
-                    <p className="text-xs text-primary-500">{sector.gdpFigure.value}% من الناتج المحلي</p>
+                    <p className="text-xs text-primary-500">{sector.gdpFigure.value}% {t.secGdp}</p>
                   )}
                   <div className="flex items-center gap-2 mt-3">
                     <SourceBadge status={sector.figure.verificationStatus} />
-                    <button onClick={() => openSource(sector.figure)} className="text-xs text-primary-500 hover:text-primary-700 hover:underline transition-colors">عرض المصدر</button>
+                    <button onClick={() => openSource(sector.figure)} className="text-xs text-primary-500 hover:text-primary-700 hover:underline transition-colors">{t.secViewSource}</button>
                   </div>
                 </div>
                 {sector.extra.length > 0 && (
@@ -551,7 +553,7 @@ export default function MasterDashboard() {
                       onClick={() => setActiveSector(activeSector === sector.id ? null : sector.id)}
                       className="w-full flex items-center justify-between text-sm text-primary-500 hover:text-primary-700 transition-colors"
                     >
-                      <span className="font-medium">تفاصيل أكتر</span>
+                      <span className="font-medium">{t.expDetails}</span>
                       <HiOutlineChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeSector === sector.id ? 'rotate-180' : ''}`} />
                     </button>
                     <AnimatePresence>
@@ -590,9 +592,9 @@ export default function MasterDashboard() {
       {/* ─── 06 — الدين العام ───────────────────────────── */}
       <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #fcd34d 0%, #ffffff 70%)' }}>
         <div className="text-center mb-10 sm:mb-12">
-          <span className="section-eyebrow">الدين العام</span>
-          <h2 className="section-heading">الدين بيتغير إزاي؟</h2>
-          <p className="section-subtitle">نسبة الدين للناتج المحلي عبر الزمن</p>
+          <span className="section-eyebrow">{t.debtEyebrow}</span>
+          <h2 className="section-heading">{t.debtTitle}</h2>
+          <p className="section-subtitle">{t.debtSubtitle}</p>
         </div>
 
         <div className="card-base p-6 mb-6">
@@ -604,7 +606,7 @@ export default function MasterDashboard() {
             </span>
             <span className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-accent-green" />
-              هدف 2030 (70%)
+              {t.debtGoal}
             </span>
           </div>
           <p className="text-center text-xs text-amber-700 mt-3">⚠ نسب الدين 2018/19–2023/24 غير مدخلة — تتطلب التحقق البصري من صفحة 50</p>
@@ -669,9 +671,9 @@ export default function MasterDashboard() {
       <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #6ee7b7 0%, #ffffff 70%)' }}>
         <div className="section-container">
           <div className="text-center mb-10 sm:mb-12">
-            <span className="section-eyebrow">الاستثمار</span>
-            <h2 className="section-heading">الاستثمار رايح فين؟</h2>
-            <p className="section-subtitle">خطة الاستثمارات لعام المالية {FISCAL_YEAR}</p>
+            <span className="section-eyebrow">{t.invEyebrow}</span>
+            <h2 className="section-heading">{t.invTitle}</h2>
+            <p className="section-subtitle">{t.invSubtitle}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -750,9 +752,9 @@ export default function MasterDashboard() {
       {/* ─── 08 — الموازنة بتخصني إزاي؟ ─────────────────── */}
       <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #93c5fd 0%, #ffffff 70%)' }}>
         <div className="text-center mb-10 sm:mb-12">
-          <span className="section-eyebrow">المواطن</span>
-          <h2 className="section-heading">طيب... الكلام ده يخصني أنا إزاي؟</h2>
-          <p className="section-subtitle">اختار هويتك واشوف الموازنة بتأثر عليك إزاي</p>
+          <span className="section-eyebrow">{t.citizenEyebrow}</span>
+          <h2 className="section-heading">{t.citizenTitle}</h2>
+          <p className="section-subtitle">{t.citizenSubtitle}</p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-2.5 mb-10">
@@ -812,10 +814,10 @@ export default function MasterDashboard() {
           <div className="text-center mb-8 sm:mb-10">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 mb-4 text-xs font-semibold tracking-wider uppercase bg-white/80 text-primary-700 rounded-full border border-primary-200/60 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
-              تجربة تفاعلية
+              {t.ministerEyebrow}
             </span>
-            <h2 className="section-heading">لو معاك 100 جنيه من الموازنة...</h2>
-            <p className="section-subtitle">هتوزعهم إزاي؟ جرّب بنفسك وشوف التوزيع الفعلي للمصروفات</p>
+            <h2 className="section-heading">{t.ministerTitle}</h2>
+            <p className="section-subtitle">{t.ministerSubtitle}</p>
           </div>
 
           <div className="card-base border-primary-200/80" style={{ boxShadow: '0 10px 40px -8px rgb(16 42 67 / 0.12), 0 4px 12px -2px rgb(16 42 67 / 0.05)' }}>

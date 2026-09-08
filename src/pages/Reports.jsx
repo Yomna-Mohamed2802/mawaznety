@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiOutlineChartBar } from 'react-icons/hi';
+import { useLang } from '../context/LangContext';
 import { getAnalytics } from '../services/firestore';
 
 const Reports = () => {
+  const { lang, t } = useLang();
   const [analytics, setAnalytics] = useState({
     totalVisitors: 0,
     questionsAsked: 0,
@@ -18,17 +20,17 @@ const Reports = () => {
   }, []);
 
   const stats = [
-    { label: 'إجمالي الزوار', value: analytics.totalVisitors || 0, color: 'bg-primary-500' },
-    { label: 'الأسئلة المطروحة', value: analytics.questionsAsked || 0, color: 'bg-emerald-500' },
-    { label: 'الاختبارات المكتملة', value: analytics.quizzesCompleted || 0, color: 'bg-violet-500' },
-    { label: 'التصويتات', value: analytics.totalVotes || 0, color: 'bg-amber-500' },
+    { label: t.reportsVisitors, value: analytics.totalVisitors || 0, color: 'bg-primary-500' },
+    { label: t.reportsQuestions, value: analytics.questionsAsked || 0, color: 'bg-emerald-500' },
+    { label: t.reportsQuizzes, value: analytics.quizzesCompleted || 0, color: 'bg-violet-500' },
+    { label: t.reportsVotes, value: analytics.totalVotes || 0, color: 'bg-amber-500' },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">التقارير</h1>
-        <p className="text-gray-500">تحليل البيانات والإحصائيات</p>
+        <h1 className="text-2xl font-bold text-gray-800">{t.reportsTitle}</h1>
+        <p className="text-gray-500">{t.reportsSubtitle}</p>
       </div>
 
       <motion.div
@@ -39,9 +41,9 @@ const Reports = () => {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-50 mb-5">
           <HiOutlineChartBar className="w-8 h-8 text-primary-400" />
         </div>
-        <h2 className="text-xl font-bold text-primary-900 mb-2">إحصائيات الموقع</h2>
+        <h2 className="text-xl font-bold text-primary-900 mb-2">{t.reportsStats}</h2>
         <p className="text-primary-500 text-sm max-w-md mx-auto leading-relaxed">
-          البيانات الفعلية من استخدام المستخدمين على الموقع
+          {t.reportsDesc}
         </p>
       </motion.div>
 

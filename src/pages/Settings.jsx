@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiOutlineSave } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LangContext';
 import { getSettings, saveSettings } from '../services/firestore';
 
 const Settings = () => {
+  const { lang, t } = useLang();
   const { user, isAuthenticated } = useAuth();
   const [settings, setSettings] = useState({
     siteName: 'موازنتي',
@@ -46,9 +48,9 @@ const Settings = () => {
     setMessage('');
     try {
       await saveSettings(settings);
-      setMessage('تم حفظ الإعدادات بنجاح!');
+      setMessage(t.saved);
     } catch (err) {
-      setMessage('حدث خطأ أثناء الحفظ');
+      setMessage(t.saveError);
     }
     setSaving(false);
   };
@@ -57,8 +59,8 @@ const Settings = () => {
     return (
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">غير مصرح</h2>
-          <p className="text-gray-500">يجب تسجيل الدخول أولاً</p>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">{t.unauthorized}</h2>
+          <p className="text-gray-500">{t.loginRequired}</p>
         </div>
       </div>
     );
@@ -68,7 +70,7 @@ const Settings = () => {
     return (
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <p className="text-gray-500">جاري التحميل...</p>
+          <p className="text-gray-500">{t.loading}</p>
         </div>
       </div>
     );
@@ -77,10 +79,10 @@ const Settings = () => {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">الإعدادات</h1>
-        <p className="text-primary-600">إدارة إعدادات النظام</p>
+        <h1 className="text-2xl font-bold text-gray-800">{t.settingsTitle}</h1>
+        <p className="text-primary-600">{t.settingsDesc}</p>
         {user?.isAdmin && (
-          <span className="inline-block mt-2 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">مدير</span>
+          <span className="inline-block mt-2 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">{t.admin}</span>
         )}
       </div>
 
@@ -98,11 +100,11 @@ const Settings = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl shadow-lg p-6"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">إعدادات عامة</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.generalSettings}</h3>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                اسم الموقع
+                {t.siteName}
               </label>
               <input
                 type="text"
@@ -114,7 +116,7 @@ const Settings = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                وصف الموقع
+                {t.siteDescLabel}
               </label>
               <textarea
                 name="siteDescription"
@@ -133,12 +135,12 @@ const Settings = () => {
           transition={{ delay: 0.1 }}
           className="bg-white rounded-2xl shadow-lg p-6"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">إعدادات التسجيل</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.regSettings}</h3>
           <div className="space-y-4">
             <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
               <div>
-                <p className="font-medium text-gray-800">السماح بالتسجيل</p>
-                <p className="text-sm text-gray-500">تمكين المستخدمين الجدد من التسجيل</p>
+                <p className="font-medium text-gray-800">{t.allowReg}</p>
+                <p className="text-sm text-gray-500">{t.allowRegDesc}</p>
               </div>
               <input
                 type="checkbox"
@@ -150,8 +152,8 @@ const Settings = () => {
             </label>
             <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
               <div>
-                <p className="font-medium text-gray-800">تتطلب الموافقة</p>
-                <p className="text-sm text-gray-500">موافقة المدير على حسابات المستخدمين الجدد</p>
+                <p className="font-medium text-gray-800">{t.requireApproval}</p>
+                <p className="text-sm text-gray-500">{t.requireApprovalDesc}</p>
               </div>
               <input
                 type="checkbox"
@@ -170,12 +172,12 @@ const Settings = () => {
           transition={{ delay: 0.2 }}
           className="bg-white rounded-2xl shadow-lg p-6"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">إعدادات أخرى</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.otherSettings}</h3>
           <div className="space-y-4">
             <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
               <div>
-                <p className="font-medium text-gray-800">إشعارات البريد الإلكتروني</p>
-                <p className="text-sm text-gray-500">إرسال إشعارات عبر البريد الإلكتروني</p>
+                <p className="font-medium text-gray-800">{t.emailNotif}</p>
+                <p className="text-sm text-gray-500">{t.emailNotifDesc}</p>
               </div>
               <input
                 type="checkbox"
@@ -187,8 +189,8 @@ const Settings = () => {
             </label>
             <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
               <div>
-                <p className="font-medium text-gray-800">وضع الصيانة</p>
-                <p className="text-sm text-gray-500">تعطيل الموقع مؤقتاً للصيانة</p>
+                <p className="font-medium text-gray-800">{t.maintMode}</p>
+                <p className="text-sm text-gray-500">{t.maintModeDesc}</p>
               </div>
               <input
                 type="checkbox"
@@ -212,7 +214,7 @@ const Settings = () => {
             className="w-full bg-primary-600 text-white py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
           >
             <HiOutlineSave className="w-5 h-5" />
-            <span>{saving ? 'جاري الحفظ...' : 'حفظ الإعدادات'}</span>
+            <span>{saving ? t.saving : t.saveSettings}</span>
           </button>
         </motion.div>
       </form>
