@@ -19,6 +19,7 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 export default function ExpenditureDonut({ data, onSliceClick, activeId }) {
+  const { t } = useLang();
   return (
     <div className="relative">
       <ResponsiveContainer width="100%" height={340}>
