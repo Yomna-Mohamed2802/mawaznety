@@ -42,7 +42,6 @@ const Settings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user?.isAdmin) return;
     setSaving(true);
     setMessage('');
     try {
@@ -54,12 +53,12 @@ const Settings = () => {
     setSaving(false);
   };
 
-  if (!isAuthenticated || !user?.isAdmin) {
+  if (!isAuthenticated) {
     return (
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
           <h2 className="text-xl font-bold text-gray-800 mb-2">غير مصرح</h2>
-          <p className="text-gray-500">ليس لديك صلاحية للوصول إلى هذه الصفحة</p>
+          <p className="text-gray-500">يجب تسجيل الدخول أولاً</p>
         </div>
       </div>
     );
@@ -80,6 +79,9 @@ const Settings = () => {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">الإعدادات</h1>
         <p className="text-primary-600">إدارة إعدادات النظام</p>
+        {user?.isAdmin && (
+          <span className="inline-block mt-2 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">مدير</span>
+        )}
       </div>
 
       {message && (

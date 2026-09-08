@@ -11,19 +11,21 @@ import {
   HiOutlineChevronLeft,
 } from 'react-icons/hi';
 import MawaznetyLogo from '../ui/MawaznetyLogo';
-
-const menuItems = [
-  { path: '/', label: 'لوحة التحكم', icon: HiOutlineHome },
-  { path: '/budget100', label: 'الموازنة من 100', icon: HiOutlineChartBar },
-  { path: '/finance-minister', label: 'وزير المالية', icon: HiOutlineDocumentText },
-  { path: '/quiz', label: 'الاختبارات', icon: HiOutlineClipboardCheck },
-  { path: '/voting', label: 'التصويت', icon: HiOutlineSparkles },
-  { path: '/reports', label: 'التقارير', icon: HiOutlineChartBar },
-  { path: '/settings', label: 'الإعدادات', icon: HiOutlineCog },
-];
+import { useLang } from '../../context/LangContext';
 
 const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
   const location = useLocation();
+  const { t } = useLang();
+
+  const menuItems = [
+    { path: '/', label: t.home, icon: HiOutlineHome },
+    { path: '/budget100', label: t.budget100, icon: HiOutlineChartBar },
+    { path: '/finance-minister', label: t.financeMinister, icon: HiOutlineDocumentText },
+    { path: '/quiz', label: t.quiz, icon: HiOutlineClipboardCheck },
+    { path: '/voting', label: t.voting, icon: HiOutlineSparkles },
+    { path: '/reports', label: t.reports, icon: HiOutlineChartBar },
+    { path: '/settings', label: t.settings, icon: HiOutlineCog },
+  ];
 
   return (
     <>
@@ -60,8 +62,8 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
             <button
               onClick={onToggleCollapse}
               className="hidden lg:flex p-1.5 rounded-lg hover:bg-primary-100 transition-colors"
-              title={collapsed ? 'توسيع القائمة' : 'طي القائمة'}
-              aria-label={collapsed ? 'توسيع القائمة' : 'طي القائمة'}
+              title={collapsed ? 'Expand' : 'Collapse'}
+              aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
             >
               <HiOutlineChevronLeft className={`w-4 h-4 text-primary-500 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`} />
             </button>
@@ -69,7 +71,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
             <button
               onClick={onClose}
               className="lg:hidden p-1.5 rounded-lg hover:bg-primary-100 transition-colors"
-              aria-label="إغلاق القائمة"
+              aria-label="Close menu"
             >
               <HiOutlineX className="w-4 h-4 text-primary-500" />
             </button>

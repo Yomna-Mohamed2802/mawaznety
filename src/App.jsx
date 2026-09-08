@@ -18,6 +18,7 @@ import CookiesPolicy from './pages/CookiesPolicy';
 import RefundPolicy from './pages/RefundPolicy';
 import LoadingScreen from './components/ui/LoadingScreen';
 import { AuthProvider } from './context/AuthContext';
+import { LangProvider } from './context/LangContext';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -34,8 +35,9 @@ function App() {
   }, [showSplash]);
 
   return (
-    <AuthProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <LangProvider>
+      <AuthProvider>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <div className="min-h-screen bg-surface-warm">
           <AnimatePresence mode="wait">
             <Routes>
@@ -61,6 +63,7 @@ function App() {
         {showSplash && <LoadingScreen onComplete={handleLoadingComplete} />}
       </Router>
     </AuthProvider>
+    </LangProvider>
   );
 }
 
