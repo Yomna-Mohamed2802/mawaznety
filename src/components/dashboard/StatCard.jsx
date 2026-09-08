@@ -35,7 +35,7 @@ const colorStyles = {
   },
 };
 
-export default function StatCard({ figure, icon: Icon, color = 'blue', delay = 0, onClick }) {
+export default function StatCard({ figure, icon: Icon, color = 'blue', delay = 0, onClick, label }) {
   const style = colorStyles[color] || colorStyles.blue;
 
   return (
@@ -48,7 +48,7 @@ export default function StatCard({ figure, icon: Icon, color = 'blue', delay = 0
       style={{ boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)' }}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <p className="text-xs font-medium text-primary-500 leading-snug flex-1 min-w-0">{figure?.label}</p>
+        <p className="text-xs font-medium text-primary-500 leading-snug flex-1 min-w-0">{label || figure?.label}</p>
         {Icon && (
           <div className={`${style.bg} rounded-lg p-1.5 flex-shrink-0 transition-transform duration-300 group-hover:scale-110`}>
             <Icon className={`w-3.5 h-3.5 ${style.icon}`} />

@@ -29,6 +29,11 @@ const translations = {
 
     // KPI
     kpiEyebrow: 'نظرة عامة',
+    kpiExpenditures: 'المصروفات الإجمالية',
+    kpiRevenues: 'إيرادات الدولة',
+    kpiDeficit: 'العجز',
+    kpiTaxes: 'إجمالي الإيرادات الضريبية',
+    kpiSurplus: 'الفائض الأولي',
 
     // Expenditures
     expEyebrow: 'المصروفات',
@@ -570,6 +575,11 @@ const translations = {
 
     // KPI
     kpiEyebrow: 'Overview',
+    kpiExpenditures: 'Total Expenditures',
+    kpiRevenues: 'State Revenues',
+    kpiDeficit: 'Deficit',
+    kpiTaxes: 'Total Tax Revenues',
+    kpiSurplus: 'Primary Surplus',
 
     // Expenditures
     expEyebrow: 'Expenditures',

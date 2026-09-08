@@ -229,11 +229,11 @@ export default function MasterDashboard() {
       <Section id="kpi" className="section-container py-10 sm:py-14">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {[
-            { figure: budgetOverview.expenditures, icon: HiOutlineArrowDown, color: 'red' },
-            { figure: budgetOverview.revenues, icon: HiOutlineArrowUp, color: 'green' },
-            { figure: budgetOverview.deficit, icon: HiOutlineChartBar, color: 'amber' },
-            { figure: totalTaxes, icon: HiOutlineOfficeBuilding, color: 'blue' },
-            { figure: budgetOverview.primarySurplus, icon: HiOutlineTrendingUp, color: 'purple' },
+            { figure: budgetOverview.expenditures, icon: HiOutlineArrowDown, color: 'red', label: t.kpiExpenditures },
+            { figure: budgetOverview.revenues, icon: HiOutlineArrowUp, color: 'green', label: t.kpiRevenues },
+            { figure: budgetOverview.deficit, icon: HiOutlineChartBar, color: 'amber', label: t.kpiDeficit },
+            { figure: totalTaxes, icon: HiOutlineOfficeBuilding, color: 'blue', label: t.kpiTaxes },
+            { figure: budgetOverview.primarySurplus, icon: HiOutlineTrendingUp, color: 'purple', label: t.kpiSurplus },
           ].map((item, i) => (
             <motion.div
               key={item.figure.id}
@@ -245,6 +245,7 @@ export default function MasterDashboard() {
                 figure={item.figure}
                 icon={item.icon}
                 color={item.color}
+                label={item.label}
                 onClick={() => openSource(item.figure)}
               />
             </motion.div>
