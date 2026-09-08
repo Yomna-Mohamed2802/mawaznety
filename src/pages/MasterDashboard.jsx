@@ -241,7 +241,7 @@ export default function MasterDashboard() {
       </Section>
 
       {/* ─── 02 — فلوس الدولة بتروح فين؟ ────────────────── */}
-      <Section className="section-container py-16 sm:py-20">
+      <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #fef2f2 0%, #ffffff 100%)' }}>
         <div className="text-center mb-10 sm:mb-12">
           <span className="section-eyebrow">المصروفات</span>
           <h2 className="section-heading">فلوس الدولة بتروح فين؟</h2>
@@ -346,7 +346,7 @@ export default function MasterDashboard() {
       </Section>
 
       {/* ─── 03 — منين بتيجي فلوس الدولة؟ ───────────────── */}
-      <Section className="bg-white py-16 sm:py-20">
+      <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%)' }}>
         <div className="section-container">
           <div className="text-center mb-10 sm:mb-12">
             <span className="section-eyebrow">الإيرادات</span>
@@ -403,7 +403,7 @@ export default function MasterDashboard() {
       </Section>
 
       {/* ─── 04 — مؤشرات الاقتصاد ───────────────────────── */}
-      <Section className="section-container py-16 sm:py-20">
+      <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%)' }}>
         <div className="text-center mb-10 sm:mb-12">
           <span className="section-eyebrow">المؤشرات</span>
           <h2 className="section-heading">الاقتصاد رايح فين؟</h2>
@@ -480,7 +480,7 @@ export default function MasterDashboard() {
       </Section>
 
       {/* ─── 05 — القطاعات الأهم ────────────────────────── */}
-      <Section className="bg-white py-16 sm:py-20">
+      <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%)' }}>
         <div className="section-container">
           <div className="text-center mb-10 sm:mb-12">
             <span className="section-eyebrow">القطاعات</span>
@@ -587,7 +587,7 @@ export default function MasterDashboard() {
       </Section>
 
       {/* ─── 06 — الدين العام ───────────────────────────── */}
-      <Section className="section-container py-16 sm:py-20">
+      <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #fffbeb 0%, #ffffff 100%)' }}>
         <div className="text-center mb-10 sm:mb-12">
           <span className="section-eyebrow">الدين العام</span>
           <h2 className="section-heading">الدين بيتغير إزاي؟</h2>
@@ -665,7 +665,7 @@ export default function MasterDashboard() {
       </Section>
 
       {/* ─── 07 — الاستثمار ─────────────────────────────── */}
-      <Section className="bg-white py-16 sm:py-20">
+      <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%)' }}>
         <div className="section-container">
           <div className="text-center mb-10 sm:mb-12">
             <span className="section-eyebrow">الاستثمار</span>
@@ -747,7 +747,7 @@ export default function MasterDashboard() {
       </Section>
 
       {/* ─── 08 — الموازنة بتخصني إزاي؟ ─────────────────── */}
-      <Section className="section-container py-16 sm:py-20">
+      <Section className="py-16 sm:py-20" style={{ background: 'linear-gradient(180deg, #eff6ff 0%, #ffffff 100%)' }}>
         <div className="text-center mb-10 sm:mb-12">
           <span className="section-eyebrow">المواطن</span>
           <h2 className="section-heading">طيب... الكلام ده يخصني أنا إزاي؟</h2>
