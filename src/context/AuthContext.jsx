@@ -36,31 +36,25 @@ export const AuthProvider = ({ children }) => {
           emailVerified: firebaseUser.emailVerified,
         };
 
+        // Show UI immediately with auth data — don't block on Firestore
+        setUser({ uid: firebaseUser.uid, ...profileData });
+        setLoading(false);
+
+        // Fetch Firestore profile in background for isAdmin and profile data
         try {
-          // Fetch Firestore profile FIRST — this is the authoritative source for isAdmin.
-          // We keep loading=true until Firestore resolves so the UI never renders
-          // with a client-only isAdmin guess.
           let firestoreProfile = await getUserProfile(firebaseUser.uid);
           if (!firestoreProfile) {
             firestoreProfile = await createUserProfile(firebaseUser.uid, profileData);
           } else {
             await updateUserProfile(firebaseUser.uid, profileData);
           }
-
-          // Firestore profile is the source of truth for isAdmin.
-          // NEVER override with ADMIN_EMAILS — Firestore Rules enforce isAdmin
-          // independently. The UI must reflect the Firestore value.
+          // Firestore isAdmin is the source of truth — update user state
           setUser({ uid: firebaseUser.uid, ...(firestoreProfile || profileData) });
         } catch (e) {
           console.warn('Firestore profile error:', e);
-          // Fallback: use auth-only data if Firestore is unreachable.
-          // ADMIN_EMAILS is used only here as a temporary UI hint;
-          // Firestore Rules still block unauthorized admin actions server-side.
           const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
           setUser({ uid: firebaseUser.uid, ...profileData, isAdmin });
         }
-
-        setLoading(false);
       } else {
         setUser(null);
         setIsAuthenticated(false);
