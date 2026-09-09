@@ -1,10 +1,13 @@
 import { buildMessages } from '../data/budgetContext';
 import { getRuleBasedResponse } from '../data/chatResponses';
 
-export async function sendToAI(userMessage, history = [], lang = 'ar') {
-  try {
-    const messages = buildMessages(userMessage, history);
+const MAX_HISTORY = 20;
 
+export async function sendToAI(userMessage, history = [], lang = 'ar') {
+  const limitedHistory = history.slice(-MAX_HISTORY);
+  const messages = buildMessages(userMessage, limitedHistory);
+
+  try {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -16,6 +19,11 @@ export async function sendToAI(userMessage, history = [], lang = 'ar') {
     }
 
     const data = await response.json();
+
+    if (!data || !data.content) {
+      throw new Error('Invalid response from AI provider');
+    }
+
     return data.content;
   } catch {
     return getRuleBasedResponse(userMessage, lang);
