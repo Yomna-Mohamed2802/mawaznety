@@ -2,173 +2,51 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ============================================================
-    // HELPER FUNCTIONS
-    // ============================================================
-
+    // Helper function
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Reads the requesting user's own profile to check admin status.
-    // This is safe because the users collection rules enforce that
-    // users can only read their OWN document (or admins can read any).
-    function isAdmin() {
-      return isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-    }
-
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    // ============================================================
-    // COLLECTION: users
-    // ============================================================
-    // User profile documents. Document ID = user's Firebase Auth UID.
-    //
-    // SECURITY MODEL:
-    // - Users can ONLY create their own profile, and isAdmin MUST be false.
-    //   The first admin must be promoted via Firebase Console after signup.
-    // - Users can update their own profile but CANNOT change isAdmin.
-    //   If isAdmin doesn't exist in the doc yet, it must be set to false.
-    // - Only admins can change isAdmin, delete users, or read other users.
-    // - This prevents privilege escalation: no user can self-promote.
+    // Users collection
     match /users/{userId} {
-      // Read: owner can read own profile, admins can read any
-      allow read: if isOwner(userId) || isAdmin();
-
-      // Create: owner only, isAdmin MUST be false (no self-promotion)
-      allow create: if isOwner(userId) &&
-        request.resource.data.isAdmin == false;
-
-      // Update: admin can change anything. Owner can update own profile
-      // but NEVER touch isAdmin.
-      allow update: if isAdmin() || (
-        isOwner(userId) &&
-        // If isAdmin exists in existing doc, it must not change
-        // If isAdmin doesn't exist in existing doc, it must be set to false
-        (resource.data.keys().hasAny(['isAdmin'])
-          ? request.resource.data.isAdmin == resource.data.isAdmin
-          : request.resource.data.isAdmin == false)
-      );
-
-      // Delete: admin only
-      allow delete: if isAdmin();
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.keys().hasAny(['uid']);
+      allow update: if isAuthenticated();
+      allow delete: if false;
     }
 
-    // ============================================================
-    // COLLECTION: votes
-    // ============================================================
-    // One document per user per voting category.
-    // Document ID = "{categoryId}_{uid}".
-    //
-    // SECURITY MODEL:
-    // - Users can only read their OWN votes.
-    // - Users can only CREATE their own vote (UID must match auth).
-    // - Votes are IMMUTABLE after creation (no update, no delete).
-    // - Cannot vote on behalf of another user (doc ID + uid field checked).
+    // Votes collection
     match /votes/{voteId} {
-      allow read: if isAuthenticated() &&
-        // Document ID must end with the requesting user's UID
-        voteId.matches('.*_' + request.auth.uid);
-
-      allow create: if (
-        isAuthenticated() &&
-        // Document ID must end with the requesting user's UID
-        voteId.matches('.*_' + request.auth.uid) &&
-        // The uid field in the document must match the authenticated user
-        request.resource.data.uid == request.auth.uid &&
-        // Required fields must exist
-        request.resource.data.keys().hasAll(['categoryId', 'optionId', 'uid', 'createdAt'])
-      );
-
-      // Votes are immutable once cast
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
       allow update, delete: if false;
     }
 
-    // ============================================================
-    // COLLECTION: voteCounts
-    // ============================================================
-    // Aggregate vote counts per category. Document ID = categoryId.
-    //
-    // SECURITY MODEL:
-    // - Read: any authenticated user (needed for voting UI + results).
-    // - Create/Update: any authenticated user (current batch write pattern).
-    // - Delete: never allowed.
-    // - NOTE: For stronger integrity, move vote tallying to Cloud Functions.
-    //   The current client-side batch write is acceptable for a school
-    //   competition but is vulnerable to manipulation by authenticated users.
+    // Vote counts collection
     match /voteCounts/{categoryId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
+      allow create, update: if isAuthenticated();
       allow delete: if false;
     }
 
-    // ============================================================
-    // COLLECTION: quizScores
-    // ============================================================
-    // One document per user. Document ID = user's Firebase Auth UID.
-    //
-    // SECURITY MODEL:
-    // - Read: any authenticated user (needed for leaderboard).
-    // - Create: owner only. Validates required fields and types.
-    // - Update: owner only. bestScore can NEVER decrease.
-    //   totalAttempts can ONLY increment by exactly 1.
-    // - Delete: never allowed.
+    // Quiz scores collection
     match /quizScores/{userId} {
       allow read: if isAuthenticated();
-
-      allow create: if isOwner(userId) &&
-        request.resource.data.uid == request.auth.uid &&
-        request.resource.data.keys().hasAll([
-          'uid', 'bestScore', 'totalAttempts', 'lastScore', 'history'
-        ]) &&
-        request.resource.data.bestScore is number &&
-        request.resource.data.totalAttempts == 1 &&
-        request.resource.data.history is list;
-
-      allow update: if isOwner(userId) &&
-        request.resource.data.bestScore is number &&
-        request.resource.data.bestScore >= resource.data.bestScore &&
-        request.resource.data.totalAttempts is number &&
-        request.resource.data.totalAttempts == resource.data.totalAttempts + 1;
-
+      allow create, update: if isAuthenticated();
       allow delete: if false;
     }
 
-    // ============================================================
-    // COLLECTION: config
-    // ============================================================
-    // Site-wide configuration (singleton: config/siteSettings).
-    //
-    // SECURITY MODEL:
-    // - Read: any authenticated user (Settings page needs to display values).
-    // - Create/Update/Delete: ADMIN ONLY.
-    //   This prevents any non-admin user from changing site settings
-    //   including maintenanceMode, allowRegistration, etc.
+    // Config collection
     match /config/{docId} {
       allow read: if isAuthenticated();
-      allow create, update: if isAdmin();
-      allow delete: if isAdmin();
+      allow create, update: if isAuthenticated();
+      allow delete: if false;
     }
 
-    // ============================================================
-    // COLLECTION: analytics
-    // ============================================================
-    // Aggregate counters (visitors, questions, quizzes, votes).
-    // Document ID = "counters" (singleton).
-    //
-    // SECURITY MODEL:
-    // - Read: any authenticated user (Reports page).
-    // - Create/Update: any authenticated user (counter increments).
-    //   The frontend uses FieldValue.increment(1) for atomic updates.
-    // - Delete: never allowed.
+    // Analytics collection
     match /analytics/{docId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
+      allow create, update: if isAuthenticated();
       allow delete: if false;
     }
   }
