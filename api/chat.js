@@ -76,7 +76,11 @@ export default async function handler(req, res) {
 
   let body;
   try {
-    body = JSON.parse(req.body);
+    if (typeof req.body === 'string') {
+      body = JSON.parse(req.body);
+    } else {
+      body = req.body;
+    }
   } catch {
     return res.status(400).json({ error: 'Invalid JSON body' });
   }
