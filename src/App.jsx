@@ -1,11 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import Layout from './components/layout/Layout';
-import LoadingScreen from './components/ui/LoadingScreen';
 import { AuthProvider } from './context/AuthContext';
 import { LangProvider } from './context/LangContext';
 
+const Layout = lazy(() => import('./components/layout/Layout'));
 const Login = lazy(() => import('./pages/Login'));
 const Quiz = lazy(() => import('./pages/Quiz'));
 const Voting = lazy(() => import('./pages/Voting'));
@@ -20,6 +18,18 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
 const CookiesPolicy = lazy(() => import('./pages/CookiesPolicy'));
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
+const LoadingScreen = lazy(() => import('./components/ui/LoadingScreen'));
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-surface-warm">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-[3px] border-primary-200 border-t-primary-700 rounded-full animate-spin" />
+        <p className="text-sm text-primary-500 font-medium">جاري التحميل...</p>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [showSplash, setShowSplash] = useState(() => {
@@ -42,9 +52,8 @@ function App() {
     <LangProvider>
       <AuthProvider>
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <div className="min-h-screen bg-surface-warm">
-          <Suspense fallback={<LoadingScreen onComplete={() => {}} />}>
-            <AnimatePresence mode="wait">
+          <div className="min-h-screen bg-surface-warm">
+            <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/download" element={<Download />} />
@@ -63,12 +72,15 @@ function App() {
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </AnimatePresence>
-          </Suspense>
-        </div>
-        {showSplash && <LoadingScreen onComplete={handleLoadingComplete} />}
-      </Router>
-    </AuthProvider>
+            </Suspense>
+          </div>
+          {showSplash && (
+            <Suspense fallback={null}>
+              <LoadingScreen onComplete={handleLoadingComplete} />
+            </Suspense>
+          )}
+        </Router>
+      </AuthProvider>
     </LangProvider>
   );
 }
