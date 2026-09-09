@@ -1,24 +1,25 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Layout from './components/layout/Layout';
-import Login from './pages/Login';
-import Quiz from './pages/Quiz';
-import Voting from './pages/Voting';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
-import Budget100 from './pages/Budget100';
-import FinanceMinister from './pages/FinanceMinister';
-import MasterDashboard from './pages/MasterDashboard';
-import NotFound from './pages/NotFound';
-import Download from './pages/Download';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsAndConditions from './pages/TermsAndConditions';
-import CookiesPolicy from './pages/CookiesPolicy';
-import RefundPolicy from './pages/RefundPolicy';
 import LoadingScreen from './components/ui/LoadingScreen';
 import { AuthProvider } from './context/AuthContext';
 import { LangProvider } from './context/LangContext';
+
+const Login = lazy(() => import('./pages/Login'));
+const Quiz = lazy(() => import('./pages/Quiz'));
+const Voting = lazy(() => import('./pages/Voting'));
+const Reports = lazy(() => import('./pages/Reports'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Budget100 = lazy(() => import('./pages/Budget100'));
+const FinanceMinister = lazy(() => import('./pages/FinanceMinister'));
+const MasterDashboard = lazy(() => import('./pages/MasterDashboard'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Download = lazy(() => import('./pages/Download'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+const CookiesPolicy = lazy(() => import('./pages/CookiesPolicy'));
+const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
 
 function App() {
   const [showSplash, setShowSplash] = useState(() => {
@@ -42,26 +43,28 @@ function App() {
       <AuthProvider>
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <div className="min-h-screen bg-surface-warm">
-          <AnimatePresence mode="wait">
-            <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/download" element={<Download />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/cookies" element={<CookiesPolicy />} />
-            <Route path="/refund" element={<RefundPolicy />} />
-              <Route path="/" element={<Layout />}>
-                <Route index element={<MasterDashboard />} />
-                <Route path="budget100" element={<Budget100 />} />
-                <Route path="finance-minister" element={<FinanceMinister />} />
-                <Route path="quiz" element={<Quiz />} />
-                <Route path="voting" element={<Voting />} />
-                <Route path="reports" element={<Reports />} />
-                <Route path="settings" element={<Settings />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AnimatePresence>
+          <Suspense fallback={<LoadingScreen onComplete={() => {}} />}>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/download" element={<Download />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsAndConditions />} />
+                <Route path="/cookies" element={<CookiesPolicy />} />
+                <Route path="/refund" element={<RefundPolicy />} />
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<MasterDashboard />} />
+                  <Route path="budget100" element={<Budget100 />} />
+                  <Route path="finance-minister" element={<FinanceMinister />} />
+                  <Route path="quiz" element={<Quiz />} />
+                  <Route path="voting" element={<Voting />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatePresence>
+          </Suspense>
         </div>
         {showSplash && <LoadingScreen onComplete={handleLoadingComplete} />}
       </Router>
