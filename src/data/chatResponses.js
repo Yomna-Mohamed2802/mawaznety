@@ -1,5 +1,16 @@
 const RESPONSES = {
   ar: {
+    greeting: {
+      keywords: ["hi", "hello", "hey", "مرحبا", "اهلا", "أهلا", "السلام", "صباح", "مساء", "عامل", "ازيك", "ازيكم", "اخبارك"],
+      response: `أهلاً بيك! 👋 أنا مساعد موازنتي وأقدر أساعدك في أي سؤال عن الموازنة العامة المصرية 2026/2027.
+
+جرب تسألني عن أي حاجة زي:
+• إيه هي الموازنة؟
+• فلوس الدولة بتروح فين؟
+• التعليم والصحة واخدين كام؟
+• 100 جنيه بتتوزع إزاي؟
+• الديون وضعها إزاي؟`,
+    },
     deficit: {
       keywords: ["عجز", "عجز الموازنة", "عجز الميزانية", "المالية بتقول ايه", "الموازنة贵", "فين العجز", "العجز كام"],
       response: `الموازنة العامة فيها عجز نقدر نقول عنه "عجز نقدي" بقيمة حوالي 1,131,599 مليون جنيه (≈1.13 تريليون جنيه) وده بيمثل 4.6% من الناتج المحلي.
@@ -136,6 +147,17 @@ const RESPONSES = {
   },
 
   en: {
+    greeting: {
+      keywords: ["hi", "hello", "hey", "morning", "afternoon", "evening", "how are you", "whats up", "sup"],
+      response: `Hi there! 👋 I'm Mawaznety Assistant. I can help you with anything about Egypt's 2026/2027 public budget.
+
+Try asking me things like:
+• What is the budget?
+• Where does the money go?
+• How much for education and health?
+• How is 100 EGP distributed?
+• What about the debt?`,
+    },
     deficit: {
       keywords: ["deficit", "budget deficit", "spending more", "where is deficit", "deficit amount"],
       response: `The 2026/2027 budget has a cash deficit of about 1,131,599 million EGP (≈1.13 trillion), which is 4.6% of GDP.
