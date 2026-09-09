@@ -77,7 +77,8 @@ const Voting = () => {
         setError(result.error);
       }
     } catch (err) {
-      setError(t.voteError);
+      console.error('Vote save error:', err);
+      setError(err.message || t.voteError);
     }
     setLoading(false);
   }, [selectedCategory, selectedCandidate, consentGiven, user, isAuthenticated]);

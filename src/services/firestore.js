@@ -53,37 +53,39 @@ export const updateUserProfile = async (uid, data) => {
 // ==================== VOTES ====================
 
 export const saveVote = async (categoryId, optionId, uid) => {
-  const voteRef = doc(db, 'votes', `${categoryId}_${uid}`);
-  const existing = await getDoc(voteRef);
-  if (existing.exists()) {
-    return { success: false, error: 'لقد صوت بالفعل في هذا التصنيف' };
+  try {
+    const voteRef = doc(db, 'votes', `${categoryId}_${uid}`);
+    const existing = await getDoc(voteRef);
+    if (existing.exists()) {
+      return { success: false, error: 'لقد صوت بالفعل في هذا التصنيف' };
+    }
+
+    await setDoc(voteRef, {
+      categoryId,
+      optionId,
+      uid,
+      createdAt: serverTimestamp(),
+    });
+
+    const countRef = doc(db, 'voteCounts', categoryId);
+    const countSnap = await getDoc(countRef);
+    if (countSnap.exists()) {
+      const data = countSnap.data();
+      const newCounts = { ...data };
+      newCounts[optionId] = (newCounts[optionId] || 0) + 1;
+      newCounts.total = (newCounts.total || 0) + 1;
+      await setDoc(countRef, newCounts);
+    } else {
+      const initial = { total: 1 };
+      initial[optionId] = 1;
+      await setDoc(countRef, initial);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('saveVote error:', error);
+    throw error;
   }
-
-  const batch = writeBatch(db);
-
-  batch.set(voteRef, {
-    categoryId,
-    optionId,
-    uid,
-    createdAt: serverTimestamp(),
-  });
-
-  const countRef = doc(db, 'voteCounts', categoryId);
-  const countSnap = await getDoc(countRef);
-  if (countSnap.exists()) {
-    const data = countSnap.data();
-    const newCounts = { ...data };
-    newCounts[optionId] = (newCounts[optionId] || 0) + 1;
-    newCounts.total = (newCounts.total || 0) + 1;
-    batch.set(countRef, newCounts);
-  } else {
-    const initial = { total: 1 };
-    initial[optionId] = 1;
-    batch.set(countRef, initial);
-  }
-
-  await batch.commit();
-  return { success: true };
 };
 
 export const getUserVote = async (categoryId, uid) => {
