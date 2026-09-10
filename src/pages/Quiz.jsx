@@ -5,7 +5,7 @@ import { quizQuestions as originalQuestions, quizSettings } from '../data';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
 import { getDataLabel } from '../data/translateData';
-import { saveQuizScore, getUserQuizScores, getLeaderboard, incrementCounter } from '../services/firestore';
+import { saveQuizScore, getLeaderboard, incrementCounter } from '../services/db';
 
 const Quiz = () => {
   const { lang, t } = useLang();
@@ -33,7 +33,17 @@ const Quiz = () => {
 
   useEffect(() => {
     if (user) {
-      getUserQuizScores(user.uid).then(setUserStats);
+      try {
+        const saved = JSON.parse(localStorage.getItem('mawaznety_quiz') || '{}');
+        if (saved.bestScore !== undefined) {
+          setUserStats({
+            bestScore: saved.bestScore,
+            totalAttempts: saved.totalAttempts || 0,
+          });
+        }
+      } catch {
+        // Ignore
+      }
     }
     getLeaderboard(10).then(setLeaderboard);
   }, [user]);
@@ -70,10 +80,20 @@ const Quiz = () => {
     if (isAuthenticated && user) {
       setSaving(true);
       try {
-        await saveQuizScore(user.uid, { score, total: questions.length });
+        await saveQuizScore(score, questions.length);
         await incrementCounter('quizzesCompleted');
-        const updated = await getUserQuizScores(user.uid);
-        setUserStats(updated);
+        try {
+          const saved = JSON.parse(localStorage.getItem('mawaznety_quiz') || '{}');
+          const newBest = Math.max(saved.bestScore || 0, score);
+          const newTotal = (saved.totalAttempts || 0) + 1;
+          localStorage.setItem('mawaznety_quiz', JSON.stringify({
+            bestScore: newBest,
+            totalAttempts: newTotal,
+          }));
+          setUserStats({ bestScore: newBest, totalAttempts: newTotal });
+        } catch {
+          // Ignore localStorage errors
+        }
         const board = await getLeaderboard(10);
         setLeaderboard(board);
       } catch (err) {
@@ -219,19 +239,17 @@ const Quiz = () => {
                 <div className="space-y-2">
                   {leaderboard.map((entry, i) => (
                     <div
-                      key={entry.id}
-                      className={`flex items-center justify-between p-3 rounded-lg ${
-                        entry.id === user?.uid ? 'bg-primary-50 border border-primary-200' : 'bg-gray-50'
-                      }`}
+                      key={i}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
                     >
                       <div className="flex items-center gap-3">
                         <span className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
-                          i === 0 ? 'bg-yellow-400 text-white' : i === 1 ? 'bg-gray-400 text-white' : i === 2 ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-600'
+                          entry.rank === 1 ? 'bg-yellow-400 text-white' : entry.rank === 2 ? 'bg-gray-400 text-white' : entry.rank === 3 ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-600'
                         }`}>
-                          {i + 1}
+                          {entry.rank}
                         </span>
                         <span className="text-sm font-medium text-gray-700">
-                          {entry.id === user?.uid ? t.quizYou : `مستخدم ${entry.id.slice(0, 4)}`}
+                          {t.quizPlayer} {entry.rank}
                         </span>
                       </div>
                       <span className="font-bold text-primary-600">{entry.bestScore}/{questions.length}</span>

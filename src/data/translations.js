@@ -292,6 +292,7 @@ const translations = {
     quizAttempts: 'عدد المحاولات:',
     quizLeaderboard: 'أفضل النتائج',
     quizYou: 'أنت',
+    quizPlayer: 'اللاعب',
 
     // Voting
     voteTitle: 'التصويت',
@@ -839,6 +840,7 @@ const translations = {
     quizAttempts: 'Attempts:',
     quizLeaderboard: 'Top Scores',
     quizYou: 'You',
+    quizPlayer: 'Player',
 
     // Voting
     voteTitle: 'Voting',

@@ -9,6 +9,7 @@ const Quiz = lazy(() => import('./pages/Quiz'));
 const Voting = lazy(() => import('./pages/Voting'));
 const Reports = lazy(() => import('./pages/Reports'));
 const Settings = lazy(() => import('./pages/Settings'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Budget100 = lazy(() => import('./pages/Budget100'));
 const FinanceMinister = lazy(() => import('./pages/FinanceMinister'));
 const MasterDashboard = lazy(() => import('./pages/MasterDashboard'));
@@ -69,6 +70,7 @@ function App() {
                   <Route path="voting" element={<Voting />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="admin" element={<AdminDashboard />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

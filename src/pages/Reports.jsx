@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiOutlineChartBar } from 'react-icons/hi';
 import { useLang } from '../context/LangContext';
-import { getAnalytics } from '../services/firestore';
+import { getPublicStats } from '../services/db';
 
 const Reports = () => {
   const { lang, t } = useLang();
@@ -14,7 +14,7 @@ const Reports = () => {
   });
 
   useEffect(() => {
-    getAnalytics()
+    getPublicStats()
       .then(setAnalytics)
       .catch(() => {});
   }, []);

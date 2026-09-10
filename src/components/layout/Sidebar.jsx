@@ -12,10 +12,16 @@ import {
 } from 'react-icons/hi';
 import MawaznetyLogo from '../ui/MawaznetyLogo';
 import { useLang } from '../../context/LangContext';
+import { useAuth } from '../../context/AuthContext';
+
+const ADMIN_EMAILS = ['yomna2008.mm@gmail.com', 'yomna@gmail.com'];
 
 const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
   const location = useLocation();
   const { t } = useLang();
+  const { user } = useAuth();
+
+  const isAdmin = user?.isAdmin || ADMIN_EMAILS.includes(user?.email);
 
   const menuItems = [
     { path: '/', label: t.home, icon: HiOutlineHome },
@@ -25,6 +31,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
     { path: '/voting', label: t.voting, icon: HiOutlineSparkles },
     { path: '/reports', label: t.reports, icon: HiOutlineChartBar },
     { path: '/settings', label: t.settings, icon: HiOutlineCog },
+    ...(isAdmin ? [{ path: '/admin', label: 'لوحة التحكم', icon: HiOutlineCog }] : []),
   ];
 
   return (

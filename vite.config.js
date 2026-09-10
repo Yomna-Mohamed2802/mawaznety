@@ -10,7 +10,7 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['framer-motion', 'react-icons'],
           'charts': ['recharts'],
-          'firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'firebase': ['firebase/app', 'firebase/auth'],
         }
       }
     },

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineChatBubbleLeftRight, HiXMark, HiPaperAirplane, HiArrowPath } from 'react-icons/hi2';
 import { sendToAI } from '../../services/chat';
-import { incrementCounter } from '../../services/firestore';
+import { incrementCounter } from '../../services/db';
 import { useLang } from '../../context/LangContext';
 
 const SUGGESTED_QUESTIONS_AR = [

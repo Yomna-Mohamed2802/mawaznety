@@ -7,10 +7,9 @@ import { useLang } from '../context/LangContext';
 import { getDataLabel } from '../data/translateData';
 import {
   saveVote,
-  getUserVote,
   subscribeToVoteCounts,
   incrementCounter,
-} from '../services/firestore';
+} from '../services/db';
 
 const Voting = () => {
   const { lang, t } = useLang();
@@ -22,7 +21,6 @@ const Voting = () => {
   const [consentGiven, setConsentGiven] = useState(false);
   const [voteCounts, setVoteCounts] = useState({});
   const [userVotes, setUserVotes] = useState({});
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const currentCategory = votingCategories.find(c => c.id === selectedCategory);
@@ -45,15 +43,16 @@ const Voting = () => {
 
   useEffect(() => {
     if (!user?.uid) return;
-    const checkUserVote = async () => {
-      const vote = await getUserVote(selectedCategory, user.uid);
-      if (vote) {
-        setUserVotes((prev) => ({ ...prev, [selectedCategory]: vote }));
+    try {
+      const saved = JSON.parse(localStorage.getItem('mawaznety_votes') || '{}');
+      if (saved[selectedCategory]) {
+        setUserVotes((prev) => ({ ...prev, [selectedCategory]: saved[selectedCategory] }));
         setHasVoted(true);
         setShowResults(true);
       }
-    };
-    checkUserVote();
+    } catch {
+      // Ignore parse errors
+    }
   }, [selectedCategory, user]);
 
   const handleVote = useCallback(async () => {
@@ -64,23 +63,20 @@ const Voting = () => {
     if (!user) return;
     if (selectedCandidate === null || !consentGiven) return;
 
-    setLoading(true);
     setError('');
+    setHasVoted(true);
+    setShowResults(true);
+    setUserVotes((prev) => ({ ...prev, [selectedCategory]: selectedCandidate }));
+
     try {
-      const result = await saveVote(selectedCategory, selectedCandidate, user.uid);
-      if (result.success) {
-        setHasVoted(true);
-        setShowResults(true);
-        setUserVotes((prev) => ({ ...prev, [selectedCategory]: selectedCandidate }));
-        await incrementCounter('totalVotes');
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      console.error('Vote save error:', err);
-      setError(err.message || t.voteError);
-    }
-    setLoading(false);
+      const saved = JSON.parse(localStorage.getItem('mawaznety_votes') || '{}');
+      saved[selectedCategory] = selectedCandidate;
+      localStorage.setItem('mawaznety_votes', JSON.stringify(saved));
+    } catch {}
+
+    saveVote(selectedCategory, selectedCandidate)
+      .then(() => incrementCounter('totalVotes').catch(() => {}))
+      .catch(() => {});
   }, [selectedCategory, selectedCandidate, consentGiven, user, isAuthenticated]);
 
   const getPercentage = (optionId) => {
@@ -250,10 +246,10 @@ const Voting = () => {
 
           <button
             onClick={handleVote}
-            disabled={selectedCandidate === null || !consentGiven || loading || !isAuthenticated}
+            disabled={selectedCandidate === null || !consentGiven || !isAuthenticated}
             className="w-full bg-primary-600 text-white py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? t.voteSaving : t.voteConfirm}
+            {t.voteConfirm}
           </button>
         </motion.div>
       )}

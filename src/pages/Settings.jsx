@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { HiOutlineSave } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LangContext';
-import { getSettings, saveSettings } from '../services/firestore';
+import { getSettings, saveSettingsAdmin } from '../services/db';
 
 const Settings = () => {
   const { lang, t } = useLang();
@@ -47,7 +47,7 @@ const Settings = () => {
     setSaving(true);
     setMessage('');
     try {
-      await saveSettings(settings);
+      await saveSettingsAdmin(settings);
       setMessage(t.saved);
     } catch (err) {
       setMessage(t.saveError);

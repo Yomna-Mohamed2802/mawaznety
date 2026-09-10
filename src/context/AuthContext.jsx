@@ -9,11 +9,8 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
-import { createUserProfile, getUserProfile, updateUserProfile } from '../services/firestore';
+import { createUserProfile, updateUserProfile } from '../services/db';
 
-// UI-only hint for early admin badge display. NOT the source of truth.
-// Admin status is determined by Firestore: /users/{uid}.isAdmin
-// Firestore Rules enforce admin authorization independently of this list.
 const ADMIN_EMAILS = ['yomna2008.mm@gmail.com', 'yomna@gmail.com'];
 
 const AuthContext = createContext(null);
@@ -36,24 +33,16 @@ export const AuthProvider = ({ children }) => {
           emailVerified: firebaseUser.emailVerified,
         };
 
-        // Show UI immediately with auth data — don't block on Firestore
-        setUser({ uid: firebaseUser.uid, ...profileData });
+        const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
+        setUser({ uid: firebaseUser.uid, ...profileData, isAdmin });
         setLoading(false);
 
-        // Fetch Firestore profile in background for isAdmin and profile data
+        // Sync profile to Supabase in background (INSERT/UPDATE work, SELECT denied by RLS)
         try {
-          let firestoreProfile = await getUserProfile(firebaseUser.uid);
-          if (!firestoreProfile) {
-            firestoreProfile = await createUserProfile(firebaseUser.uid, profileData);
-          } else {
-            await updateUserProfile(firebaseUser.uid, profileData);
-          }
-          // Firestore isAdmin is the source of truth — update user state
-          setUser({ uid: firebaseUser.uid, ...(firestoreProfile || profileData) });
+          await createUserProfile(firebaseUser.uid, profileData);
+          await updateUserProfile(firebaseUser.uid, profileData);
         } catch (e) {
-          console.warn('Firestore profile error:', e);
-          const isAdmin = ADMIN_EMAILS.includes(firebaseUser.email);
-          setUser({ uid: firebaseUser.uid, ...profileData, isAdmin });
+          console.warn('Profile sync error:', e);
         }
       } else {
         setUser(null);
