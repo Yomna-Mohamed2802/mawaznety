@@ -23,11 +23,19 @@ function initFirebaseAdmin() {
     throw new Error('FIREBASE_SERVICE_ACCOUNT not configured');
   }
 
-  const parsed = typeof serviceAccount === 'string'
-    ? JSON.parse(serviceAccount)
-    : serviceAccount;
+  try {
+    const parsed = typeof serviceAccount === 'string'
+      ? JSON.parse(serviceAccount)
+      : serviceAccount;
 
-  return initializeApp({ credential: cert(parsed) });
+    if (!parsed.project_id || !parsed.private_key || !parsed.client_email) {
+      throw new Error('Missing required fields');
+    }
+
+    return initializeApp({ credential: cert(parsed) });
+  } catch (e) {
+    throw new Error('Invalid FIREBASE_SERVICE_ACCOUNT: ' + e.message);
+  }
 }
 
 function getSupabaseClient() {

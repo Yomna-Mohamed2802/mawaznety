@@ -28,11 +28,20 @@ function initFirebaseAdmin() {
     throw new Error('FIREBASE_SERVICE_ACCOUNT not configured');
   }
 
-  const parsed = typeof serviceAccount === 'string'
-    ? JSON.parse(serviceAccount)
-    : serviceAccount;
+  try {
+    const parsed = typeof serviceAccount === 'string'
+      ? JSON.parse(serviceAccount)
+      : serviceAccount;
 
-  return initializeApp({ credential: cert(parsed) });
+    if (!parsed.project_id || !parsed.private_key || !parsed.client_email) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT missing required fields (project_id, private_key, client_email)');
+    }
+
+    return initializeApp({ credential: cert(parsed) });
+  } catch (e) {
+    console.error('[admin] Firebase Admin init failed:', e.message);
+    throw new Error('Invalid FIREBASE_SERVICE_ACCOUNT: ' + e.message);
+  }
 }
 
 function getSupabaseClient() {
@@ -280,6 +289,7 @@ export default async function handler(req, res) {
     }
   } catch (err) {
     console.error('[admin] Error:', err.message);
+    console.error('[admin] Error stack:', err.stack);
 
     if (err.message.includes('Unauthorized') || err.message.includes('admin access')) {
       return res.status(403).json({ error: 'Unauthorized: admin access required' });
@@ -289,6 +299,14 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    return res.status(500).json({ error: 'Internal server error' });
+    if (err.message.includes('FIREBASE_SERVICE_ACCOUNT') || err.message.includes('Firebase')) {
+      return res.status(500).json({ error: 'Firebase configuration error', details: err.message });
+    }
+
+    if (err.message.includes('Supabase')) {
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+
+    return res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 }
