@@ -29,17 +29,26 @@ function initFirebaseAdmin() {
   }
 
   try {
-    const parsed = typeof serviceAccount === 'string'
-      ? JSON.parse(serviceAccount)
-      : serviceAccount;
-
-    if (!parsed.project_id || !parsed.private_key || !parsed.client_email) {
-      throw new Error('FIREBASE_SERVICE_ACCOUNT missing required fields (project_id, private_key, client_email)');
+    let parsed;
+    try {
+      parsed = JSON.parse(serviceAccount);
+    } catch {
+      let inString = false;
+      let escaped = false;
+      let fixed = '';
+      for (const ch of serviceAccount) {
+        if (escaped) { fixed += ch; escaped = false; continue; }
+        if (ch === '\\') { fixed += ch; escaped = true; continue; }
+        if (ch === '"') { inString = !inString; fixed += ch; continue; }
+        if (inString && ch === '\n') { fixed += '\\n'; continue; }
+        fixed += ch;
+      }
+      parsed = JSON.parse(fixed);
     }
 
     return initializeApp({ credential: cert(parsed) });
   } catch (e) {
-    console.error('[admin] Firebase Admin init failed:', e.message);
+    console.error('[admin] Firebase init error:', e.message);
     throw new Error('Invalid FIREBASE_SERVICE_ACCOUNT: ' + e.message);
   }
 }
