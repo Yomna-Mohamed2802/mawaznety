@@ -20,12 +20,12 @@ export const createUserProfile = async (uid, data) => {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || 'Profile creation failed');
+      throw new Error(err.details || err.error || 'Profile creation failed');
     }
 
     return await response.json();
   } catch (e) {
-    console.warn('Profile creation error:', e);
+    console.warn('Profile creation error:', e.message || e);
     return null;
   }
 };
@@ -49,10 +49,10 @@ export const updateUserProfile = async (uid, data) => {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || 'Profile update failed');
+      throw new Error(err.details || err.error || 'Profile update failed');
     }
   } catch (e) {
-    console.warn('Profile update error:', e);
+    console.warn('Profile update error:', e.message || e);
   }
 };
 
@@ -274,12 +274,12 @@ export const getAdminAnalytics = async () => {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || 'Admin API failed');
+      throw new Error(err.details || err.error || 'Admin API failed');
     }
 
     return await response.json();
   } catch (e) {
-    console.warn('Admin analytics failed:', e);
+    console.warn('Admin analytics failed:', e.message || e);
     return null;
   }
 };
