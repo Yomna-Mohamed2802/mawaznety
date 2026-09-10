@@ -13,44 +13,49 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'yomna2008.mm@gmail.com')
   .split(',')
   .map((e) => e.trim().toLowerCase());
 
-function initFirebaseAdmin() {
-  if (getApps().length > 0) return getApps()[0];
+let firebaseAdmin = null;
+
+async function getFirebaseAdmin() {
+  if (firebaseAdmin) return firebaseAdmin;
+
+  const { initializeApp, cert, getApps } = await import('firebase-admin/app');
+  const { getAuth } = await import('firebase-admin/auth');
+
+  if (getApps().length > 0) {
+    firebaseAdmin = { initializeApp, cert, getApps, getAuth };
+    return firebaseAdmin;
+  }
 
   const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
   if (!serviceAccount) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT not configured');
   }
 
+  let parsed;
   try {
-    let parsed;
-    try {
-      parsed = JSON.parse(serviceAccount);
-    } catch {
-      let inString = false;
-      let escaped = false;
-      let fixed = '';
-      for (const ch of serviceAccount) {
-        if (escaped) { fixed += ch; escaped = false; continue; }
-        if (ch === '\\') { fixed += ch; escaped = true; continue; }
-        if (ch === '"') { inString = !inString; fixed += ch; continue; }
-        if (inString && ch === '\n') { fixed += '\\n'; continue; }
-        fixed += ch;
-      }
-      parsed = JSON.parse(fixed);
+    parsed = JSON.parse(serviceAccount);
+  } catch {
+    let inString = false;
+    let escaped = false;
+    let fixed = '';
+    for (const ch of serviceAccount) {
+      if (escaped) { fixed += ch; escaped = false; continue; }
+      if (ch === '\\') { fixed += ch; escaped = true; continue; }
+      if (ch === '"') { inString = !inString; fixed += ch; continue; }
+      if (inString && ch === '\n') { fixed += '\\n'; continue; }
+      fixed += ch;
     }
-
-    return initializeApp({ credential: cert(parsed) });
-  } catch (e) {
-    console.error('[admin] Firebase init error:', e.message);
-    throw new Error('Invalid FIREBASE_SERVICE_ACCOUNT: ' + e.message);
+    parsed = JSON.parse(fixed);
   }
+
+  initializeApp({ credential: cert(parsed) });
+  firebaseAdmin = { initializeApp, cert, getApps, getAuth };
+  return firebaseAdmin;
 }
 
 function getSupabaseClient() {
@@ -87,8 +92,8 @@ async function verifyFirebaseToken(req) {
     throw new Error('Missing ID token');
   }
 
-  const app = initFirebaseAdmin();
-  const decoded = await getAuth(app).verifyIdToken(idToken);
+  const admin = await getFirebaseAdmin();
+  const decoded = await admin.getAuth().verifyIdToken(idToken);
 
   if (!decoded.email) {
     throw new Error('Token has no email claim');
