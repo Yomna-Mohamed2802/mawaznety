@@ -9,6 +9,7 @@ import {
   HiOutlineX,
   HiOutlineDocumentText,
   HiOutlineChevronLeft,
+  HiOutlineBookOpen,
 } from 'react-icons/hi';
 import MawaznetyLogo from '../ui/MawaznetyLogo';
 import { useLang } from '../../context/LangContext';
@@ -25,6 +26,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
 
   const menuItems = [
     { path: '/', label: t.home, icon: HiOutlineHome },
+    { path: '/budget-story', label: t.budgetStory, icon: HiOutlineBookOpen },
     { path: '/budget100', label: t.budget100, icon: HiOutlineChartBar },
     { path: '/finance-minister', label: t.financeMinister, icon: HiOutlineDocumentText },
     { path: '/quiz', label: t.quiz, icon: HiOutlineClipboardCheck },

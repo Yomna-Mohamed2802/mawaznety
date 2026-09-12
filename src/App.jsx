@@ -19,6 +19,7 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
 const CookiesPolicy = lazy(() => import('./pages/CookiesPolicy'));
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
+const BudgetStory = lazy(() => import('./pages/BudgetStory'));
 const LoadingScreen = lazy(() => import('./components/ui/LoadingScreen'));
 
 function PageLoader() {
@@ -70,6 +71,7 @@ function App() {
                   <Route path="voting" element={<Voting />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="budget-story" element={<BudgetStory />} />
                   <Route path="admin" element={<AdminDashboard />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />

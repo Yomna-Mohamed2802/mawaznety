@@ -11,6 +11,7 @@ const translations = {
 
     // Sidebar
     home: 'لوحة التحكم',
+    budgetStory: 'حكاية الموازنة',
     budget100: 'الموازنة من 100',
     financeMinister: 'وزير المالية',
     quiz: 'الاختبارات',
@@ -559,6 +560,7 @@ const translations = {
 
     // Sidebar
     home: 'Dashboard',
+    budgetStory: 'Budget Story',
     budget100: 'Budget from 100',
     financeMinister: 'Finance Minister',
     quiz: 'Quiz',
