@@ -62,6 +62,7 @@ export const FIGURE_TYPE = Object.freeze({
 
 export const UNITS = Object.freeze({
   EGP: "EGP",
+  MILLION_EGP: "million_EGP",
   BILLION_EGP: "billion_EGP",
   TRILLION_EGP: "trillion_EGP",
   PERCENT: "percent",
@@ -240,6 +241,7 @@ export function placeholder(id, label, unit = UNITS.TEXT, fiscalYear = "2026/202
 const UNIT_LABELS = {
   ar: {
     [UNITS.EGP]: "جنيه",
+    [UNITS.MILLION_EGP]: "مليون جنيه",
     [UNITS.BILLION_EGP]: "مليار جنيه",
     [UNITS.TRILLION_EGP]: "تريليون جنيه",
     [UNITS.PERCENT]: "%",
@@ -250,6 +252,7 @@ const UNIT_LABELS = {
   },
   en: {
     [UNITS.EGP]: "EGP",
+    [UNITS.MILLION_EGP]: "million EGP",
     [UNITS.BILLION_EGP]: "billion EGP",
     [UNITS.TRILLION_EGP]: "trillion EGP",
     [UNITS.PERCENT]: "%",
@@ -261,6 +264,48 @@ const UNIT_LABELS = {
 };
 
 const UNAVAILABLE_MESSAGES = { ar: "بيانات غير متوفرة", en: "Data unavailable" };
+
+// Canonical magnitude of each EGP unit, expressed in million EGP.
+const EGP_UNIT_IN_MILLIONS = {
+  [UNITS.MILLION_EGP]: 1,
+  [UNITS.BILLION_EGP]: 1e3,
+  [UNITS.TRILLION_EGP]: 1e6,
+};
+
+/**
+ * Scale an EGP amount (given in its figure unit) to the most readable
+ * human unit: trillions ≥ 1T, billions ≥ 10B, otherwise millions.
+ *
+ * @param {number} value   - Raw value in the figure's own unit
+ * @param {string} unit    - One of MILLION/BILLION/TRILLION_EGP
+ * @param {string} lang    - "ar" | "en"
+ * @returns {string} e.g. "٥٫١٩ تريليون جنيه" / "5.19 trillion EGP"
+ */
+export function formatEGP(value, unit, lang = "ar") {
+  const inMillions = value * (EGP_UNIT_IN_MILLIONS[unit] || 1);
+  const abs = Math.abs(inMillions);
+  const locale = lang === "en" ? "en-US" : "ar-EG";
+  const labels = UNIT_LABELS[lang] || UNIT_LABELS.ar;
+
+  const fmt = (n, maxFrac) =>
+    n.toLocaleString(locale, { maximumFractionDigits: maxFrac });
+
+  if (abs >= 1e6) return `${fmt(inMillions / 1e6, 2)} ${labels[UNITS.TRILLION_EGP]}`;
+  if (abs >= 1e4) return `${fmt(inMillions / 1e3, 0)} ${labels[UNITS.BILLION_EGP]}`;
+  if (abs >= 1e3) return `${fmt(inMillions / 1e3, 1)} ${labels[UNITS.BILLION_EGP]}`;
+  return `${fmt(inMillions, 0)} ${labels[UNITS.MILLION_EGP]}`;
+}
+
+/**
+ * Exact raw value with its stored unit — for tooltips and source drawers,
+ * so the citizen can always verify the official number.
+ */
+export function formatExactValue(figure, lang = "ar") {
+  if (figure.value === null) return UNAVAILABLE_MESSAGES[lang] || UNAVAILABLE_MESSAGES.ar;
+  const labels = UNIT_LABELS[lang] || UNIT_LABELS.ar;
+  const locale = lang === "en" ? "en-US" : "ar-EG";
+  return `${figure.value.toLocaleString(locale)} ${labels[figure.unit] || figure.unit}`;
+}
 
 /**
  * Format a BudgetFigure value for display.
@@ -281,14 +326,14 @@ export function formatValue(figure, lang = "ar") {
   }
 
   if (
+    figure.unit === UNITS.MILLION_EGP ||
     figure.unit === UNITS.BILLION_EGP ||
-    figure.unit === UNITS.TRILLION_EGP ||
-    figure.unit === UNITS.USD_BILLION
+    figure.unit === UNITS.TRILLION_EGP
   ) {
-    return `${figure.value.toLocaleString(locale)} ${unitLabel}`;
+    return formatEGP(figure.value, figure.unit, lang);
   }
 
-  if (figure.unit === UNITS.EGP_PER_USD) {
+  if (figure.unit === UNITS.USD_BILLION || figure.unit === UNITS.EGP_PER_USD) {
     return `${figure.value.toLocaleString(locale)} ${unitLabel}`;
   }
 

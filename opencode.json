@@ -1,0 +1,97 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "build",
+  "plugin": ["ecc-universal"],
+  "instructions": [
+    "node_modules/ecc-universal/skills/tdd-workflow/SKILL.md",
+    "node_modules/ecc-universal/skills/security-review/SKILL.md",
+    "node_modules/ecc-universal/skills/coding-standards/SKILL.md",
+    "node_modules/ecc-universal/skills/frontend-patterns/SKILL.md",
+    "node_modules/ecc-universal/skills/backend-patterns/SKILL.md",
+    "node_modules/ecc-universal/skills/e2e-testing/SKILL.md",
+    "node_modules/ecc-universal/skills/verification-loop/SKILL.md",
+    "node_modules/ecc-universal/skills/api-design/SKILL.md",
+    "node_modules/ecc-universal/skills/strategic-compact/SKILL.md",
+    "node_modules/ecc-universal/skills/eval-harness/SKILL.md"
+  ],
+  "skills": {
+    "paths": ["node_modules/ecc-universal/skills"]
+  },
+  "agent": {
+    "build": {
+      "description": "Primary coding agent for development work",
+      "mode": "primary"
+    },
+    "planner": {
+      "description": "Expert planning specialist for complex features and refactoring.",
+      "mode": "subagent"
+    },
+    "code-reviewer": {
+      "description": "Expert code review specialist. Reviews code for quality, security, and maintainability.",
+      "mode": "subagent"
+    },
+    "security-reviewer": {
+      "description": "Security vulnerability detection and remediation specialist.",
+      "mode": "subagent"
+    },
+    "tdd-guide": {
+      "description": "Test-Driven Development specialist enforcing write-tests-first methodology.",
+      "mode": "subagent"
+    },
+    "build-error-resolver": {
+      "description": "Build and TypeScript error resolution specialist.",
+      "mode": "subagent"
+    },
+    "doc-updater": {
+      "description": "Documentation and codemap specialist.",
+      "mode": "subagent"
+    },
+    "refactor-cleaner": {
+      "description": "Dead code cleanup and consolidation specialist.",
+      "mode": "subagent"
+    }
+  },
+  "command": {
+    "plan": {
+      "description": "Create a detailed implementation plan for complex features",
+      "agent": "planner",
+      "subtask": true
+    },
+    "tdd": {
+      "description": "Enforce TDD workflow with 80%+ test coverage",
+      "agent": "tdd-guide",
+      "subtask": true
+    },
+    "code-review": {
+      "description": "Review code for quality, security, and maintainability",
+      "agent": "code-reviewer",
+      "subtask": true
+    },
+    "security": {
+      "description": "Run comprehensive security review",
+      "agent": "security-reviewer",
+      "subtask": true
+    },
+    "build-fix": {
+      "description": "Fix build and TypeScript errors with minimal changes",
+      "agent": "build-error-resolver",
+      "subtask": true
+    },
+    "refactor-clean": {
+      "description": "Remove dead code and consolidate duplicates",
+      "agent": "refactor-cleaner",
+      "subtask": true
+    },
+    "verify": {
+      "description": "Run verification loop"
+    },
+    "update-docs": {
+      "description": "Update documentation",
+      "agent": "doc-updater",
+      "subtask": true
+    }
+  },
+  "permission": {
+    "mcp_*": "ask"
+  }
+}

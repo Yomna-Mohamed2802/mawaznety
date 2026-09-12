@@ -255,7 +255,7 @@ export const debt = {
     id: "interest_payments",
     label: "الفوائد (التصنيف الاقتصادي)",
     value: 2419823,
-    unit: UNITS.BILLION_EGP,
+    unit: UNITS.MILLION_EGP,
     fiscalYear: FISCAL_YEAR,
     figureType: "official",
     verificationStatus: VERIFICATION.VERIFIED,

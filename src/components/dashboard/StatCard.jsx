@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import SourceBadge from './SourceBadge';
-import { formatValue } from '../../data/schema';
+import { formatValue, formatExactValue } from '../../data/schema';
 import { useLang } from '../../context/LangContext';
 
 const colorStyles = {
@@ -57,7 +57,10 @@ export default function StatCard({ figure, icon: Icon, color = 'blue', delay = 0
           </div>
         )}
       </div>
-      <p className="text-2xl sm:text-[1.7rem] font-bold text-primary-900 tracking-tight leading-none mb-3">
+      <p
+        className="text-2xl sm:text-[1.7rem] font-bold text-primary-900 tracking-tight leading-none mb-3"
+        title={figure ? formatExactValue(figure, lang) : undefined}
+      >
         {figure ? formatValue(figure, lang) : '—'}
       </p>
       {figure && (

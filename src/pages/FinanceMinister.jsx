@@ -191,7 +191,7 @@ const calculateScore = (allocations, categories) => {
     const diff = Math.abs(allocations[cat.id] - cat.actual);
     score -= diff;
   });
-  return Math.max(0, Math.min(100, score));
+  return Math.round(Math.max(0, Math.min(100, score)) * 10) / 10;
 };
 
 const getScoreMessage = (score, t) => {
