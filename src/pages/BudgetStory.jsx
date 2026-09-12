@@ -1,173 +1,180 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { useRef, useEffect, useState } from 'react';
+import { motion, useScroll, useTransform, useInView, useSpring } from 'framer-motion';
 import { useLang } from '../context/LangContext';
 import {
   HiOutlineBookOpen,
-  HiOutlineLightBulb,
-  HiOutlineClock,
-  HiOutlineChartBar,
+  HiOutlineArrowDown,
+  HiOutlineTrendingUp,
   HiOutlineCurrencyDollar,
   HiOutlineCheckCircle,
-  HiOutlineArrowDown,
   HiOutlineUsers,
   HiOutlineHeart,
   HiOutlineAcademicCap,
   HiOutlineShieldCheck,
+  HiOutlineLightBulb,
+  HiOutlineOfficeBuilding,
+  HiOutlineGlobeAlt,
 } from 'react-icons/hi';
 
-/* ─── Animation Variants ────────────────────────────────── */
+/* ─── Animated Counter Hook ─────────────────────────────── */
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 60 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-const fadeInLeft = {
-  hidden: { opacity: 0, x: 60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-const fadeInRight = {
-  hidden: { opacity: 0, x: -60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-/* ─── Scroll Section Component ──────────────────────────── */
-
-function ScrollSection({ children, className = '', id, variant = fadeInUp }) {
+function useAnimatedCounter(end, duration = 2, startOnView = true) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!startOnView || !isInView) return;
+
+    let startTime;
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * end));
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+    requestAnimationFrame(step);
+  }, [isInView, end, duration, startOnView]);
+
+  return { ref, count };
+}
+
+/* ─── Parallax Text Reveal ──────────────────────────────── */
+
+function ParallaxReveal({ children, className = '', direction = 'up' }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], direction === 'up' ? [80, -80] : [-80, 80]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
 
   return (
-    <motion.section
-      id={id}
+    <motion.div ref={ref} style={{ y, opacity }} className={className}>
+      {children}
+    </motion.div>
+  );
+}
+
+/* ─── Scroll Progress Bar ───────────────────────────────── */
+
+function ScrollProgressBar() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+
+  return (
+    <motion.div
+      style={{ scaleX }}
+      className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-blue-500 z-50 origin-left"
+    />
+  );
+}
+
+/* ─── Floating Card ─────────────────────────────────────── */
+
+function FloatingCard({ children, className = '', delay = 0 }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
+
+  return (
+    <motion.div
       ref={ref}
-      initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
-      variants={variant}
+      initial={{ opacity: 0, y: 60, rotateX: 15 }}
+      animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
-    </motion.section>
+    </motion.div>
+  );
+}
+
+/* ─── Glow Effect ───────────────────────────────────────── */
+
+function GlowCard({ children, className = '', color = '#102a43' }) {
+  return (
+    <div className="relative group">
+      <div
+        className="absolute -inset-1 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+        style={{ backgroundColor: `${color}20` }}
+      />
+      <div className="relative">{children}</div>
+    </div>
   );
 }
 
 /* ─── Scroll Indicator ──────────────────────────────────── */
 
-function ScrollIndicator() {
+function ScrollIndicator({ text = 'اسحب للأسفل' }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 1.5 }}
-      className="absolute bottom-8 left-1/2 -translate-x-1/2"
+      transition={{ delay: 2 }}
+      className="flex flex-col items-center gap-2"
     >
+      <span className="text-white/50 text-xs tracking-wider">{text}</span>
       <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="flex flex-col items-center gap-2"
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+        className="w-5 h-8 border-2 border-white/30 rounded-full flex justify-center"
       >
-        <span className="text-white/60 text-xs">اسحب للأسفل</span>
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-1.5 h-3 bg-white/50 rounded-full mt-2"
-          />
-        </div>
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="w-1 h-2 bg-white/50 rounded-full mt-1.5"
+        />
       </motion.div>
     </motion.div>
   );
 }
 
-/* ─── Stat Card ─────────────────────────────────────────── */
+/* ─── Section Divider ───────────────────────────────────── */
 
-function StatCard({ value, label, suffix = '', color = 'white' }) {
+function SectionDivider({ text }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-      transition={{ duration: 0.6 }}
-      className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
+      initial={{ opacity: 0, scaleX: 0 }}
+      animate={isInView ? { opacity: 1, scaleX: 1 } : {}}
+      transition={{ duration: 0.8 }}
+      className="flex items-center gap-4 max-w-4xl mx-auto px-4"
     >
-      <p className="text-white/70 text-sm mb-2">{label}</p>
-      <p className={`text-4xl sm:text-5xl font-bold text-${color} tabular-nums`}>
-        {value}
-        {suffix && <span className="text-lg font-normal text-white/70 mr-2">{suffix}</span>}
-      </p>
+      <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary-300" />
+      <span className="text-sm font-semibold text-primary-500 whitespace-nowrap">{text}</span>
+      <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary-300" />
     </motion.div>
   );
 }
 
-/* ─── Timeline Item ─────────────────────────────────────── */
+/* ─── Stat Number with Animation ────────────────────────── */
 
-function TimelineItem({ number, title, description, isLast = false }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
+function AnimatedStat({ value, suffix = '', label, color = 'primary-900' }) {
+  const { ref, count } = useAnimatedCounter(parseFloat(value) || 0, 2);
 
   return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
-      variants={fadeInUp}
-      className="flex gap-4 sm:gap-6"
-    >
-      <div className="flex flex-col items-center">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={isInView ? { scale: 1 } : { scale: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary-800 font-bold text-lg border-2 border-primary-200"
-        >
-          {number}
-        </motion.div>
-        {!isLast && (
-          <motion.div
-            initial={{ height: 0 }}
-            animate={isInView ? { height: '100%' } : { height: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="w-0.5 bg-primary-200 flex-1 mt-2"
-          />
-        )}
-      </div>
-      <div className="pb-8">
-        <h3 className="text-lg font-bold text-primary-900 mb-2">{title}</h3>
-        <p className="text-sm text-primary-600 leading-relaxed">{description}</p>
-      </div>
-    </motion.div>
+    <div ref={ref} className="text-center">
+      <p className={`text-4xl sm:text-5xl md:text-6xl font-bold text-${color} tabular-nums`}>
+        {count}
+        {suffix && <span className="text-lg sm:text-xl font-normal text-primary-500 ml-1">{suffix}</span>}
+      </p>
+      <p className="text-sm text-primary-500 mt-2">{label}</p>
+    </div>
   );
 }
 
 /* ─── Main Component ────────────────────────────────────── */
 
 export default function BudgetStory() {
-  const { lang, t } = useLang();
+  const { lang } = useLang();
   const containerRef = useRef(null);
 
   const { scrollYProgress } = useScroll({
@@ -175,846 +182,801 @@ export default function BudgetStory() {
     offset: ['start start', 'end end'],
   });
 
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], [0, -50]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+  const heroY = useTransform(scrollYProgress, [0, 0.2], [0, -100]);
 
   return (
     <div ref={containerRef} className="min-h-screen bg-surface" dir="rtl">
+      <ScrollProgressBar />
+
       {/* ─── HERO SECTION ─────────────────────────────────── */}
       <section
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #102a43 0%, #243b53 50%, #334e68 100%)',
+          background: 'linear-gradient(135deg, #0a1628 0%, #102a43 30%, #1a3a5c 60%, #243b53 100%)',
         }}
       >
-        <div className="absolute inset-0">
-          <div
-            className="absolute inset-0 opacity-[0.07]"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 25% 50%, #486581 0%, transparent 50%), radial-gradient(circle at 75% 20%, #059669 0%, transparent 50%)',
-            }}
-          />
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-white/5"
+              style={{
+                width: Math.random() * 300 + 50,
+                height: Math.random() * 300 + 50,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, -30, 0],
+                x: [0, Math.random() * 20 - 10, 0],
+                opacity: [0.3, 0.6, 0.3],
+              }}
+              transition={{
+                duration: Math.random() * 5 + 5,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          ))}
         </div>
 
         <motion.div
           style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
-          className="relative text-center px-4 max-w-4xl mx-auto"
+          className="relative text-center px-4 max-w-5xl mx-auto"
         >
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
+            initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="w-24 h-24 mx-auto mb-8 rounded-full bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center backdrop-blur-sm border border-white/10"
           >
-            <HiOutlineBookOpen className="w-16 h-16 text-white/80 mx-auto mb-6" />
+            <HiOutlineBookOpen className="w-12 h-12 text-white" />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+          >
+            <span className="inline-block px-4 py-2 mb-6 text-xs font-semibold tracking-widest uppercase bg-white/10 text-white/80 rounded-full border border-white/20 backdrop-blur-sm">
+              {lang === 'ar' ? 'الإصدار الثالث عشر' : '13th Edition'}
+            </span>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
+            transition={{ duration: 1, delay: 0.5 }}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-[1.1]"
           >
-            {lang === 'ar' ? 'حكاية الموازنة' : 'The Budget Story'}
+            {lang === 'ar' ? (
+              <>
+                <span className="block">حكاية</span>
+                <span className="block bg-gradient-to-l from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                  الموازنة
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="block">The Budget</span>
+                <span className="block bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                  Story
+                </span>
+              </>
+            )}
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.6 }}
-            className="text-lg sm:text-xl text-white/70 mb-8 max-w-2xl mx-auto leading-relaxed"
+            transition={{ duration: 1, delay: 0.7 }}
+            className="text-xl sm:text-2xl text-white/60 mb-4 max-w-2xl mx-auto"
           >
             {lang === 'ar'
-              ? 'موازنة المواطن المصرية 2027/2026 — الإصدار الثالث عشر'
-              : 'Egypt\'s Citizen Budget 2027/2026 — 13th Edition'}
+              ? 'موازنة المواطن المصرية 2027/2026'
+              : 'Egypt\'s Citizen Budget 2027/2026'}
           </motion.p>
 
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="text-sm text-white/50 mb-8"
+            transition={{ duration: 1, delay: 0.9 }}
+            className="text-sm text-white/40 mb-12"
           >
-            {lang === 'ar'
-              ? 'وزارة المالية — أغسطس 2026'
-              : 'Ministry of Finance — August 2026'}
+            {lang === 'ar' ? 'وزارة المالية — أغسطس 2026' : 'Ministry of Finance — August 2026'}
           </motion.p>
 
-          <ScrollIndicator />
+          <ScrollIndicator text={lang === 'ar' ? 'اسحب للأسفل' : 'Scroll down'} />
         </motion.div>
       </section>
 
       {/* ─── 01 — رسالة الوزير ────────────────────────────── */}
-      <ScrollSection
-        id="minister-letter"
-        className="py-20 sm:py-28"
-        variant={fadeInUp}
-      >
+      <section className="py-24 sm:py-32 relative">
         <div className="section-container">
-          <div className="text-center mb-16">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="section-eyebrow"
-            >
-              {lang === 'ar' ? 'الفصل الأول' : 'Chapter 1'}
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="section-heading text-3xl sm:text-4xl md:text-5xl"
-            >
-              {lang === 'ar' ? 'رسالة من الوزير' : 'Message from the Minister'}
-            </motion.h2>
-          </div>
+          <ParallaxReveal>
+            <div className="text-center mb-16">
+              <span className="section-eyebrow">
+                {lang === 'ar' ? 'الفصل الأول' : 'Chapter 1'}
+              </span>
+              <h2 className="section-heading text-4xl sm:text-5xl">
+                {lang === 'ar' ? 'رسالة من الوزير' : 'Message from the Minister'}
+              </h2>
+            </div>
+          </ParallaxReveal>
 
           <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="card-base p-8 sm:p-10"
-            >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-2xl">👨‍💼</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-primary-900 text-lg">
-                    {lang === 'ar' ? 'أحمد كجوك' : 'Ahmed Kouchouk'}
-                  </h3>
-                  <p className="text-sm text-primary-500">
-                    {lang === 'ar' ? 'وزير المالية' : 'Minister of Finance'}
-                  </p>
-                </div>
-              </div>
+            <FloatingCard>
+              <div className="card-base p-8 sm:p-12 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary-100 to-transparent rounded-bl-full" />
+                <div className="relative">
+                  <div className="flex items-center gap-6 mb-8">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-lg">
+                      <span className="text-3xl">👨‍💼</span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-primary-900">
+                        {lang === 'ar' ? 'أحمد كجوك' : 'Ahmed Kouchouk'}
+                      </h3>
+                      <p className="text-primary-500">
+                        {lang === 'ar' ? 'وزير المالية' : 'Minister of Finance'}
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="space-y-4 text-primary-700 leading-relaxed">
-                <p>
-                  {lang === 'ar'
-                    ? 'للعام الثالث عشر على التوالي، تصدر وزارة المالية تقرير موازنة المواطن كأحد أهم الأدوات لمد جسور التواصل ورفع وعي المواطن المصري بأحدث توجهات السياسة المالية وآليات الموازنة التشاركية.'
-                    : 'For the thirteenth consecutive year, the Ministry of Finance issues the Citizen Budget report as one of the most important tools for bridging communication and raising awareness of the latest fiscal policy trends and participatory budgeting mechanisms.'}
-                </p>
-                <p>
-                  {lang === 'ar'
-                    ? 'أننا نقف اليوم على أسس اقتصادية أفضل وأكثر صلابﺔ تسمح باستكمال مسيرة الإصلاح والقدم ورفع وطن؛ حيث أثبت الاقتصاد المصري مرونة في التصدي للتحديات العالمية بفضل الإصلاحات الهيكلية التي تطبقها الدولة المصرية.'
-                    : 'We stand today on better and stronger economic foundations that allow us to continue the path of reform and progress; where the Egyptian economy has shown resilience in facing global challenges thanks to the structural reforms implemented by the Egyptian state.'}
-                </p>
-                <p>
-                  {lang === 'ar'
-                    ? 'حيث تنطلق موازنة الدولة لعام 2027/2026 من رؤية واضحة تضع المواطن والمستثمر في قلب الأولويات، وتعكس التزام الدولة بتحقيق معادلة متوازنة بين مساندة المواطنين وتوفير حياة كريمة لهم مع تحفيز ودعم النشاط الاقتصادي والحفاظ على الاستقرار المالي.'
-                    : 'The state budget for 2027/2026 launches from a clear vision that places the citizen and investor at the heart of priorities, reflecting the state\'s commitment to achieving a balanced equation between supporting citizens and providing them with a decent life while stimulating and supporting economic activity and maintaining financial stability.'}
-                </p>
+                  <div className="space-y-6 text-lg text-primary-700 leading-relaxed">
+                    <p className="relative pr-6 before:absolute before:right-0 before:top-0 before:bottom-0 before:w-1 before:bg-gradient-to-b before:from-emerald-500 before:to-blue-500 before:rounded-full">
+                      {lang === 'ar'
+                        ? 'للعام الثالث عشر على التوالي، تصدر وزارة المالية تقرير موازنة المواطن كأحد أهم الأدوات لمد جسور التواصل ورفع وعي المواطن المصري بأحدث توجهات السياسة المالية وآليات الموازنة التشاركية.'
+                        : 'For the thirteenth consecutive year, the Ministry of Finance issues the Citizen Budget report as one of the most important tools for bridging communication and raising awareness of the latest fiscal policy trends and participatory budgeting mechanisms.'}
+                    </p>
+                    <p className="relative pr-6 before:absolute before:right-0 before:top-0 before:bottom-0 before:w-1 before:bg-gradient-to-b before:from-emerald-500 before:to-blue-500 before:rounded-full">
+                      {lang === 'ar'
+                        ? 'أننا نقف اليوم على أسس اقتصادية أفضل وأكثر صلابهة تسمح باستكمال مسيرة الإصلاح والقدم ورفع وطن؛ حيث أثبت الاقتصاد المصري مرونة في التصدي للتحديات العالمية بفضل الإصلاحات الهيكلية.'
+                        : 'We stand today on better and stronger economic foundations that allow us to continue the path of reform and progress; where the Egyptian economy has shown resilience in facing global challenges thanks to structural reforms.'}
+                    </p>
+                    <p className="relative pr-6 before:absolute before:right-0 before:top-0 before:bottom-0 before:w-1 before:bg-gradient-to-b before:from-emerald-500 before:to-blue-500 before:rounded-full">
+                      {lang === 'ar'
+                        ? 'تنطلق موازنة الدولة لعام 2027/2026 من رؤية واضحة تضع المواطن والمستثمر في قلب الأولويات، وتعكس التزام الدولة بتحقيق معادلة متوازنة بين مساندة المواطنين وتحفيز النشاط الاقتصادي.'
+                        : 'The state budget for 2027/2026 launches from a clear vision that places the citizen and investor at the heart of priorities, reflecting the state\'s commitment to achieving a balanced equation between supporting citizens and stimulating economic activity.'}
+                    </p>
+                  </div>
+                </div>
               </div>
-
-              <div className="mt-6 pt-6 border-t border-primary-100">
-                <p className="text-sm text-primary-500 italic">
-                  {lang === 'ar'
-                    ? 'وكل ما يهم المواطنين، وإعادة ترتيب الأولويات حتى يكون الإنفاق العام أكثر مراعاة للبعد الاجتماعي.'
-                    : 'And everything that concerns citizens, and re-prioritizing so that public expenditure is more socially oriented.'}
-                </p>
-              </div>
-            </motion.div>
+            </FloatingCard>
           </div>
         </div>
-      </ScrollSection>
+      </section>
+
+      <SectionDivider text={lang === 'ar' ? 'الفصل الثاني' : 'Chapter 2'} />
 
       {/* ─── 02 — يعني إيه موازنة؟ ────────────────────────── */}
-      <section
-        id="what-is-budget"
-        className="py-20 sm:py-28"
-        style={{
-          background: 'linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)',
-        }}
-      >
+      <section className="py-24 sm:py-32 bg-gradient-to-b from-surface to-white">
         <div className="section-container">
-          <div className="text-center mb-16">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="section-eyebrow"
-            >
-              {lang === 'ar' ? 'الفصل الثاني' : 'Chapter 2'}
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="section-heading text-3xl sm:text-4xl md:text-5xl"
-            >
-              {lang === 'ar' ? 'يعني إيه موازنة؟' : 'What is a Budget?'}
-            </motion.h2>
-          </div>
+          <ParallaxReveal>
+            <div className="text-center mb-16">
+              <span className="section-eyebrow">
+                {lang === 'ar' ? 'المفاهيم الأساسية' : 'Basic Concepts'}
+              </span>
+              <h2 className="section-heading text-4xl sm:text-5xl">
+                {lang === 'ar' ? 'يعني إيه موازنة؟' : 'What is a Budget?'}
+              </h2>
+            </div>
+          </ParallaxReveal>
 
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="card-base p-8 sm:p-10 mb-8"
-            >
-              <div className="space-y-4 text-primary-700 leading-relaxed">
-                <p>
-                  {lang === 'ar'
-                    ? 'تُعد الموازنة العامة للدولة الأداة الأساسية لوزارة المالية لتحقيق الأهداف الاقتصادية والاجتماعية للمواطنين، عبر الاستغلال الأمثل لموارد الدولة.'
-                    : 'The general state budget is the basic tool for the Ministry of Finance to achieve the economic and social goals of citizens through the optimal exploitation of state resources.'}
-                </p>
-                <p>
-                  {lang === 'ar'
-                    ? 'هي وثيقة تُبين الإيرادات المتوقعة للدولة خلال العام المالي، وخطة الحكومة لإعادة ترتيب أولويات الإنفاق بما يُحسّن جودة حياة المواطن في مجالات الحماية الاجتماعية والخدمات العامة مثل الصحة والتعليم والإسكان والتمويين وحماية البيئة.'
-                    : 'It is a document that shows the expected revenues of the state during the fiscal year, and the government\'s plan to re-prioritize spending to improve the quality of life of citizens in areas of social protection and public services such as health, education, housing, supply, and environmental protection.'}
-                </p>
-                <p>
-                  {lang === 'ar'
-                    ? 'كما تعرض الموازنة خطط وبرامج وزارة المالية التي أعدتها الدولة للتصدي للتحديات الراهنتمهنة الطريق أمام تحقيق مستقبل أفضل، وتُعد كذلك أداة للرقابة والمساءلة تُمكّن المواطنين من التأكيد من توافق خطط الإنفاق الحكومي مع أولوياتهم.'
-                    : 'The budget also presents the plans and programs of the Ministry of Finance that the state has prepared to address current challenges and pave the way for a better future, and is also a tool for oversight and accountability that enables citizens to ensure that government spending plans align with their priorities.'}
-                </p>
+          <div className="max-w-5xl mx-auto">
+            <FloatingCard delay={0.1}>
+              <div className="card-base p-8 sm:p-12 mb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                        <HiOutlineLightBulb className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-primary-900">
+                        {lang === 'ar' ? 'التعريف' : 'Definition'}
+                      </h3>
+                    </div>
+                    <p className="text-lg text-primary-700 leading-relaxed">
+                      {lang === 'ar'
+                        ? 'تُعد الموازنة العامة للدولة الأداة الأساسية لوزارة المالية لتحقيق الأهداف الاقتصادية والاجتماعية للمواطنين، عبر الاستغلال الأمثل لموارد الدولة.'
+                        : 'The general state budget is the basic tool for the Ministry of Finance to achieve the economic and social goals of citizens through the optimal exploitation of state resources.'}
+                    </p>
+                    <p className="text-lg text-primary-700 leading-relaxed">
+                      {lang === 'ar'
+                        ? 'هي وثيقة تُبين الإيرادات المتوقعة للدولة خلال العام المالي، وخطة الحكومة لإعادة ترتيب أولويات الإنفاق بما يُحسّن جودة حياة المواطن.'
+                        : 'It is a document that shows the expected revenues of the state during the fiscal year, and the government\'s plan to re-prioritize spending to improve the quality of life of citizens.'}
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary-100 to-primary-50 rounded-3xl transform rotate-3" />
+                    <div className="relative bg-white rounded-3xl p-8 shadow-xl">
+                      <div className="space-y-4">
+                        {[
+                          { icon: '🏥', text: lang === 'ar' ? 'الصحة' : 'Health' },
+                          { icon: '🎓', text: lang === 'ar' ? 'التعليم' : 'Education' },
+                          { icon: '🏠', text: lang === 'ar' ? 'الإسكان' : 'Housing' },
+                          { icon: '🛡️', text: lang === 'ar' ? 'الحماية الاجتماعية' : 'Social Protection' },
+                          { icon: '🌱', text: lang === 'ar' ? 'حماية البيئة' : 'Environment' },
+                        ].map((item, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex items-center gap-4 p-3 bg-surface-warm rounded-xl"
+                          >
+                            <span className="text-2xl">{item.icon}</span>
+                            <span className="font-medium text-primary-800">{item.text}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </motion.div>
+            </FloatingCard>
 
             {/* مراحل إعداد الموازنة */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="card-base p-8 sm:p-10"
-            >
-              <h3 className="text-xl font-bold text-primary-900 mb-6">
-                {lang === 'ar' ? 'مراحل إعداد الموازنة' : 'Budget Preparation Stages'}
-              </h3>
+            <FloatingCard delay={0.2}>
+              <div className="card-base p-8 sm:p-12">
+                <h3 className="text-2xl font-bold text-primary-900 mb-8 text-center">
+                  {lang === 'ar' ? 'مراحل إعداد الموازنة' : 'Budget Preparation Stages'}
+                </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  {
-                    number: '01',
-                    title: lang === 'ar' ? 'تصدر وزارة المالية منشور إعداد الموازنة' : 'Ministry of Finance issues budget preparation bulletin',
-                    description: lang === 'ar'
-                      ? 'تقوم جهات الدولة بإعداد مشروعات موازناتها'
-                      : 'State entities prepare their budget proposals',
-                  },
-                  {
-                    number: '02',
-                    title: lang === 'ar' ? 'تناقش وزارة المالية مشروعات الموازنات' : 'Ministry of Finance discusses budget proposals',
-                    description: lang === 'ar'
-                      ? 'الواردة إليها الخاصة بكل جهة'
-                      : 'Received from each entity',
-                  },
-                  {
-                    number: '03',
-                    title: lang === 'ar' ? 'يقدم وزير المالية مشروع الموازنة لمجلس الوزراء' : 'Minister of Finance presents budget to Cabinet',
-                    description: lang === 'ar'
-                      ? 'للمناقشة والتعديل'
-                      : 'For discussion and amendment',
-                  },
-                  {
-                    number: '04',
-                    title: lang === 'ar' ? 'يعرض مجلس الوزراء مشروع الموازنة على رئيس الجمهورية' : 'Cabinet presents budget to President',
-                    description: lang === 'ar'
-                      ? 'بعد تعديله للمناقشة والموافقة عليه'
-                      : 'After amendment for discussion and approval',
-                  },
-                  {
-                    number: '05',
-                    title: lang === 'ar' ? 'يحيل السيد رئيس الجمهورية مشروع الموازنة لمجلس النواب' : 'President refers budget to House of Representatives',
-                    description: lang === 'ar'
-                      ? 'لمناقشته وتعديله في ضوء القواعد الحاكمة في الدستور والقانون'
-                      : 'For discussion and amendment in light of constitutional and legal rules',
-                  },
-                  {
-                    number: '06',
-                    title: lang === 'ar' ? 'بعد اعتماد قانون الموازنة من مجلس النواب' : 'After budget law is approved by House of Representatives',
-                    description: lang === 'ar'
-                      ? 'يتم إرساله مرة أخرى إلى فخامة رئيس الجمهورية لاعتماده بشكل نهائي ثم إلى وزارة المالية للتنفيذ'
-                      : 'It is sent again to the President for final approval and then to the Ministry of Finance for implementation',
-                  },
-                ].map((stage, i) => (
-                  <TimelineItem
-                    key={stage.number}
-                    number={stage.number}
-                    title={stage.title}
-                    description={stage.description}
-                    isLast={i === 5}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 03 — ما تم تحقيقه في 2025/2026 ──────────────── */}
-      <section
-        className="py-20 sm:py-28"
-        style={{
-          background: 'linear-gradient(135deg, #102a43 0%, #243b53 50%, #334e68 100%)',
-        }}
-      >
-        <div className="section-container">
-          <div className="text-center mb-16">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="section-eyebrow text-white/70"
-            >
-              {lang === 'ar' ? 'الفصل الثالث' : 'Chapter 3'}
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="section-heading text-3xl sm:text-4xl md:text-5xl text-white"
-            >
-              {lang === 'ar' ? 'ما تم تحقيقه في 2025/2026' : 'Achievements in 2025/2026'}
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-white/70 mt-4 max-w-2xl mx-auto"
-            >
-              {lang === 'ar'
-                ? 'أثبت الاقتصاد المصري صلابة ومرونة في التصدي للتحديات العالمية'
-                : 'The Egyptian economy showed strength and resilience in facing global challenges'}
-            </motion.p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <StatCard
-              value="5%"
-              label={lang === 'ar' ? 'معدل النمو الاقتصادي' : 'Economic Growth Rate'}
-              color="white"
-            />
-            <StatCard
-              value="78%"
-              label={lang === 'ar' ? 'نسبة الدين من الناتج المحلي' : 'Debt to GDP Ratio'}
-              color="white"
-            />
-            <StatCard
-              value="78.5"
-              suffix={lang === 'ar' ? 'مليار دولار' : 'Billion USD'}
-              label={lang === 'ar' ? 'الدين الخارجي' : 'External Debt'}
-              color="white"
-            />
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20"
-            >
-              <h3 className="text-xl font-bold text-white mb-6">
-                {lang === 'ar' ? 'أهم النتائج المحققة' : 'Key Achievements'}
-              </h3>
-
-              <div className="space-y-4 text-white/80 leading-relaxed">
-                <p>
-                  {lang === 'ar'
-                    ? 'حققت مصر فائض أولي مستدام خلال السنوات الأخيرة مقارنة بعجز أولي مستمر للدول الناشئة، ومازالت مصر تستهدف فائض أولي يبلغ 5% من الناتج المحلي في موازنة العام المالي 2027/2026.'
-                    : 'Egypt achieved a sustained primary surplus in recent years compared to a continued primary deficit in emerging countries, and Egypt still targets a primary surplus of 5% of GDP in the 2027/2026 fiscal year budget.'}
-                </p>
-                <p>
-                  {lang === 'ar'
-                    ? 'خفض دين أجهزة الموازنة العامة كنسبة من الناتج المحلي الإجمالي بحوالى 13% خلال عامين فقط، حيث انخفض من حوالى 82.5% من الناتج في يونيو 2025 وصوًاًل إلى 78% من الناتج في ديسمبر 2025.'
-                    : 'Reduced the debt of general budget bodies as a percentage of GDP by about 13% in just two years, falling from about 82.5% of output in June 2025 to about 78% of output in December 2025.'}
-                </p>
-                <p>
-                  {lang === 'ar'
-                    ? 'كما انخفض الدين الخارجي لأجهزة الموازنة العامة بنحو 4 مليار دولار خلال عامين وصوًاًل إلى 78.5 مليار دولار في يونيو 2025.'
-                    : 'External debt of general budget bodies also decreased by about $4 billion in two years to about $78.5 billion in June 2025.'}
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 04 — أهم ركائز الموازنة ──────────────────────── */}
-      <section
-        className="py-20 sm:py-28"
-        style={{
-          background: 'linear-gradient(180deg, #fef3c7 0%, #ffffff 100%)',
-        }}
-      >
-        <div className="section-container">
-          <div className="text-center mb-16">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="section-eyebrow"
-            >
-              {lang === 'ar' ? 'الفصل الرابع' : 'Chapter 4'}
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="section-heading text-3xl sm:text-4xl md:text-5xl"
-            >
-              {lang === 'ar' ? 'أهم ركائز الموازنة' : 'Key Budget Pillars'}
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="section-subtitle mt-4"
-            >
-              {lang === 'ar'
-                ? 'الموازنة الجديدة تنحاز للمواطن والمستثمر وتعزز النشاط الاقتصادي'
-                : 'The new budget favors the citizen and investor and boosts economic activity'}
-            </motion.p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                icon: '⚖️',
-                title: lang === 'ar' ? 'سياسة مالية متوازنة' : 'Balanced Fiscal Policy',
-                description: lang === 'ar'
-                  ? 'تجمع بين دفع النمو الاقتصادي وتعزيز التنافسية والحفاظ على الانضباط المالي'
-                  : 'Combines driving economic growth, enhancing competitiveness, and maintaining fiscal discipline',
-              },
-              {
-                icon: '🤝',
-                title: lang === 'ar' ? 'استكمال مسار الثقة والشراكة' : 'Completing Trust & Partnership Path',
-                description: lang === 'ar'
-                  ? 'مع مجتمع الأعمال وتطبيق حزم التسهيلات الضريبية والجمركية والعقارية'
-                  : 'With business community and implementing tax, customs, and real estate facilitation packages',
-              },
-              {
-                icon: '💰',
-                title: lang === 'ar' ? 'خلق مساحة مالية كافية' : 'Creating Sufficient Fiscal Space',
-                description: lang === 'ar'
-                  ? 'للإنفاق الإضافي على الصحة والتعليم والحماية الاجتماعية للفئات الأولى بالرعاية'
-                  : 'For additional spending on health, education, and social protection for priority groups',
-              },
-              {
-                icon: '📈',
-                title: lang === 'ar' ? 'استراتيجية متكاملة للمديونية' : 'Integrated Debt Strategy',
-                description: lang === 'ar'
-                  ? 'لاستدامة مديونية أجهزة الموازنة بشكل قوي ومؤثر'
-                  : 'For sustainability of budget body debt in a strong and effective manner',
-              },
-            ].map((pillar, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="card-base p-6"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
-                    <span className="text-3xl">{pillar.icon}</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-primary-900 text-lg mb-2">{pillar.title}</h3>
-                    <p className="text-sm text-primary-600 leading-relaxed">{pillar.description}</p>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[
+                    {
+                      number: '01',
+                      title: lang === 'ar' ? 'التخطيط' : 'Planning',
+                      desc: lang === 'ar' ? 'تصدر وزارة المالية منشور إعداد الموازنة' : 'Ministry of Finance issues budget preparation bulletin',
+                    },
+                    {
+                      number: '02',
+                      title: lang === 'ar' ? 'التنسيق' : 'Coordination',
+                      desc: lang === 'ar' ? 'تناقش وزارة المالية مشروعات الموازنات الواردة' : 'Ministry of Finance discusses received budget proposals',
+                    },
+                    {
+                      number: '03',
+                      title: lang === 'ar' ? 'العرض' : 'Presentation',
+                      desc: lang === 'ar' ? 'يقدم وزير المالية مشروع الموازنة لمجلس الوزراء' : 'Minister of Finance presents budget to Cabinet',
+                    },
+                    {
+                      number: '04',
+                      title: lang === 'ar' ? 'الموافقة' : 'Approval',
+                      desc: lang === 'ar' ? 'يعرض مجلس الوزراء مشروع الموازنة على رئيس الجمهورية' : 'Cabinet presents budget to President',
+                    },
+                    {
+                      number: '05',
+                      title: lang === 'ar' ? 'المناقشة' : 'Discussion',
+                      desc: lang === 'ar' ? 'يحيل رئيس الجمهورية مشروع الموازنة لمجلس النواب' : 'President refers budget to House of Representatives',
+                    },
+                    {
+                      number: '06',
+                      title: lang === 'ar' ? 'التنفيذ' : 'Implementation',
+                      desc: lang === 'ar' ? 'بعد الاعتماد يُرسل للتنفيذ' : 'After approval, it is sent for implementation',
+                    },
+                  ].map((stage, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="relative group"
+                    >
+                      <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm" />
+                      <div className="relative bg-white p-6 rounded-2xl border border-primary-100/60 h-full">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center text-white font-bold text-lg mb-4">
+                          {stage.number}
+                        </div>
+                        <h4 className="font-bold text-primary-900 mb-2">{stage.title}</h4>
+                        <p className="text-sm text-primary-600">{stage.desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </motion.div>
+              </div>
+            </FloatingCard>
+          </div>
+        </div>
+      </section>
+
+      <SectionDivider text={lang === 'ar' ? 'الفصل الثالث' : 'Chapter 3'} />
+
+      {/* ─── 03 — الأرقام الرئيسية ────────────────────────── */}
+      <section
+        className="py-24 sm:py-32 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #0a1628 0%, #102a43 50%, #1a3a5c 100%)',
+        }}
+      >
+        <div className="absolute inset-0">
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-white/20 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                opacity: [0.2, 0.8, 0.2],
+                scale: [1, 1.5, 1],
+              }}
+              transition={{
+                duration: Math.random() * 3 + 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="section-container relative">
+          <ParallaxReveal>
+            <div className="text-center mb-16">
+              <span className="section-eyebrow text-white/60">
+                {lang === 'ar' ? 'الفصل الثالث' : 'Chapter 3'}
+              </span>
+              <h2 className="section-heading text-4xl sm:text-5xl text-white">
+                {lang === 'ar' ? 'الأرقام الرئيسية' : 'Key Numbers'}
+              </h2>
+            </div>
+          </ParallaxReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {[
+              { value: '5.2', suffix: lang === 'ar' ? 'تريليون' : 'Trillion', label: lang === 'ar' ? 'إجمالي المصروفات' : 'Total Expenditures' },
+              { value: '4.1', suffix: lang === 'ar' ? 'تريليون' : 'Trillion', label: lang === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenues' },
+              { value: '1.2', suffix: lang === 'ar' ? 'تريليون' : 'Trillion', label: lang === 'ar' ? 'الفائض الأولي' : 'Primary Surplus' },
+              { value: '4.9', suffix: '%', label: lang === 'ar' ? 'العجز المستهدف' : 'Target Deficit' },
+            ].map((stat, i) => (
+              <FloatingCard key={i} delay={i * 0.1}>
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 text-center">
+                  <AnimatedStat
+                    value={stat.value}
+                    suffix={stat.suffix}
+                    label={stat.label}
+                    color="white"
+                  />
+                </div>
+              </FloatingCard>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ─── 05 — الحماية الاجتماعية ──────────────────────── */}
-      <section
-        className="py-20 sm:py-28"
-        style={{
-          background: 'linear-gradient(180deg, #d1fae5 0%, #ffffff 100%)',
-        }}
-      >
-        <div className="section-container">
-          <div className="text-center mb-16">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="section-eyebrow"
-            >
-              {lang === 'ar' ? 'الفصل الخامس' : 'Chapter 5'}
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="section-heading text-3xl sm:text-4xl md:text-5xl"
-            >
-              {lang === 'ar' ? 'الحماية الاجتماعية' : 'Social Protection'}
-            </motion.h2>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            {/* Main Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="card-base p-6 text-center"
-              >
-                <HiOutlineShieldCheck className="w-12 h-12 text-violet-600 mx-auto mb-4" />
-                <p className="text-3xl font-bold text-primary-900 mb-2">836.8</p>
-                <p className="text-sm text-primary-500">
-                  {lang === 'ar' ? 'مليار جنيه للدعم والحماية الاجتماعية' : 'Billion EGP for support and social protection'}
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="card-base p-6 text-center"
-              >
-                <HiOutlineCurrencyDollar className="w-12 h-12 text-emerald-600 mx-auto mb-4" />
-                <p className="text-3xl font-bold text-primary-900 mb-2">8,000</p>
-                <p className="text-sm text-primary-500">
-                  {lang === 'ar' ? 'جنيه الحد الأدنى للدخل' : 'EGP minimum income'}
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="card-base p-6 text-center"
-              >
-                <HiOutlineUsers className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                <p className="text-3xl font-bold text-primary-900 mb-2">21.2%</p>
-                <p className="text-sm text-primary-500">
-                  {lang === 'ar' ? 'زيادة الأجور سنوياً' : 'Annual wage increase'}
-                </p>
-              </motion.div>
-            </div>
-
-            {/* Wage Increases */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="card-base p-8 mb-8"
-            >
-              <h3 className="text-xl font-bold text-primary-900 mb-6">
-                {lang === 'ar' ? 'زيادة غير مسبوقة لتحسين الدخل' : 'Unprecedented Income Improvement'}
+          <FloatingCard delay={0.4}>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+              <h3 className="text-xl font-bold text-white mb-6 text-center">
+                {lang === 'ar' ? 'ما تم تحقيقه في 2025/2026' : 'Achievements in 2025/2026'}
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm">✓</span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-primary-900">
-                        {lang === 'ar' ? '100 مليار جنيه' : '100 Billion EGP'}
-                      </p>
-                      <p className="text-sm text-primary-600">
-                        {lang === 'ar' ? 'تكلفة الزيادة من أول يوليو' : 'Cost of increase from July'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm">✓</span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-primary-900">
-                        {lang === 'ar' ? '12% علاوة دورية' : '12% periodic raise'}
-                      </p>
-                      <p className="text-sm text-primary-600">
-                        {lang === 'ar' ? 'للمخاطبين بقانون الخدمة المدنية' : 'For civil service law subjects'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm">✓</span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-primary-900">
-                        {lang === 'ar' ? '15% علاوة دورية' : '15% periodic raise'}
-                      </p>
-                      <p className="text-sm text-primary-600">
-                        {lang === 'ar' ? 'لغير المخاطبين' : 'For non-subjects'}
-                      </p>
-                    </div>
-                  </div>
+                  {[
+                    lang === 'ar' ? 'خفض الدين من 82.5% إلى 78% خلال سنتين فقط' : 'Reduced debt from 82.5% to 78% in just two years',
+                    lang === 'ar' ? 'انخفاض الدين الخارجي بنحو 4 مليار دولار' : 'External debt decreased by about $4 billion',
+                    lang === 'ar' ? 'تحقيق فائض أولي مستدام' : 'Achieving sustained primary surplus',
+                    lang === 'ar' ? 'تحسين مؤشرات النمو الاقتصادي' : 'Improving economic growth indicators',
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="flex items-center gap-3"
+                    >
+                      <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                        <HiOutlineCheckCircle className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <span className="text-white/80">{item}</span>
+                    </motion.div>
+                  ))}
                 </div>
-
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm">✓</span>
+                  {[
+                    lang === 'ar' ? 'ارتفاع معدل النمو إلى 5%' : 'Growth rate rose to 5%',
+                    lang === 'ar' ? 'توسع الائتمان للقطاع الخاص بنسبة 14.5%' : 'Private sector credit expanded by 14.5%',
+                    lang === 'ar' ? 'تحقيق استثمارات بقيمة 637 مليار جنيه' : 'Investments worth 637 billion EGP',
+                    lang === 'ar' ? 'تحسين تصنيفات المخاطر الائتمانية' : 'Improved credit risk ratings',
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 + 0.2 }}
+                      className="flex items-center gap-3"
+                    >
+                      <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                        <HiOutlineCheckCircle className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <span className="text-white/80">{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </FloatingCard>
+        </div>
+      </section>
+
+      <SectionDivider text={lang === 'ar' ? 'الفصل الرابع' : 'Chapter 4'} />
+
+      {/* ─── 04 — الحماية الاجتماعية ──────────────────────── */}
+      <section className="py-24 sm:py-32 bg-gradient-to-b from-white to-emerald-50">
+        <div className="section-container">
+          <ParallaxReveal>
+            <div className="text-center mb-16">
+              <span className="section-eyebrow">
+                {lang === 'ar' ? 'الفصل الرابع' : 'Chapter 4'}
+              </span>
+              <h2 className="section-heading text-4xl sm:text-5xl">
+                {lang === 'ar' ? 'الحماية الاجتماعية' : 'Social Protection'}
+              </h2>
+              <p className="section-subtitle mt-4">
+                {lang === 'ar'
+                  ? 'زيادة غير مسبوقة لتحسين دخول العاملين بالجهاز الحكومي وأصحاب المعاشات'
+                  : 'Unprecedented increase to improve income of government employees and retirees'}
+              </p>
+            </div>
+          </ParallaxReveal>
+
+          <div className="max-w-5xl mx-auto">
+            {/* Main Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              {[
+                { value: '836.8', suffix: lang === 'ar' ? 'مليار' : 'Billion', label: lang === 'ar' ? 'جنيه للدعم والحماية' : 'EGP for Support' },
+                { value: '8000', suffix: lang === 'ar' ? 'جنيه' : 'EGP', label: lang === 'ar' ? 'الحد الأدنى للدخل' : 'Minimum Income' },
+                { value: '21.2', suffix: '%', label: lang === 'ar' ? 'نمو الأجور السنوي' : 'Annual Wage Growth' },
+              ].map((stat, i) => (
+                <FloatingCard key={i} delay={i * 0.1}>
+                  <GlowCard color={i === 0 ? '#7c3aed' : i === 1 ? '#059669' : '#3b82f6'}>
+                    <div className="card-base p-6 text-center hover:shadow-lg transition-shadow duration-300">
+                      <AnimatedStat value={stat.value} suffix={stat.suffix} label={stat.label} />
                     </div>
-                    <div>
-                      <p className="font-semibold text-primary-900">
-                        {lang === 'ar' ? '750 جنيه شهرياً' : '750 EGP monthly'}
-                      </p>
-                      <p className="text-sm text-primary-600">
-                        {lang === 'ar' ? 'الحافز الإضافي لكل العاملين' : 'Additional incentive for all workers'}
-                      </p>
-                    </div>
+                  </GlowCard>
+                </FloatingCard>
+              ))}
+            </div>
+
+            {/* Wage Details */}
+            <FloatingCard delay={0.3}>
+              <div className="card-base p-8 sm:p-12">
+                <h3 className="text-2xl font-bold text-primary-900 mb-8 text-center">
+                  {lang === 'ar' ? 'تفاصيل الزيادات' : 'Increase Details'}
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h4 className="font-bold text-primary-800 text-lg mb-4">
+                      {lang === 'ar' ? 'الزيادات العامة' : 'General Increases'}
+                    </h4>
+                    {[
+                      { value: '100 مليار', label: lang === 'ar' ? 'جنيه تكلفة الزيادة من يوليو' : 'EGP cost of increase from July' },
+                      { value: '12%', label: lang === 'ar' ? 'علاوة دورية للمخاطبين بقانون الخدمة المدنية' : 'Periodic raise for civil service subjects' },
+                      { value: '15%', label: lang === 'ar' ? 'علاوة دورية لغير المخاطبين' : 'Periodic raise for non-subjects' },
+                      { value: '750 جنيه', label: lang === 'ar' ? 'حافز إضافي شهرياً لكل العاملين' : 'Additional monthly incentive for all workers' },
+                    ].map((item, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.1 }}
+                        className="flex items-center gap-4 p-4 bg-surface-warm rounded-xl"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                          <HiOutlineCheckCircle className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-primary-900">{item.value}</p>
+                          <p className="text-sm text-primary-600">{item.label}</p>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm">✓</span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-primary-900">
-                        {lang === 'ar' ? '1,000 جنيه شهرياً' : '1,000 EGP monthly'}
-                      </p>
-                      <p className="text-sm text-primary-600">
-                        {lang === 'ar' ? 'حافز تدريس إضافي للمعلمين' : 'Additional teaching incentive for teachers'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm">✓</span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-primary-900">
-                        {lang === 'ar' ? '750 جنيه شهرياً' : '750 EGP monthly'}
-                      </p>
-                      <p className="text-sm text-primary-600">
-                        {lang === 'ar' ? 'زيادة للعاملين في القطاع الطبي' : 'Increase for medical sector workers'}
-                      </p>
-                    </div>
+                  <div className="space-y-4">
+                    <h4 className="font-bold text-primary-800 text-lg mb-4">
+                      {lang === 'ar' ? 'زيادات خاصة' : 'Special Increases'}
+                    </h4>
+                    {[
+                      { value: '1,000 جنيه', label: lang === 'ar' ? 'حافز تدريس شهري للمعلمين' : 'Monthly teaching incentive for teachers' },
+                      { value: '2,000 جنيه', label: lang === 'ar' ? 'حافز تميز للإدارة المدرسية' : 'Excellence incentive for school administration' },
+                      { value: '750 جنيه', label: lang === 'ar' ? 'زيادة للقطاع الطبي' : 'Increase for medical sector' },
+                      { value: '25%', label: lang === 'ar' ? 'زيادة فئات نوبتجيات السهر والمبيت' : 'Increase in night shift categories' },
+                    ].map((item, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.1 + 0.2 }}
+                        className="flex items-center gap-4 p-4 bg-surface-warm rounded-xl"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <HiOutlineCheckCircle className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-primary-900">{item.value}</p>
+                          <p className="text-sm text-primary-600">{item.label}</p>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </FloatingCard>
 
             {/* Support Programs */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="card-base p-8"
-            >
-              <h3 className="text-xl font-bold text-primary-900 mb-6">
-                {lang === 'ar' ? 'أهم برامج الدعم' : 'Key Support Programs'}
-              </h3>
+            <FloatingCard delay={0.4}>
+              <div className="card-base p-8 sm:p-12 mt-8">
+                <h3 className="text-2xl font-bold text-primary-900 mb-8 text-center">
+                  {lang === 'ar' ? 'برامج الدعم الحكومية' : 'Government Support Programs'}
+                </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { value: '178.3', label: lang === 'ar' ? 'مليار جنيه لدعم السلع التموينية' : 'Billion EGP for commodity subsidies' },
-                  { value: '104.2', label: lang === 'ar' ? 'مليار جنيه لدعم الكهرباء' : 'Billion EGP for electricity support' },
-                  { value: '13', label: lang === 'ar' ? 'مليار جنيه للإسكان' : 'Billion EGP for housing' },
-                  { value: '69.1', label: lang === 'ar' ? 'مليار جنيه لتمويل شراء القمح' : 'Billion EGP for wheat purchase' },
-                  { value: '46', label: lang === 'ar' ? 'مليار جنيه للمناطق العشوائية' : 'Billion EGP for slum areas' },
-                  { value: '33.3', label: lang === 'ar' ? 'مليار جنيه للأدوية' : 'Billion EGP for medicines' },
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="bg-surface-warm rounded-xl p-4"
-                  >
-                    <p className="text-2xl font-bold text-primary-900">{item.value}</p>
-                    <p className="text-xs text-primary-500 mt-1">{item.label}</p>
-                  </motion.div>
-                ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    { value: '178.3', label: lang === 'ar' ? 'مليار جنيه للسلع التموينية' : 'Billion for commodity subsidies' },
+                    { value: '104.2', label: lang === 'ar' ? 'مليار جنيه لدعم الكهرباء' : 'Billion for electricity support' },
+                    { value: '69.1', label: lang === 'ar' ? 'مليار جنيه لشراء القمح' : 'Billion for wheat purchase' },
+                    { value: '46', label: lang === 'ar' ? 'مليار جنيه للمناطق العشوائية' : 'Billion for slum areas' },
+                    { value: '33.3', label: lang === 'ar' ? 'مليار جنيه للأدوية' : 'Billion for medicines' },
+                    { value: '13', label: lang === 'ar' ? 'مليار جنيه للإسكان' : 'Billion for housing' },
+                    { value: '19.2', label: lang === 'ar' ? 'مليار جنيه للأغذية' : 'Billion for food' },
+                    { value: '5', label: lang === 'ar' ? 'مليار جنيه للمياه' : 'Billion for water' },
+                    { value: '2', label: lang === 'ar' ? 'مليار جنيه للنقل' : 'Billion for transportation' },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.05 }}
+                      className="bg-gradient-to-br from-surface-warm to-white p-4 rounded-xl border border-primary-100/60 hover:shadow-md transition-shadow"
+                    >
+                      <p className="text-2xl font-bold text-primary-900">{item.value}</p>
+                      <p className="text-sm text-primary-600 mt-1">{item.label}</p>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </motion.div>
+            </FloatingCard>
           </div>
         </div>
       </section>
 
-      {/* ─── 06 — التعليم والصحة ──────────────────────────── */}
-      <section
-        className="py-20 sm:py-28"
-        style={{
-          background: 'linear-gradient(180deg, #dbeafe 0%, #ffffff 100%)',
-        }}
-      >
+      <SectionDivider text={lang === 'ar' ? 'الفصل الخامس' : 'Chapter 5'} />
+
+      {/* ─── 05 — التعليم والصحة ──────────────────────────── */}
+      <section className="py-24 sm:py-32 bg-gradient-to-b from-emerald-50 to-blue-50">
         <div className="section-container">
-          <div className="text-center mb-16">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="section-eyebrow"
-            >
-              {lang === 'ar' ? 'الفصل السادس' : 'Chapter 6'}
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="section-heading text-3xl sm:text-4xl md:text-5xl"
-            >
-              {lang === 'ar' ? 'التعليم والصحة' : 'Education & Health'}
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="section-subtitle mt-4"
-            >
-              {lang === 'ar'
-                ? 'الوفاء بالاستحقاقات الدستورية دعمًا للاستثمار في رأس المال البشري'
-                : 'Fulfilling constitutional commitments to support human capital investment'}
-            </motion.p>
-          </div>
+          <ParallaxReveal>
+            <div className="text-center mb-16">
+              <span className="section-eyebrow">
+                {lang === 'ar' ? 'الفصل الخامس' : 'Chapter 5'}
+              </span>
+              <h2 className="section-heading text-4xl sm:text-5xl">
+                {lang === 'ar' ? 'التعليم والصحة' : 'Education & Health'}
+              </h2>
+              <p className="section-subtitle mt-4">
+                {lang === 'ar'
+                  ? 'الوفاء بالاستحقاقات الدستورية دعمًا للاستثمار في رأس المال البشري'
+                  : 'Fulfilling constitutional commitments to support human capital investment'}
+              </p>
+            </div>
+          </ParallaxReveal>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Education */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="card-base p-8"
-            >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-primary-100 flex items-center justify-center">
-                  <HiOutlineAcademicCap className="w-7 h-7 text-primary-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-primary-900">
-                    {lang === 'ar' ? 'التعليم' : 'Education'}
-                  </h3>
-                  <p className="text-sm text-primary-500">
-                    {lang === 'ar' ? 'التعليم العام والجامعي والبحث العلمي' : 'General, university education and scientific research'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-surface-warm rounded-xl p-4">
-                  <p className="text-3xl font-bold text-primary-900">1,475.3</p>
-                  <p className="text-sm text-primary-500">
-                    {lang === 'ar' ? 'مليار جنيه — 7.8% من الناتج المحلي' : 'Billion EGP — 7.8% of GDP'}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-surface-warm rounded-xl p-3">
-                    <p className="text-lg font-bold text-primary-900">55.5</p>
-                    <p className="text-xs text-primary-500">
-                      {lang === 'ar' ? 'مليار للكتب الدراسية' : 'Billion for textbooks'}
-                    </p>
+            <FloatingCard delay={0.1}>
+              <div className="card-base p-8 h-full">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg">
+                    <HiOutlineAcademicCap className="w-8 h-8 text-white" />
                   </div>
-                  <div className="bg-surface-warm rounded-xl p-3">
-                    <p className="text-lg font-bold text-primary-900">47.7</p>
-                    <p className="text-xs text-primary-500">
-                      {lang === 'ar' ? 'مليار للوجبات المدرسية' : 'Billion for school meals'}
+                  <div>
+                    <h3 className="text-2xl font-bold text-primary-900">
+                      {lang === 'ar' ? 'التعليم' : 'Education'}
+                    </h3>
+                    <p className="text-primary-500">
+                      {lang === 'ar' ? 'التعليم العام والجامعي والبحث العلمي' : 'General, university education and research'}
                     </p>
                   </div>
                 </div>
+
+                <div className="bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl p-6 text-white mb-6">
+                  <p className="text-4xl font-bold">1,475.3</p>
+                  <p className="text-white/80">
+                    {lang === 'ar' ? 'مليار جنيه' : 'Billion EGP'}
+                  </p>
+                  <p className="text-sm text-white/60 mt-2">
+                    {lang === 'ar' ? '7.8% من الناتج المحلي' : '7.8% of GDP'}
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {[
+                    { value: '55.5', label: lang === 'ar' ? 'مليار للكتب الدراسية' : 'Billion for textbooks' },
+                    { value: '47.7', label: lang === 'ar' ? 'مليار للوجبات المدرسية' : 'Billion for school meals' },
+                    { value: '45.3', label: lang === 'ar' ? 'مليار للبحث العلمي' : 'Billion for research' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex justify-between items-center p-3 bg-surface-warm rounded-xl">
+                      <span className="text-sm text-primary-600">{item.label}</span>
+                      <span className="font-bold text-primary-900">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </motion.div>
+            </FloatingCard>
 
             {/* Health */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="card-base p-8"
-            >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center">
-                  <HiOutlineHeart className="w-7 h-7 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-primary-900">
-                    {lang === 'ar' ? 'الصحة' : 'Health'}
-                  </h3>
-                  <p className="text-sm text-primary-500">
-                    {lang === 'ar' ? 'الخدمات الصحية والمستشفيات والتأمين الصحي' : 'Health services, hospitals and health insurance'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-surface-warm rounded-xl p-4">
-                  <p className="text-3xl font-bold text-primary-900">617.3</p>
-                  <p className="text-sm text-primary-500">
-                    {lang === 'ar' ? 'مليار جنيه — 5.8% من الناتج المحلي' : 'Billion EGP — 5.8% of GDP'}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-surface-warm rounded-xl p-3">
-                    <p className="text-lg font-bold text-primary-900">33.3</p>
-                    <p className="text-xs text-primary-500">
-                      {lang === 'ar' ? 'مليار للأدوية' : 'Billion for medicines'}
-                    </p>
+            <FloatingCard delay={0.2}>
+              <div className="card-base p-8 h-full">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg">
+                    <HiOutlineHeart className="w-8 h-8 text-white" />
                   </div>
-                  <div className="bg-surface-warm rounded-xl p-3">
-                    <p className="text-lg font-bold text-primary-900">25.2</p>
-                    <p className="text-xs text-primary-500">
-                      {lang === 'ar' ? 'مليار للمستلزمات الطبية' : 'Billion for medical supplies'}
+                  <div>
+                    <h3 className="text-2xl font-bold text-primary-900">
+                      {lang === 'ar' ? 'الصحة' : 'Health'}
+                    </h3>
+                    <p className="text-primary-500">
+                      {lang === 'ar' ? 'الخدمات الصحية والمستشفيات' : 'Health services and hospitals'}
                     </p>
                   </div>
                 </div>
+
+                <div className="bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-6 text-white mb-6">
+                  <p className="text-4xl font-bold">617.3</p>
+                  <p className="text-white/80">
+                    {lang === 'ar' ? 'مليار جنيه' : 'Billion EGP'}
+                  </p>
+                  <p className="text-sm text-white/60 mt-2">
+                    {lang === 'ar' ? '5.8% من الناتج المحلي' : '5.8% of GDP'}
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {[
+                    { value: '33.3', label: lang === 'ar' ? 'مليار للأدوية' : 'Billion for medicines' },
+                    { value: '25.2', label: lang === 'ar' ? 'مليار للمستلزمات الطبية' : 'Billion for medical supplies' },
+                    { value: '15.9', label: lang === 'ar' ? 'مليار للنقل والانتقالات' : 'Billion for transfers' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex justify-between items-center p-3 bg-surface-warm rounded-xl">
+                      <span className="text-sm text-primary-600">{item.label}</span>
+                      <span className="font-bold text-primary-900">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </motion.div>
+            </FloatingCard>
           </div>
         </div>
       </section>
+
+      <SectionDivider text={lang === 'ar' ? 'الفصل السادس' : 'Chapter 6'} />
+
+      {/* ─── 06 — البرامج الاقتصادية ──────────────────────── */}
+      <section className="py-24 sm:py-32 bg-gradient-to-b from-blue-50 to-white">
+        <div className="section-container">
+          <ParallaxReveal>
+            <div className="text-center mb-16">
+              <span className="section-eyebrow">
+                {lang === 'ar' ? 'الفصل السادس' : 'Chapter 6'}
+              </span>
+              <h2 className="section-heading text-4xl sm:text-5xl">
+                {lang === 'ar' ? 'برامج دعم النشاط الاقتصادي' : 'Economic Activity Support Programs'}
+              </h2>
+            </div>
+          </ParallaxReveal>
+
+          <div className="max-w-5xl mx-auto">
+            <FloatingCard>
+              <div className="card-base p-8 sm:p-12 mb-8">
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center gap-4 p-6 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl text-white">
+                    <HiOutlineCurrencyDollar className="w-10 h-10" />
+                    <div className="text-right">
+                      <p className="text-4xl font-bold">90</p>
+                      <p className="text-white/80">{lang === 'ar' ? 'مليار جنيه مخصصة للبرامج' : 'Billion EGP allocated for programs'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    { value: '48', label: lang === 'ar' ? 'مليار لرد الأعباء التصديرية' : 'Billion for export burden relief' },
+                    { value: '6.7', label: lang === 'ar' ? 'مليار لدعم السياحة' : 'Billion for tourism support' },
+                    { value: '6', label: lang === 'ar' ? 'مليار للتسهيلات الإنتاجية' : 'Billion for production facilities' },
+                    { value: '5.5', label: lang === 'ar' ? 'مليار لصناعة السيارات' : 'Billion for automotive industry' },
+                    { value: '5', label: lang === 'ar' ? 'مليار للمشروعات الصغيرة' : 'Billion for SMEs' },
+                    { value: '2', label: lang === 'ar' ? 'مليار للصناعات ذات الأولوية' : 'Billion for priority industries' },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08 }}
+                      className="bg-gradient-to-br from-surface-warm to-white p-5 rounded-xl border border-primary-100/60"
+                    >
+                      <p className="text-3xl font-bold text-primary-900">{item.value}</p>
+                      <p className="text-sm text-primary-600 mt-1">{item.label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </FloatingCard>
+          </div>
+        </div>
+      </section>
+
+      <SectionDivider text={lang === 'ar' ? 'الفصل السابع' : 'Chapter 7'} />
 
       {/* ─── 07 — الخاتمة ────────────────────────────────── */}
       <section
-        className="py-20 sm:py-28"
+        className="py-24 sm:py-32 relative overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #102a43 0%, #243b53 50%, #334e68 100%)',
+          background: 'linear-gradient(135deg, #0a1628 0%, #102a43 50%, #1a3a5c 100%)',
         }}
       >
-        <div className="section-container text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <HiOutlineCheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-6" />
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-              {lang === 'ar' ? 'كده خلصنا!' : 'That\'s It!'}
-            </h2>
-            <p className="text-lg text-white/70 mb-8 max-w-2xl mx-auto leading-relaxed">
-              {lang === 'ar'
-                ? 'دلوقتي فاهم يعني إيه موازنة وإزاي بتتعمل وأرقامها كام. ده كان ملخص لموازنة المواطن المصرية 2027/2026.'
-                : 'Now you understand what a budget is, how it is prepared, and its numbers. This was a summary of Egypt\'s Citizen Budget 2027/2026.'}
-            </p>
+        <div className="section-container relative">
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="w-20 h-20 mx-auto mb-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center"
+            >
+              <HiOutlineCheckCircle className="w-10 h-10 text-white" />
+            </motion.div>
 
-            <div className="flex flex-wrap justify-center gap-4">
-              <a href="/budget100" className="btn-primary bg-white text-primary-800 hover:bg-white/90">
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6"
+            >
+              {lang === 'ar' ? 'كده خلصنا!' : 'That\'s It!'}
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-xl text-white/70 mb-12 max-w-2xl mx-auto"
+            >
+              {lang === 'ar'
+                ? 'دلوقتي فاهم يعني إيه موازنة وإزاي بتتعمل وأرقامها كام. ده كان ملخص شامل لموازنة المواطن المصرية 2027/2026.'
+                : 'Now you understand what a budget is, how it is prepared, and its numbers. This was a comprehensive summary of Egypt\'s Citizen Budget 2027/2026.'}
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="flex flex-wrap justify-center gap-4"
+            >
+              <a href="/budget100" className="btn-primary bg-white text-primary-800 hover:bg-white/90 text-lg px-8 py-4">
                 {lang === 'ar' ? 'جرّب ميزانية 100 جنيه' : 'Try 100 EGP Budget'}
               </a>
-              <a href="/finance-minister" className="btn-secondary bg-white/10 text-white border-white/30 hover:bg-white/20">
+              <a href="/finance-minister" className="btn-secondary bg-white/10 text-white border-white/30 hover:bg-white/20 text-lg px-8 py-4">
                 {lang === 'ar' ? 'كون وزير المالية' : 'Be the Finance Minister'}
               </a>
-              <a href="/quiz" className="btn-secondary bg-white/10 text-white border-white/30 hover:bg-white/20">
+              <a href="/quiz" className="btn-secondary bg-white/10 text-white border-white/30 hover:bg-white/20 text-lg px-8 py-4">
                 {lang === 'ar' ? 'اختبر معلوماتك' : 'Test Your Knowledge'}
               </a>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
     </div>
