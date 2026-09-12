@@ -1,22 +1,66 @@
-import { useRef, useEffect, useState } from 'react';
-import { motion, useScroll, useTransform, useInView, useSpring, useMotionValueEvent } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
 import { useLang } from '../context/LangContext';
-import {
-  HiOutlineBookOpen,
-  HiOutlineCheckCircle,
-  HiOutlineCurrencyDollar,
-  HiOutlineHeart,
-  HiOutlineAcademicCap,
-  HiOutlineShieldCheck,
-  HiOutlineLightBulb,
-  HiOutlineTrendingUp,
-  HiOutlineUsers,
-  HiOutlineGlobeAlt,
-} from 'react-icons/hi';
+
+/* ─── Pin Section ───────────────────────────────────────── */
+
+function PinSection({ children, className = '' }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start start', 'end end'],
+  });
+
+  return (
+    <div ref={ref} className={`relative ${className}`}>
+      <div className="sticky top-0 h-screen overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Horizontal Scroll ─────────────────────────────────── */
+
+function HorizontalScroll({ items, bgColor = 'bg-white' }) {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const x = useTransform(scrollYProgress, [0, 1], ['0%', '-70%']);
+
+  return (
+    <div ref={containerRef} className="h-[300vh]">
+      <div className={`sticky top-0 h-screen overflow-hidden ${bgColor}`}>
+        <motion.div style={{ x }} className="flex h-full items-center gap-8 px-8">
+          {items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className={`flex-shrink-0 w-[75vw] h-[65vh] rounded-3xl p-8 flex flex-col justify-end relative overflow-hidden ${item.bg}`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              <div className="relative z-10 text-white">
+                <span className="text-6xl mb-4 block">{item.icon}</span>
+                <p className="text-6xl font-bold mb-2">{item.value}</p>
+                <p className="text-2xl opacity-90">{item.label}</p>
+                <p className="text-base opacity-70 mt-2">{item.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
 
 /* ─── Animated Counter ──────────────────────────────────── */
 
-function AnimatedCounter({ end, duration = 2, suffix = '' }) {
+function AnimatedCounter({ end, suffix = '', duration = 2 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [count, setCount] = useState(0);
@@ -41,164 +85,61 @@ function AnimatedCounter({ end, duration = 2, suffix = '' }) {
   );
 }
 
-/* ─── Text Reveal Animation ─────────────────────────────── */
+/* ─── Word Reveal ───────────────────────────────────────── */
 
-function TextReveal({ children, className = '', delay = 0 }) {
+function WordReveal({ text, className = '', delay = 0 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start 0.9', 'start 0.4'],
+  });
+
+  const words = text.split(' ');
 
   return (
-    <div ref={ref} className={`overflow-hidden ${className}`}>
-      <motion.div
-        initial={{ y: '100%', opacity: 0 }}
-        animate={isInView ? { y: 0, opacity: 1 } : {}}
-        transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {children}
-      </motion.div>
+    <div ref={ref} className={`flex flex-wrap gap-x-3 ${className}`} style={{ direction: 'rtl' }}>
+      {words.map((word, i) => {
+        const start = i / words.length;
+        const end = start + (1 / words.length);
+        const opacity = useTransform(scrollYProgress, [start, end], [0.1, 1]);
+        const y = useTransform(scrollYProgress, [start, end], [40, 0]);
+        const scale = useTransform(scrollYProgress, [start, end], [0.8, 1]);
+
+        return (
+          <motion.span key={i} style={{ opacity, y, scale }} className="inline-block">
+            {word}
+          </motion.span>
+        );
+      })}
     </div>
   );
 }
 
-/* ─── Scale Reveal ──────────────────────────────────────── */
+/* ─── Floating Blob ─────────────────────────────────────── */
 
-function ScaleReveal({ children, className = '', delay = 0 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ scale: 0.8, opacity: 0, y: 50 }}
-      animate={isInView ? { scale: 1, opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/* ─── Slide Reveal ──────────────────────────────────────── */
-
-function SlideReveal({ children, className = '', direction = 'right', delay = 0 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const x = direction === 'right' ? 100 : direction === 'left' ? -100 : 0;
-  const y = direction === 'up' ? 100 : direction === 'down' ? -100 : 0;
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ x, y, opacity: 0 }}
-      animate={isInView ? { x: 0, y: 0, opacity: 1 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/* ─── Floating Element ──────────────────────────────────── */
-
-function FloatingElement({ children, className = '', delay = 0 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 80, rotateX: 20 }}
-      animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-      transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-      style={{ perspective: '1000px' }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/* ─── Parallax Layer ────────────────────────────────────── */
-
-function ParallaxLayer({ children, speed = 0.5, className = '' }) {
+function FloatingBlob({ color, className = '', delay = 0 }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [speed * 100, -speed * 100]);
+
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 180]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 0.8]);
 
   return (
-    <motion.div ref={ref} style={{ y }} className={className}>
-      {children}
-    </motion.div>
-  );
-}
-
-/* ─── Glitch Text ───────────────────────────────────────── */
-
-function GlitchText({ text, className = '' }) {
-  const [glitch, setGlitch] = useState(false);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  useEffect(() => {
-    if (isInView) {
-      const interval = setInterval(() => {
-        setGlitch(true);
-        setTimeout(() => setGlitch(false), 100);
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [isInView]);
-
-  return (
-    <span ref={ref} className={`relative inline-block ${className}`}>
-      <span className="relative z-10">{text}</span>
-      {glitch && (
-        <>
-          <span className="absolute top-0 left-0 text-cyan-500 opacity-70 animate-pulse" aria-hidden="true">
-            {text}
-          </span>
-          <span className="absolute top-0 left-0 text-red-500 opacity-70 animate-pulse" aria-hidden="true" style={{ transform: 'translate(2px, -2px)' }}>
-            {text}
-          </span>
-        </>
-      )}
-    </span>
-  );
-}
-
-/* ─── Magnetic Button ───────────────────────────────────── */
-
-function MagneticButton({ children, className = '', href }) {
-  const ref = useRef(null);
-
-  const handleMouseMove = (e) => {
-    const { clientX, clientY } = e;
-    const { left, top, width, height } = ref.current.getBoundingClientRect();
-    const x = clientX - left - width / 2;
-    const y = clientY - top - height / 2;
-    ref.current.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
-  };
-
-  const handleMouseLeave = () => {
-    ref.current.style.transform = 'translate(0, 0)';
-  };
-
-  return (
-    <a
+    <motion.div
       ref={ref}
-      href={href}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={className}
-      style={{ transition: 'transform 0.2s ease-out' }}
-    >
-      {children}
-    </a>
+      className={`absolute rounded-full blur-3xl ${className}`}
+      style={{
+        background: color,
+        y,
+        rotate,
+        scale,
+        opacity: 0.6,
+      }}
+    />
   );
 }
 
@@ -207,719 +148,644 @@ function MagneticButton({ children, className = '', href }) {
 export default function BudgetStory() {
   const { lang } = useLang();
   const containerRef = useRef(null);
-  const [activeSection, setActiveSection] = useState(0);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
   });
 
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.9]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], [0, -150]);
-  const heroBlur = useTransform(scrollYProgress, [0, 0.15], [0, 10]);
-
-  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest < 0.15) setActiveSection(0);
-    else if (latest < 0.3) setActiveSection(1);
-    else if (latest < 0.5) setActiveSection(2);
-    else if (latest < 0.65) setActiveSection(3);
-    else if (latest < 0.8) setActiveSection(4);
-    else setActiveSection(5);
-  });
+  const progressWidth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
   return (
-    <div ref={containerRef} className="min-h-[600vh] bg-surface" dir="rtl">
+    <div ref={containerRef} className="bg-white" dir="rtl">
       {/* ─── PROGRESS BAR ──────────────────────────────────── */}
       <motion.div
-        style={{ scaleX: scrollYProgress }}
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 z-[100] origin-left"
+        style={{ scaleX: progressWidth }}
+        className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 z-[100] origin-left"
       />
 
-      {/* ─── NAVIGATION DOTS ───────────────────────────────── */}
-      <div className="fixed left-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <motion.div
-            key={i}
-            className="relative"
-            animate={{
-              scale: activeSection === i ? 1.5 : 1,
-            }}
-          >
-            <div
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                activeSection === i
-                  ? 'bg-gradient-to-r from-emerald-500 to-blue-500 shadow-lg shadow-emerald-500/50'
-                  : 'bg-primary-300 hover:bg-primary-400'
-              }`}
-            />
-            {activeSection === i && (
-              <motion.div
-                layoutId="activeDot"
-                className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500"
-                style={{ filter: 'blur(8px)', opacity: 0.5 }}
-              />
-            )}
-          </motion.div>
-        ))}
-      </div>
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* HERO — FULL PINNED SCREEN */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <PinSection>
+        <div className="relative h-full flex items-center justify-center bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 overflow-hidden">
+          {/* Floating Blobs */}
+          <FloatingBlob color="linear-gradient(135deg, #059669, #10b981)" className="w-[500px] h-[500px] -right-40 top-20" />
+          <FloatingBlob color="linear-gradient(135deg, #3b82f6, #60a5fa)" className="w-[400px] h-[400px] -left-32 bottom-20" />
+          <FloatingBlob color="linear-gradient(135deg, #a855f7, #c084fc)" className="w-[300px] h-[300px] right-1/4 bottom-1/3" />
 
-      {/* ─── HERO SECTION ─────────────────────────────────── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#102a43] to-[#1a3a5c]" />
-          {[...Array(30)].map((_, i) => (
+          {/* Content */}
+          <div className="relative z-10 text-center px-4 max-w-5xl">
             <motion.div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                width: Math.random() * 200 + 20,
-                height: Math.random() * 200 + 20,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: `radial-gradient(circle, ${
-                  ['rgba(5,150,105,0.3)', 'rgba(59,130,246,0.3)', 'rgba(168,85,247,0.3)'][i % 3]
-                } 0%, transparent 70%)`,
-              }}
-              animate={{
-                y: [0, -50, 0],
-                x: [0, Math.random() * 30 - 15, 0],
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: Math.random() * 5 + 5,
-                repeat: Infinity,
-                delay: Math.random() * 3,
-              }}
-            />
-          ))}
-        </div>
+              initial={{ opacity: 0, scale: 0, rotate: -180 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+              className="mb-8"
+            >
+              <div className="w-32 h-32 mx-auto rounded-[2rem] bg-gradient-to-br from-emerald-500 via-blue-500 to-purple-500 flex items-center justify-center shadow-2xl shadow-emerald-500/30 rotate-12 hover:rotate-0 transition-transform duration-500">
+                <span className="text-6xl">📖</span>
+              </div>
+            </motion.div>
 
-        <motion.div
-          style={{ opacity: heroOpacity, scale: heroScale, y: heroY, filter: `blur(${heroBlur}px)` }}
-          className="relative text-center px-4 max-w-5xl mx-auto"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0, rotate: -180 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-28 h-28 mx-auto mb-8 rounded-full bg-gradient-to-br from-emerald-500/30 to-blue-500/30 flex items-center justify-center backdrop-blur-sm border border-white/20"
-          >
-            <HiOutlineBookOpen className="w-14 h-14 text-white" />
-          </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.3 }}
+              className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-primary-900 leading-[0.9] tracking-tighter mb-6"
+            >
+              <span className="block">حكاية</span>
+              <span className="block bg-gradient-to-l from-emerald-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                الموازنة
+              </span>
+            </motion.h1>
 
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <span className="inline-block px-6 py-2 mb-8 text-xs font-semibold tracking-[0.3em] uppercase bg-white/10 text-white/80 rounded-full border border-white/20 backdrop-blur-sm">
-              {lang === 'ar' ? 'الإصدار الثالث عشر — أغسطس 2026' : '13th Edition — August 2026'}
-            </span>
-          </motion.div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="text-xl sm:text-2xl text-primary-600 mb-4"
+            >
+              موازنة المواطن المصرية 2027/2026
+            </motion.p>
 
-          <TextReveal delay={0.5}>
-            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-white mb-6 leading-[0.95] tracking-tight">
-              {lang === 'ar' ? 'حكاية' : 'The'}
-            </h1>
-          </TextReveal>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="text-sm text-primary-400 tracking-[0.3em] uppercase"
+            >
+              الإصدار الثالث عشر — أغسطس 2026
+            </motion.p>
 
-          <TextReveal delay={0.7}>
-            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold leading-[0.95] tracking-tight bg-gradient-to-l from-emerald-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              {lang === 'ar' ? 'الموازنة' : 'Budget Story'}
-            </h1>
-          </TextReveal>
-
-          <TextReveal delay={0.9}>
-            <p className="text-xl sm:text-2xl text-white/60 mt-8 max-w-2xl mx-auto">
-              {lang === 'ar'
-                ? 'موازنة المواطن المصرية 2027/2026'
-                : 'Egypt\'s Citizen Budget 2027/2026'}
-            </p>
-          </TextReveal>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2 }}
-            className="absolute bottom-12 left-1/2 -translate-x-1/2"
-          >
             <motion.div
               animate={{ y: [0, 15, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="flex flex-col items-center gap-2"
+              className="mt-16 flex flex-col items-center gap-2"
             >
-              <span className="text-white/40 text-xs tracking-widest">
-                {lang === 'ar' ? 'اسحب للأسفل' : 'SCROLL DOWN'}
-              </span>
-              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+              <span className="text-primary-400 text-xs tracking-[0.3em]">اسحب للأسفل</span>
+              <div className="w-8 h-12 border-2 border-primary-300 rounded-full flex justify-center">
                 <motion.div
-                  animate={{ y: [0, 12, 0] }}
+                  animate={{ y: [0, 10, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                  className="w-1.5 h-3 bg-white/50 rounded-full mt-2"
+                  className="w-2 h-2 bg-primary-400 rounded-full mt-2"
                 />
               </div>
             </motion.div>
-          </motion.div>
-        </motion.div>
-      </section>
+          </div>
+        </div>
+      </PinSection>
 
-      {/* ─── SECTION 1 — رسالة الوزير ────────────────────── */}
-      <section className="relative min-h-screen flex items-center py-20">
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 1 — MINISTER'S LETTER */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="relative min-h-screen flex items-center bg-white py-32 overflow-hidden">
+        <FloatingBlob color="linear-gradient(135deg, #05966920, #10b98120)" className="w-[400px] h-[400px] -right-48 top-1/4" />
+
         <div className="section-container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <SlideReveal direction="right">
-              <div>
-                <span className="inline-block px-4 py-2 mb-6 text-xs font-semibold tracking-widest uppercase bg-emerald-100 text-emerald-700 rounded-full">
-                  {lang === 'ar' ? 'رسالة من الوزير' : 'Minister\'s Message'}
-                </span>
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-900 mb-6 leading-tight">
-                  {lang === 'ar' ? 'رؤية واضحة' : 'A Clear Vision'}
-                </h2>
-                <p className="text-lg text-primary-600 leading-relaxed mb-6">
-                  {lang === 'ar'
-                    ? 'للعام الثالث عشر على التوالي، تصدر وزارة المالية تقرير موازنة المواطن كأحد أهم الأدوات لمد جسور التواصل.'
-                    : 'For the thirteenth consecutive year, the Ministry of Finance issues the Citizen Budget report as one of the most important tools for bridging communication.'}
-                </p>
-                <p className="text-lg text-primary-600 leading-relaxed">
-                  {lang === 'ar'
-                    ? 'تنطلق موازنة الدولة من رؤية واضحة تضع المواطن والمستثمر في قلب الأولويات.'
-                    : 'The state budget launches from a clear vision that places the citizen and investor at the heart of priorities.'}
-                </p>
-              </div>
-            </SlideReveal>
+            {/* Left — Text */}
+            <div>
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold mb-6"
+              >
+                <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                رسالة من الوزير
+              </motion.div>
 
-            <SlideReveal direction="left" delay={0.2}>
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-3xl blur-2xl" />
-                <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-primary-100/60">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center">
-                      <span className="text-2xl">👨‍💼</span>
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-primary-900 text-lg">
-                        {lang === 'ar' ? 'أحمد كجوك' : 'Ahmed Kouchouk'}
-                      </h3>
-                      <p className="text-sm text-primary-500">
-                        {lang === 'ar' ? 'وزير المالية' : 'Minister of Finance'}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-primary-700 leading-relaxed italic">
-                    "{lang === 'ar'
-                      ? 'أننا نقف اليوم على أسس اقتصادية أفضل وأكثر صلابهة تسمح باستكمال مسيرة الإصلاح.'
-                      : 'We stand today on better and stronger economic foundations that allow us to continue the path of reform.'}"
-                  </p>
-                </div>
-              </div>
-            </SlideReveal>
-          </div>
-        </div>
-      </section>
+              <WordReveal
+                text="رؤية واضحة للمستقبل"
+                className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900 mb-6"
+              />
 
-      {/* ─── SECTION 2 — يعني إيه موازنة ──────────────────── */}
-      <section className="relative min-h-screen flex items-center py-20 bg-gradient-to-b from-surface to-white">
-        <div className="section-container">
-          <div className="text-center mb-16">
-            <TextReveal>
-              <span className="inline-block px-4 py-2 mb-6 text-xs font-semibold tracking-widest uppercase bg-blue-100 text-blue-700 rounded-full">
-                {lang === 'ar' ? 'المفاهيم الأساسية' : 'Basic Concepts'}
-              </span>
-            </TextReveal>
-            <TextReveal delay={0.1}>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-900 mb-6">
-                {lang === 'ar' ? 'يعني إيه موازنة؟' : 'What is a Budget?'}
-              </h2>
-            </TextReveal>
-          </div>
+              <motion.p
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-lg text-primary-600 leading-relaxed mb-6"
+              >
+                للعام الثالث عشر على التوالي، تصدر وزارة المالية تقرير موازنة المواطن كأحد أهم الأدوات لمد جسور التواصل ورفع وعي المواطن المصري.
+              </motion.p>
 
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: '📊',
-                title: lang === 'ar' ? 'وثيقة رسمية' : 'Official Document',
-                desc: lang === 'ar' ? 'تُبين الإيرادات المتوقعة للدولة خلال العام المالي' : 'Shows expected state revenues during the fiscal year',
-                color: 'from-emerald-500 to-emerald-600',
-              },
-              {
-                icon: '🎯',
-                title: lang === 'ar' ? 'خطة الأولويات' : 'Priority Plan',
-                desc: lang === 'ar' ? 'خطة الحكومة لإعادة ترتيب أولويات الإنفاق' : 'Government plan to re-prioritize spending',
-                color: 'from-blue-500 to-blue-600',
-              },
-              {
-                icon: '🔍',
-                title: lang === 'ar' ? 'أداة الرقابة' : 'Oversight Tool',
-                desc: lang === 'ar' ? 'تمكّن المواطنين من التأكيد من توافق الخطط' : 'Enables citizens to ensure plan alignment',
-                color: 'from-purple-500 to-purple-600',
-              },
-            ].map((card, i) => (
-              <FloatingElement key={i} delay={i * 0.15}>
-                <div className="relative group">
-                  <div className={`absolute -inset-1 bg-gradient-to-r ${card.color} rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl`} />
-                  <div className="relative bg-white p-8 rounded-2xl border border-primary-100/60 h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-6 shadow-lg`}>
-                      <span className="text-2xl">{card.icon}</span>
-                    </div>
-                    <h3 className="text-xl font-bold text-primary-900 mb-3">{card.title}</h3>
-                    <p className="text-primary-600 leading-relaxed">{card.desc}</p>
-                  </div>
-                </div>
-              </FloatingElement>
-            ))}
-          </div>
-
-          {/* Timeline */}
-          <div className="mt-20 max-w-4xl mx-auto">
-            <TextReveal>
-              <h3 className="text-2xl font-bold text-primary-900 mb-12 text-center">
-                {lang === 'ar' ? 'مراحل إعداد الموازنة' : 'Budget Preparation Stages'}
-              </h3>
-            </TextReveal>
-
-            <div className="relative">
-              <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 via-blue-500 to-purple-500 hidden md:block" />
-
-              {[
-                { num: '01', title: lang === 'ar' ? 'التخطيط' : 'Planning', desc: lang === 'ar' ? 'تصدر وزارة المالية منشور إعداد الموازنة' : 'Ministry issues budget preparation bulletin' },
-                { num: '02', title: lang === 'ar' ? 'التنسيق' : 'Coordination', desc: lang === 'ar' ? 'تناقش وزارة المالية مشروعات الموازنات' : 'Ministry discusses budget proposals' },
-                { num: '03', title: lang === 'ar' ? 'العرض' : 'Presentation', desc: lang === 'ar' ? 'يقدم وزير المالية مشروع الموازنة' : 'Minister presents the budget' },
-                { num: '04', title: lang === 'ar' ? 'الموافقة' : 'Approval', desc: lang === 'ar' ? 'يعرض مجلس الوزراء على رئيس الجمهورية' : 'Cabinet presents to President' },
-                { num: '05', title: lang === 'ar' ? 'المناقشة' : 'Discussion', desc: lang === 'ar' ? 'يحيل رئيس الجمهورية لمجلس النواب' : 'President refers to Parliament' },
-                { num: '06', title: lang === 'ar' ? 'التنفيذ' : 'Implementation', desc: lang === 'ar' ? 'بعد الاعتماد يُرسل للتنفيذ' : 'After approval, implementation begins' },
-              ].map((stage, i) => (
-                <SlideReveal
-                  key={i}
-                  direction={i % 2 === 0 ? 'right' : 'left'}
-                  delay={i * 0.1}
-                  className={`flex items-center gap-8 mb-8 ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
-                >
-                  <div className={`flex-1 ${i % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}>
-                    <div className="bg-white p-6 rounded-2xl border border-primary-100/60 shadow-lg hover:shadow-xl transition-shadow">
-                      <div className={`flex items-center gap-4 ${i % 2 === 0 ? '' : 'md:flex-row-reverse'}`}>
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-white font-bold">
-                          {stage.num}
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-primary-900">{stage.title}</h4>
-                          <p className="text-sm text-primary-600">{stage.desc}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="hidden md:block w-4 h-4 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex-shrink-0 z-10" />
-                  <div className="flex-1 hidden md:block" />
-                </SlideReveal>
-              ))}
+              <motion.p
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="text-lg text-primary-600 leading-relaxed"
+              >
+                تنطلق موازنة الدولة من رؤية واضحة تضع المواطن والمستثمر في قلب الأولويات.
+              </motion.p>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ─── SECTION 3 — الأرقام الرئيسية ────────────────── */}
-      <section className="relative min-h-screen flex items-center py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#102a43] to-[#1a3a5c]" />
-        <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
+            {/* Right — Card */}
             <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white/30 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                opacity: [0.2, 0.8, 0.2],
-                scale: [1, 2, 1],
-              }}
-              transition={{
-                duration: Math.random() * 3 + 2,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="section-container relative">
-          <div className="text-center mb-16">
-            <TextReveal>
-              <span className="inline-block px-4 py-2 mb-6 text-xs font-semibold tracking-widest uppercase bg-white/10 text-white/80 rounded-full border border-white/20">
-                {lang === 'ar' ? 'الأرقام الرئيسية' : 'Key Numbers'}
-              </span>
-            </TextReveal>
-            <TextReveal delay={0.1}>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-                {lang === 'ar' ? 'موازنة 2027/2026 بالأرقام' : 'Budget 2027/2026 in Numbers'}
-              </h2>
-            </TextReveal>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {[
-              { value: 5.2, suffix: lang === 'ar' ? ' تريليون' : 'T', label: lang === 'ar' ? 'المصروفات' : 'Expenditures', color: 'from-red-500 to-red-600' },
-              { value: 4.1, suffix: lang === 'ar' ? ' تريليون' : 'T', label: lang === 'ar' ? 'الإيرادات' : 'Revenues', color: 'from-emerald-500 to-emerald-600' },
-              { value: 1.2, suffix: lang === 'ar' ? ' تريليون' : 'T', label: lang === 'ar' ? 'الفائض الأولي' : 'Primary Surplus', color: 'from-blue-500 to-blue-600' },
-              { value: 4.9, suffix: '%', label: lang === 'ar' ? 'العجز' : 'Deficit', color: 'from-amber-500 to-amber-600' },
-            ].map((stat, i) => (
-              <ScaleReveal key={i} delay={i * 0.1}>
-                <div className="relative group">
-                  <div className={`absolute -inset-1 bg-gradient-to-r ${stat.color} rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 blur-xl`} />
-                  <div className="relative bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 text-center hover:bg-white/20 transition-all duration-300">
-                    <p className="text-4xl sm:text-5xl font-bold text-white mb-2">
-                      <AnimatedCounter end={stat.value} suffix={stat.suffix} />
-                    </p>
-                    <p className="text-white/70">{stat.label}</p>
+              initial={{ opacity: 0, x: -50, rotateY: 15 }}
+              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="absolute -inset-4 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-3xl opacity-20 blur-2xl" />
+              <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-primary-100">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center shadow-lg">
+                    <span className="text-2xl">👨‍💼</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-primary-900 text-lg">أحمد كجوك</h3>
+                    <p className="text-sm text-primary-500">وزير المالية</p>
                   </div>
                 </div>
-              </ScaleReveal>
-            ))}
-          </div>
-
-          <SlideReveal direction="up" delay={0.4}>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h3 className="text-xl font-bold text-white mb-6 text-center">
-                {lang === 'ar' ? 'ما تم تحقيقه في 2025/2026' : 'Achievements in 2025/2026'}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  lang === 'ar' ? 'خفض الدين من 82.5% إلى 78% خلال سنتين' : 'Reduced debt from 82.5% to 78% in two years',
-                  lang === 'ar' ? 'انخفاض الدين الخارجي بنحو 4 مليار دولار' : 'External debt decreased by $4 billion',
-                  lang === 'ar' ? 'تحقيق فائض أولي مستدام' : 'Achieved sustained primary surplus',
-                  lang === 'ar' ? 'ارتفاع معدل النمو إلى 5%' : 'Growth rate rose to 5%',
-                  lang === 'ar' ? 'توسع الائتمان للقطاع الخاص 14.5%' : 'Private sector credit expanded 14.5%',
-                  lang === 'ar' ? 'تحقيق استثمارات 637 مليار جنيه' : 'Investments worth 637 billion EGP',
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                      <HiOutlineCheckCircle className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <span className="text-white/80">{item}</span>
-                  </motion.div>
-                ))}
+                <p className="text-primary-700 leading-relaxed italic border-r-4 border-emerald-500 pr-4">
+                  "أننا نقف اليوم على أسس اقتصادية أفضل وأكثر صلابهة تسمح باستكمال مسيرة الإصلاح والقدم."
+                </p>
               </div>
-            </div>
-          </SlideReveal>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ─── SECTION 4 — الحماية الاجتماعية ──────────────── */}
-      <section className="relative min-h-screen flex items-center py-20 bg-gradient-to-b from-white to-emerald-50">
-        <div className="section-container">
-          <div className="text-center mb-16">
-            <TextReveal>
-              <span className="inline-block px-4 py-2 mb-6 text-xs font-semibold tracking-widest uppercase bg-violet-100 text-violet-700 rounded-full">
-                {lang === 'ar' ? 'الحماية الاجتماعية' : 'Social Protection'}
-              </span>
-            </TextReveal>
-            <TextReveal delay={0.1}>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-900 mb-6">
-                {lang === 'ar' ? 'حياة كريمة للمواطن' : 'A Decent Life for Citizens'}
-              </h2>
-            </TextReveal>
-          </div>
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 2 — WHAT IS A BUDGET — PINNED */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <PinSection>
+        <div className="relative h-full flex items-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
+          <FloatingBlob color="linear-gradient(135deg, #3b82f630, #60a5fa30)" className="w-[500px] h-[500px] -left-64 top-1/4" />
+          <FloatingBlob color="linear-gradient(135deg, #a855f730, #c084fc30)" className="w-[400px] h-[400px] -right-48 bottom-1/4" />
 
-          <div className="max-w-6xl mx-auto">
-            {/* Main Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              {[
-                { value: '836.8', suffix: lang === 'ar' ? ' مليار جنيه' : 'B', label: lang === 'ar' ? 'للدعم والحماية' : 'For Support', icon: '🛡️' },
-                { value: '8000', suffix: lang === 'ar' ? ' جنيه' : ' EGP', label: lang === 'ar' ? 'الحد الأدنى للدخل' : 'Minimum Income', icon: '💰' },
-                { value: '21.2', suffix: '%', label: lang === 'ar' ? 'نمو الأجور' : 'Wage Growth', icon: '📈' },
-              ].map((stat, i) => (
-                <ScaleReveal key={i} delay={i * 0.1}>
-                  <div className="relative group">
-                    <div className="absolute -inset-2 bg-gradient-to-r from-violet-500/20 to-blue-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
-                    <div className="relative bg-white p-8 rounded-2xl border border-primary-100/60 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-                      <span className="text-4xl mb-4 block">{stat.icon}</span>
-                      <p className="text-3xl sm:text-4xl font-bold text-primary-900 mb-2">
-                        {stat.value}
-                        <span className="text-lg font-normal text-primary-500">{stat.suffix}</span>
-                      </p>
-                      <p className="text-sm text-primary-500">{stat.label}</p>
-                    </div>
+          <div className="section-container relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              {/* Left — Big Visual */}
+              <div className="relative">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="relative w-full aspect-square max-w-md mx-auto"
+                >
+                  {/* Animated Rings */}
+                  {[1, 2, 3].map((ring) => (
+                    <motion.div
+                      key={ring}
+                      className="absolute inset-0 border-2 border-blue-200 rounded-full"
+                      style={{
+                        inset: `${ring * 30}px`,
+                      }}
+                      animate={{ rotate: ring % 2 === 0 ? 360 : -360 }}
+                      transition={{ duration: 10 + ring * 5, repeat: Infinity, ease: 'linear' }}
+                    />
+                  ))}
+
+                  {/* Center Icon */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className="w-32 h-32 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-2xl shadow-blue-500/30"
+                    >
+                      <span className="text-6xl">💰</span>
+                    </motion.div>
                   </div>
-                </ScaleReveal>
-              ))}
-            </div>
+                </motion.div>
+              </div>
 
-            {/* Wage Details */}
-            <SlideReveal direction="right" delay={0.3}>
-              <div className="bg-white rounded-2xl p-8 border border-primary-100/60 shadow-xl">
-                <h3 className="text-2xl font-bold text-primary-900 mb-8 text-center">
-                  {lang === 'ar' ? 'تفاصيل الزيادات' : 'Increase Details'}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Right — Text */}
+              <div>
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6"
+                >
+                  <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                  المفاهيم الأساسية
+                </motion.div>
+
+                <WordReveal
+                  text="يعني إيه موازنة؟"
+                  className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900 mb-6"
+                />
+
+                <motion.p
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-lg text-primary-600 leading-relaxed mb-8"
+                >
+                  الموازنة هي خطة الدولة للدخل والصرف لمدة سنة. بتحدد الدولة هتجيب فلوس منين وه_tensorsها فين.
+                </motion.p>
+
+                <div className="space-y-4">
                   {[
-                    { val: '100 مليار جنيه', label: lang === 'ar' ? 'تكلفة الزيادة من يوليو' : 'Cost of increase from July', icon: '💵' },
-                    { val: '12%', label: lang === 'ar' ? 'علاوة دورية للمخاطبين بالخدمة المدنية' : 'Periodic raise for civil service', icon: '📊' },
-                    { val: '15%', label: lang === 'ar' ? 'علاوة دورية لغير المخاطبين' : 'Periodic raise for others', icon: '📊' },
-                    { val: '750 جنيه', label: lang === 'ar' ? 'حافز إضافي شهرياً' : 'Additional monthly incentive', icon: '🎁' },
-                    { val: '1,000 جنيه', label: lang === 'ar' ? 'حافز تدريس للمعلمين' : 'Teaching incentive', icon: '🎓' },
-                    { val: '750 جنيه', label: lang === 'ar' ? 'زيادة للقطاع الطبي' : 'Medical sector increase', icon: '🏥' },
+                    { icon: '📊', title: 'وثيقة رسمية', desc: 'تُبين الإيرادات المتوقعة للدولة خلال العام المالي' },
+                    { icon: '🎯', title: 'خطة الأولويات', desc: 'خطة الحكومة لإعادة ترتيب أولويات الإنفاق' },
+                    { icon: '🔍', title: 'أداة الرقابة', desc: 'تمكّن المواطنين من التأكيد من توافق الخطط' },
                   ].map((item, i) => (
                     <motion.div
                       key={i}
-                      initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
+                      initial={{ opacity: 0, x: 30 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.1 }}
-                      className="flex items-center gap-4 p-4 bg-surface-warm rounded-xl hover:bg-primary-50 transition-colors"
+                      className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-sm border border-primary-100 hover:shadow-md transition-shadow"
                     >
                       <span className="text-2xl">{item.icon}</span>
                       <div>
-                        <p className="font-bold text-primary-900">{item.val}</p>
-                        <p className="text-sm text-primary-600">{item.label}</p>
+                        <h4 className="font-bold text-primary-900">{item.title}</h4>
+                        <p className="text-sm text-primary-600">{item.desc}</p>
                       </div>
                     </motion.div>
                   ))}
                 </div>
               </div>
-            </SlideReveal>
+            </div>
           </div>
         </div>
-      </section>
+      </PinSection>
 
-      {/* ─── SECTION 5 — التعليم والصحة ──────────────────── */}
-      <section className="relative min-h-screen flex items-center py-20 bg-gradient-to-b from-emerald-50 to-blue-50">
-        <div className="section-container">
-          <div className="text-center mb-16">
-            <TextReveal>
-              <span className="inline-block px-4 py-2 mb-6 text-xs font-semibold tracking-widest uppercase bg-blue-100 text-blue-700 rounded-full">
-                {lang === 'ar' ? 'رأس المال البشري' : 'Human Capital'}
-              </span>
-            </TextReveal>
-            <TextReveal delay={0.1}>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-900 mb-6">
-                {lang === 'ar' ? 'التعليم والصحة' : 'Education & Health'}
-              </h2>
-            </TextReveal>
-          </div>
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 3 — BIG NUMBERS — HORIZONTAL SCROLL */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <HorizontalScroll
+        bgColor="bg-gradient-to-br from-emerald-50 to-white"
+        items={[
+          { value: '5.2', label: 'تريليون جنيه', desc: 'إجمالي المصروفات', icon: '💸', bg: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
+          { value: '4.1', label: 'تريليون جنيه', desc: 'إجمالي الإيرادات', icon: '💵', bg: 'bg-gradient-to-br from-blue-500 to-blue-700' },
+          { value: '1.2', label: 'تريليون جنيه', desc: 'الفائض الأولي', icon: '📈', bg: 'bg-gradient-to-br from-purple-500 to-purple-700' },
+          { value: '4.9%', label: '', desc: 'العجز المستهدف', icon: '📊', bg: 'bg-gradient-to-br from-amber-500 to-amber-700' },
+          { value: '78.1%', label: '', desc: 'نسبة الدين المستهدفة', icon: '📉', bg: 'bg-gradient-to-br from-red-500 to-red-700' },
+        ]}
+      />
 
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Education */}
-            <SlideReveal direction="right" delay={0.2}>
-              <div className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-primary-500/20 to-primary-600/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
-                <div className="relative bg-white rounded-3xl p-8 border border-primary-100/60 hover:shadow-2xl transition-all duration-500 h-full">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg">
-                      <HiOutlineAcademicCap className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-primary-900">
-                        {lang === 'ar' ? 'التعليم' : 'Education'}
-                      </h3>
-                      <p className="text-primary-500">
-                        {lang === 'ar' ? 'التعليم العام والجامعي' : 'General & University'}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 4 — ACHIEVEMENTS — PINNED */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <PinSection>
+        <div className="relative h-full flex items-center bg-gradient-to-br from-purple-50 via-white to-pink-50 overflow-hidden">
+          <FloatingBlob color="linear-gradient(135deg, #a855f730, #c084fc30)" className="w-[500px] h-[500px] -right-64 top-1/4" />
+
+          <div className="section-container relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              {/* Left — Text */}
+              <div>
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold mb-6"
+                >
+                  <span className="w-2 h-2 bg-purple-500 rounded-full" />
+                  ما تم تحقيقه
+                </motion.div>
+
+                <WordReveal
+                  text="أرقام بتتكلم"
+                  className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900 mb-6"
+                />
+
+                <motion.p
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-lg text-primary-600 leading-relaxed mb-8"
+                >
+                  أثبت الاقتصاد المصري صلابة ومرونة في التصدي للتحديات العالمية بفضل الإصلاحات الهيكلية.
+                </motion.p>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { from: '82.5%', to: '78%', label: 'انخفاض الدين' },
+                    { from: '4$', to: 'B$', label: 'انخفاض الدين الخارجي' },
+                    { from: '5%', to: '', label: 'معدل النمو' },
+                    { from: '14.5%', to: '', label: 'توسع الائتمان' },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="bg-white p-4 rounded-xl shadow-sm border border-primary-100"
+                    >
+                      <p className="text-2xl font-bold text-primary-900">
+                        {item.from}
+                        {item.to && <span className="text-emerald-500"> → {item.to}</span>}
                       </p>
+                      <p className="text-sm text-primary-500">{item.label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right — Visual */}
+              <div className="relative">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="relative"
+                >
+                  {/* Main Card */}
+                  <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl p-8 text-white shadow-2xl shadow-purple-500/30">
+                    <p className="text-sm opacity-80 mb-2">النتائج الرئيسية</p>
+                    <p className="text-6xl font-black mb-4">2025/2026</p>
+                    <div className="space-y-3">
+                      {[
+                        '✅ خفض الدين من 82.5% إلى 78%',
+                        '✅ انخفاض الدين الخارجي 4 مليار دولار',
+                        '✅ تحقيق فائض أولي مستدام',
+                        '✅ ارتفاع معدل النمو إلى 5%',
+                        '✅ توسع الائتمان 14.5%',
+                        '✅ استثمارات 637 مليار جنيه',
+                      ].map((item, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: 20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: i * 0.1 }}
+                          className="flex items-center gap-2 text-white/90"
+                        >
+                          {item}
+                        </motion.div>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl p-6 text-white mb-6">
-                    <p className="text-5xl font-bold">1,475.3</p>
-                    <p className="text-white/80 text-lg">{lang === 'ar' ? 'مليار جنيه' : 'Billion EGP'}</p>
-                    <p className="text-sm text-white/60 mt-2">{lang === 'ar' ? '7.8% من الناتج المحلي' : '7.8% of GDP'}</p>
-                  </div>
+                  {/* Floating Stats */}
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    className="absolute -top-6 -left-6 bg-white rounded-2xl p-4 shadow-xl border border-primary-100"
+                  >
+                    <p className="text-3xl font-bold text-primary-900">5%</p>
+                    <p className="text-xs text-primary-500">نمو اقتصادي</p>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </PinSection>
 
-                  <div className="space-y-3">
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 5 — SOCIAL PROTECTION — PINNED */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <PinSection>
+        <div className="relative h-full flex items-center bg-gradient-to-br from-amber-50 via-white to-orange-50 overflow-hidden">
+          <FloatingBlob color="linear-gradient(135deg, #f59e0b30, #f9731630)" className="w-[500px] h-[500px] -left-64 top-1/4" />
+
+          <div className="section-container relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              {/* Left — Stats Grid */}
+              <div className="order-2 lg:order-1">
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { value: '836.8', label: 'مليار جنيه', sub: 'للدعم والحماية', icon: '🛡️', color: 'from-violet-500 to-purple-600' },
+                    { value: '8,000', label: 'جنيه', sub: 'الحد الأدنى للدخل', icon: '💰', color: 'from-emerald-500 to-green-600' },
+                    { value: '21.2%', label: 'نمو سنوي', sub: 'في الأجور', icon: '📈', color: 'from-blue-500 to-cyan-600' },
+                    { value: '100', label: 'مليار جنيه', sub: 'تكلفة الزيادة', icon: '💵', color: 'from-amber-500 to-orange-600' },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="relative group"
+                    >
+                      <div className={`absolute -inset-1 bg-gradient-to-r ${stat.color} rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl`} />
+                      <div className="relative bg-white p-6 rounded-2xl shadow-lg border border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <span className="text-3xl mb-3 block">{stat.icon}</span>
+                        <p className="text-3xl font-black text-primary-900">{stat.value}</p>
+                        <p className="text-sm text-primary-500">{stat.label}</p>
+                        <p className="text-xs text-primary-400 mt-1">{stat.sub}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Support Programs */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="mt-6 bg-white p-6 rounded-2xl shadow-lg border border-primary-100"
+                >
+                  <h4 className="font-bold text-primary-900 mb-4">برامج الدعم</h4>
+                  <div className="grid grid-cols-3 gap-3">
                     {[
-                      { val: '55.5', label: lang === 'ar' ? 'مليار للكتب الدراسية' : 'Billion for textbooks' },
-                      { val: '47.7', label: lang === 'ar' ? 'مليار للوجبات المدرسية' : 'Billion for school meals' },
-                      { val: '45.3', label: lang === 'ar' ? 'مليار للبحث العلمي' : 'Billion for research' },
+                      { val: '178.3', label: 'سلع تموينية', icon: '🍞' },
+                      { val: '104.2', label: 'كهرباء', icon: '⚡' },
+                      { val: '69.1', label: 'قمح', icon: '🌾' },
+                      { val: '46', label: 'مناطق عشوائية', icon: '🏘️' },
+                      { val: '33.3', label: 'أدوية', icon: '💊' },
+                      { val: '13', label: 'إسكان', icon: '🏠' },
                     ].map((item, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-surface-warm rounded-xl">
-                        <span className="text-sm text-primary-600">{item.label}</span>
-                        <span className="font-bold text-primary-900">{item.value}</span>
+                      <div key={i} className="text-center p-2 bg-surface-warm rounded-xl">
+                        <span className="text-xl">{item.icon}</span>
+                        <p className="text-sm font-bold text-primary-900">{item.value}</p>
+                        <p className="text-xs text-primary-500">{item.label}</p>
                       </div>
                     ))}
                   </div>
+                </motion.div>
+              </div>
+
+              {/* Right — Text */}
+              <div className="order-1 lg:order-2">
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-semibold mb-6"
+                >
+                  <span className="w-2 h-2 bg-amber-500 rounded-full" />
+                  الحماية الاجتماعية
+                </motion.div>
+
+                <WordReveal
+                  text="حياة كريمة للمواطن"
+                  className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900 mb-6"
+                />
+
+                <motion.p
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-lg text-primary-600 leading-relaxed mb-8"
+                >
+                  زيادة غير مسبوقة لتحسين دخول العاملين بالجهاز الحكومي وأصحاب المعاشات. الحد الأدنى للدخل وصل 8,000 جنيه.
+                </motion.p>
+
+                <div className="space-y-4">
+                  {[
+                    { val: '12%', label: 'علاوة دورية للخدمة المدنية' },
+                    { val: '15%', label: 'علاوة دورية لغير المخاطبين' },
+                    { val: '750 جنيه', label: 'حافز إضافي شهرياً' },
+                    { val: '1,000 جنيه', label: 'حافز تدريس للمعلمين' },
+                    { val: '750 جنيه', label: 'زيادة للقطاع الطبي' },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: 30 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-primary-100"
+                    >
+                      <div className="w-2 h-2 bg-amber-500 rounded-full" />
+                      <p className="font-bold text-primary-900 text-sm">{item.val}</p>
+                      <p className="text-sm text-primary-600">{item.label}</p>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
-            </SlideReveal>
-
-            {/* Health */}
-            <SlideReveal direction="left" delay={0.3}>
-              <div className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-red-500/20 to-red-600/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
-                <div className="relative bg-white rounded-3xl p-8 border border-primary-100/60 hover:shadow-2xl transition-all duration-500 h-full">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg">
-                      <HiOutlineHeart className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-primary-900">
-                        {lang === 'ar' ? 'الصحة' : 'Health'}
-                      </h3>
-                      <p className="text-primary-500">
-                        {lang === 'ar' ? 'الخدمات الصحية والمستشفيات' : 'Health Services & Hospitals'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-6 text-white mb-6">
-                    <p className="text-5xl font-bold">617.3</p>
-                    <p className="text-white/80 text-lg">{lang === 'ar' ? 'مليار جنيه' : 'Billion EGP'}</p>
-                    <p className="text-sm text-white/60 mt-2">{lang === 'ar' ? '5.8% من الناتج المحلي' : '5.8% of GDP'}</p>
-                  </div>
-
-                  <div className="space-y-3">
-                    {[
-                      { val: '33.3', label: lang === 'ar' ? 'مليار للأدوية' : 'Billion for medicines' },
-                      { val: '25.2', label: lang === 'ar' ? 'مليار للمستلزمات الطبية' : 'Billion for medical supplies' },
-                      { val: '15.9', label: lang === 'ar' ? 'مليار للنقل والانتقالات' : 'Billion for transfers' },
-                    ].map((item, i) => (
-                      <div key={i} className="flex justify-between items-center p-3 bg-surface-warm rounded-xl">
-                        <span className="text-sm text-primary-600">{item.label}</span>
-                        <span className="font-bold text-primary-900">{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </SlideReveal>
+            </div>
           </div>
         </div>
-      </section>
+      </PinSection>
 
-      {/* ─── SECTION 6 — البرامج الاقتصادية ──────────────── */}
-      <section className="relative min-h-screen flex items-center py-20 bg-gradient-to-b from-blue-50 to-white">
-        <div className="section-container">
-          <div className="text-center mb-16">
-            <TextReveal>
-              <span className="inline-block px-4 py-2 mb-6 text-xs font-semibold tracking-widest uppercase bg-emerald-100 text-emerald-700 rounded-full">
-                {lang === 'ar' ? 'البرامج الاقتصادية' : 'Economic Programs'}
-              </span>
-            </TextReveal>
-            <TextReveal delay={0.1}>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-900 mb-6">
-                {lang === 'ar' ? 'دعم النشاط الاقتصادي' : 'Supporting Economic Activity'}
-              </h2>
-            </TextReveal>
-          </div>
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 6 — EDUCATION & HEALTH — HORIZONTAL SCROLL */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <HorizontalScroll
+        bgColor="bg-gradient-to-br from-blue-50 to-white"
+        items={[
+          {
+            value: '1,475.3',
+            label: 'مليار جنيه للتعليم',
+            desc: '7.8% من الناتج المحلي',
+            icon: '🎓',
+            bg: 'bg-gradient-to-br from-blue-500 to-indigo-600',
+          },
+          {
+            value: '617.3',
+            label: 'مليار جنيه للصحة',
+            desc: '5.8% من الناتج المحلي',
+            icon: '🏥',
+            bg: 'bg-gradient-to-br from-red-500 to-rose-600',
+          },
+          {
+            value: '55.5',
+            label: 'مليار للكتب الدراسية',
+            desc: 'تعليم مجاني',
+            icon: '📚',
+            bg: 'bg-gradient-to-br from-emerald-500 to-teal-600',
+          },
+          {
+            value: '33.3',
+            label: 'مليار للأدوية',
+            desc: 'صحة للجميع',
+            icon: '💊',
+            bg: 'bg-gradient-to-br from-purple-500 to-violet-600',
+          },
+        ]}
+      />
 
-          <div className="max-w-6xl mx-auto">
-            <ScaleReveal delay={0.2}>
-              <div className="relative group mb-12">
-                <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl" />
-                <div className="relative bg-gradient-to-br from-emerald-500 to-blue-500 rounded-3xl p-8 text-white text-center">
-                  <HiOutlineCurrencyDollar className="w-16 h-16 mx-auto mb-4 opacity-80" />
-                  <p className="text-6xl font-bold mb-2">90</p>
-                  <p className="text-xl text-white/80">{lang === 'ar' ? 'مليار جنيه مخصصة للبرامج' : 'Billion EGP Allocated for Programs'}</p>
-                </div>
-              </div>
-            </ScaleReveal>
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SECTION 7 — ECONOMIC PROGRAMS — PINNED */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <PinSection>
+        <div className="relative h-full flex items-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 overflow-hidden">
+          <FloatingBlob color="linear-gradient(135deg, #05966930, #10b98130)" className="w-[500px] h-[500px] -right-64 top-1/4" />
+
+          <div className="section-container relative z-10">
+            <div className="text-center mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold mb-6"
+              >
+                <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                البرامج الاقتصادية
+              </motion.div>
+
+              <WordReveal
+                text="90 مليار جنيه للدعم"
+                className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900"
+              />
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { value: '48', label: lang === 'ar' ? 'مليار لرد الأعباء التصديرية' : 'Billion for export support' },
-                { value: '6.7', label: lang === 'ar' ? 'مليار لدعم السياحة' : 'Billion for tourism' },
-                { value: '6', label: lang === 'ar' ? 'مليار للتسهيلات الإنتاجية' : 'Billion for production' },
-                { value: '5.5', label: lang === 'ar' ? 'مليار لصناعة السيارات' : 'Billion for automotive' },
-                { value: '5', label: lang === 'ar' ? 'مليار للمشروعات الصغيرة' : 'Billion for SMEs' },
-                { value: '2', label: lang === 'ar' ? 'مليار للصناعات ذات الأولوية' : 'Billion for priority industries' },
+                { value: '48', label: 'مليار لرد الأعباء التصديرية', icon: '📦', color: 'from-emerald-500 to-green-600' },
+                { value: '6.7', label: 'مليار لدعم السياحة', icon: '✈️', color: 'from-blue-500 to-cyan-600' },
+                { value: '6', label: 'مليار للتسهيلات الإنتاجية', icon: '🏭', color: 'from-purple-500 to-violet-600' },
+                { value: '5.5', label: 'مليار لصناعة السيارات', icon: '🚗', color: 'from-amber-500 to-orange-600' },
+                { value: '5', label: 'مليار للمشروعات الصغيرة', icon: '💼', color: 'from-pink-500 to-rose-600' },
+                { value: '2', label: 'مليار للصناعات ذات الأولوية', icon: '⚡', color: 'from-red-500 to-red-600' },
               ].map((item, i) => (
-                <FloatingElement key={i} delay={i * 0.1}>
-                  <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg" />
-                    <div className="relative bg-white p-6 rounded-2xl border border-primary-100/60 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                      <p className="text-4xl font-bold text-primary-900 mb-2">{item.value}</p>
-                      <p className="text-sm text-primary-600">{item.label}</p>
-                    </div>
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="relative group"
+                >
+                  <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl`} />
+                  <div className="relative bg-white p-6 rounded-2xl shadow-lg border border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full">
+                    <span className="text-4xl mb-4 block">{item.icon}</span>
+                    <p className="text-4xl font-black text-primary-900 mb-2">{item.value}</p>
+                    <p className="text-primary-600">{item.label}</p>
                   </div>
-                </FloatingElement>
+                </motion.div>
               ))}
             </div>
           </div>
         </div>
-      </section>
+      </PinSection>
 
-      {/* ─── CLOSING ──────────────────────────────────────── */}
-      <section className="relative min-h-screen flex items-center justify-center py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#102a43] to-[#1a3a5c]" />
-        <div className="absolute inset-0">
-          {[...Array(25)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                width: Math.random() * 150 + 30,
-                height: Math.random() * 150 + 30,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: `radial-gradient(circle, ${
-                  ['rgba(5,150,105,0.4)', 'rgba(59,130,246,0.4)', 'rgba(168,85,247,0.4)'][i % 3]
-                } 0%, transparent 70%)`,
-              }}
-              animate={{
-                y: [0, -40, 0],
-                x: [0, Math.random() * 20 - 10, 0],
-                scale: [1, 1.3, 1],
-                opacity: [0.4, 0.7, 0.4],
-              }}
-              transition={{
-                duration: Math.random() * 4 + 4,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-              }}
-            />
-          ))}
-        </div>
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* CLOSING */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 overflow-hidden">
+        <FloatingBlob color="linear-gradient(135deg, #05966920, #3b82f620)" className="w-[600px] h-[600px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
 
-        <div className="section-container relative text-center">
-          <ScaleReveal>
-            <motion.div
-              className="w-24 h-24 mx-auto mb-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center"
-              animate={{
-                boxShadow: [
-                  '0 0 20px rgba(5,150,105,0.5)',
-                  '0 0 40px rgba(59,130,246,0.5)',
-                  '0 0 20px rgba(5,150,105,0.5)',
-                ],
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              <HiOutlineCheckCircle className="w-12 h-12 text-white" />
-            </motion.div>
-          </ScaleReveal>
+        <div className="section-container relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0, rotate: -180 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            viewport={{ once: true }}
+            className="w-24 h-24 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-emerald-500 via-blue-500 to-purple-500 flex items-center justify-center shadow-2xl shadow-emerald-500/30 rotate-12"
+          >
+            <span className="text-5xl">✅</span>
+          </motion.div>
 
-          <TextReveal delay={0.2}>
-            <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-6">
-              {lang === 'ar' ? 'كده خلصنا!' : 'That\'s It!'}
-            </h2>
-          </TextReveal>
+          <WordReveal
+            text="كده خلصنا!"
+            className="text-5xl sm:text-6xl md:text-7xl font-black text-primary-900 mb-6"
+          />
 
-          <TextReveal delay={0.4}>
-            <p className="text-xl text-white/70 mb-12 max-w-2xl mx-auto">
-              {lang === 'ar'
-                ? 'دلوقتي فاهم يعني إيه موازنة وإزاي بتتعمل وأرقامها كام.'
-                : 'Now you understand what a budget is, how it is prepared, and its numbers.'}
-            </p>
-          </TextReveal>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-xl text-primary-600 mb-12 max-w-2xl mx-auto"
+          >
+            دلوقتي فاهم يعني إيه موازنة وإزاي بتتعمل وأرقامها كام.
+          </motion.p>
 
-          <SlideReveal direction="up" delay={0.6}>
-            <div className="flex flex-wrap justify-center gap-4">
-              <MagneticButton href="/budget100" className="btn-primary bg-white text-primary-800 hover:bg-white/90 text-lg px-8 py-4">
-                {lang === 'ar' ? 'جرّب ميزانية 100 جنيه' : 'Try 100 EGP Budget'}
-              </MagneticButton>
-              <MagneticButton href="/finance-minister" className="btn-secondary bg-white/10 text-white border-white/30 hover:bg-white/20 text-lg px-8 py-4">
-                {lang === 'ar' ? 'كون وزير المالية' : 'Be the Finance Minister'}
-              </MagneticButton>
-              <MagneticButton href="/quiz" className="btn-secondary bg-white/10 text-white border-white/30 hover:bg-white/20 text-lg px-8 py-4">
-                {lang === 'ar' ? 'اختبر معلوماتك' : 'Test Your Knowledge'}
-              </MagneticButton>
-            </div>
-          </SlideReveal>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-wrap justify-center gap-4"
+          >
+            <a href="/budget100" className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-blue-500 text-white font-bold rounded-full hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1">
+              جرّب ميزانية 100 جنيه
+            </a>
+            <a href="/finance-minister" className="px-8 py-4 bg-white text-primary-800 font-bold rounded-full border-2 border-primary-200 hover:border-primary-400 hover:shadow-lg transition-all duration-300">
+              كون وزير المالية
+            </a>
+            <a href="/quiz" className="px-8 py-4 bg-white text-primary-800 font-bold rounded-full border-2 border-primary-200 hover:border-primary-400 hover:shadow-lg transition-all duration-300">
+              اختبر معلوماتك
+            </a>
+          </motion.div>
         </div>
       </section>
     </div>
