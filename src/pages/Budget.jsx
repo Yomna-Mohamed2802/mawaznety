@@ -148,6 +148,7 @@ export default function Budget() {
 
   /* ── Scene-specific refs ──────────────────────── */
   const glowRef = useRef(null);
+  const groundRef = useRef(null);
   const scaleWrapRef = useRef(null);
   const scaleNumRef = useRef(null);
   const debtWellRef = useRef(null);
@@ -230,22 +231,52 @@ export default function Budget() {
           duration: 0.05,
           ease: 'power2.in',
         })
-        /* second bounce up (smaller) */
+        /* SECOND bounce up (smaller) */
         .to(coin, {
           scaleY: 1,
           scaleX: 1,
-          y: () => -window.innerHeight * 0.025,
-          duration: 0.06,
+          y: () => -window.innerHeight * 0.01,
+          duration: 0.05,
           ease: 'power2.out',
         })
-        /* settle */
+        /* settle on ground — lower */
         .to(coin, {
           scaleY: 1,
           scaleX: 1,
-          y: 0,
+          y: () => window.innerHeight * 0.15,
           scale: 0.85,
           duration: 0.08,
-          ease: 'power2.inOut',
+          ease: 'power2.out',
+        })
+        /* ground impact squish */
+        .to(coin, {
+          scaleY: 0.7,
+          scaleX: 1.15,
+          y: () => window.innerHeight * 0.15,
+          duration: 0.03,
+          ease: 'power2.out',
+        })
+        /* ground settle */
+        .to(coin, {
+          scaleY: 1,
+          scaleX: 1,
+          y: () => window.innerHeight * 0.15,
+          duration: 0.06,
+          ease: 'elastic.out(1.2, 0.5)',
+        })
+        /* ground ripple effect */
+        .to(groundRef.current, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.1,
+          ease: 'power2.out',
+        }, '<+=0.03')
+        /* ripple expand out */
+        .to(groundRef.current, {
+          scale: 2.5,
+          opacity: 0,
+          duration: 0.25,
+          ease: 'power2.out',
         })
         /* glow pulse on landing */
         .fromTo(glowRef.current,
@@ -693,8 +724,8 @@ export default function Budget() {
         const hy = -(13 * Math.cos(t2) - 5 * Math.cos(2 * t2) - 2 * Math.cos(3 * t2) - Math.cos(4 * t2));
         const isLast = i === heartPoints;
         master.to(coin, {
-          x: hx * 6,
-          y: hy * 6,
+          x: hx * 14,
+          y: hy * 14,
           rotation: `+=${360 / heartPoints}`,
           scale: 0.35 + Math.sin(t2) * 0.05,
           duration: isLast ? 0.05 : 0.025,
@@ -770,35 +801,72 @@ export default function Budget() {
       if (growthPctRef.current) {
         master.to(growthPctRef.current, { opacity: 0, duration: 0.3 }, '<');
       }
-      /* coin returns toward center */
+      /* coin moves above center — coin is tossed up */
       master.to(coin, {
         x: 0,
-        y: 0,
+        y: () => -window.innerHeight * 0.25,
         scale: 0.5,
+        rotation: '+=180',
         duration: 0.3,
-        ease: 'power2.inOut',
-      });
-      /* FAST SPIN — toss-catch snap effect */
-      master.to(coin, {
-        rotation: '+=720',
-        scale: 0.9,
-        duration: 0.3,
-        ease: 'power4.inOut',
-      });
-      /* snap — slight squish on catch */
-      master.to(coin, {
-        scaleY: 0.88,
-        scaleX: 1.08,
-        duration: 0.04,
         ease: 'power2.out',
       });
-      /* settle back to round */
+      /* coin drops — fall with gravity */
       master.to(coin, {
+        y: () => window.innerHeight * 0.08,
+        rotation: '+=360',
+        scale: 0.65,
+        duration: 0.25,
+        ease: 'power2.in',
+      });
+      /* first wobble — hits ground, tilts left */
+      master.to(coin, {
+        rotationZ: 15,
+        scaleY: 0.9,
+        scaleX: 1.05,
+        y: () => window.innerHeight * 0.08,
+        duration: 0.06,
+        ease: 'power2.out',
+      });
+      /* wobble right */
+      master.to(coin, {
+        rotationZ: -12,
+        scaleY: 0.92,
+        scaleX: 1.04,
+        duration: 0.05,
+        ease: 'power1.inOut',
+      });
+      /* wobble left smaller */
+      master.to(coin, {
+        rotationZ: 8,
+        scaleY: 0.94,
+        scaleX: 1.03,
+        duration: 0.04,
+        ease: 'power1.inOut',
+      });
+      /* wobble right smaller */
+      master.to(coin, {
+        rotationZ: -5,
+        scaleY: 0.96,
+        scaleX: 1.02,
+        duration: 0.035,
+        ease: 'power1.inOut',
+      });
+      /* wobble left tiny */
+      master.to(coin, {
+        rotationZ: 3,
+        scaleY: 0.98,
+        scaleX: 1.01,
+        duration: 0.03,
+        ease: 'power1.inOut',
+      });
+      /* settle flat — rotation back to 0 */
+      master.to(coin, {
+        rotationZ: 0,
         scaleY: 1,
         scaleX: 1,
         scale: 0.85,
-        duration: 0.1,
-        ease: 'elastic.out(1, 0.5)',
+        duration: 0.08,
+        ease: 'elastic.out(1, 0.6)',
       });
       /* warm glow — coin is home */
       master.to(glowRef.current, {
@@ -933,7 +1001,7 @@ export default function Budget() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A853] to-[#B8922E] flex items-center justify-center">
               <span className="text-[#06080F] font-black text-xs">م</span>
             </div>
-            <span className="text-white/60 text-xs font-medium hidden sm:block">موازنتي</span>
+            <span className="text-white/60 text-xs font-medium hidden sm:block" dir="rtl">موازنتي</span>
           </div>
         </a>
         <div className="flex items-center gap-2 pointer-events-auto">
@@ -984,6 +1052,13 @@ export default function Budget() {
                 <div className="w-[3px] h-[6px] bg-[#D4A853]/50 rounded-full mt-1.5 animate-bounce" />
               </div>
             </div>
+          </div>
+          {/* ground ripple effect */}
+          <div ref={groundRef} className="absolute left-1/2 -translate-x-1/2 opacity-0 pointer-events-none"
+            style={{ bottom: '15%' }}>
+            <div className="w-[200px] h-[4px] rounded-full bg-gradient-to-r from-transparent via-[#D4A853]/60 to-transparent blur-[2px]" />
+            <div className="w-[120px] h-[2px] rounded-full bg-gradient-to-r from-transparent via-[#E8C874]/40 to-transparent mx-auto -mt-1 blur-[1px]" />
+            <div className="w-[300px] h-[40px] rounded-full bg-[#D4A853]/[0.05] blur-[20px] mx-auto -mt-3" />
           </div>
         </div>
       </section>
