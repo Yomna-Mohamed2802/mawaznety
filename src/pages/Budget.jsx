@@ -259,7 +259,7 @@ export default function Budget() {
 
             <h1 className="sr text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.2] mb-8">
               <span className="block mb-3">في حاجة</span>
-              <span className="block mb-3">محدّش بيحكيلك عنها.</span>
+              <span className="block mb-3">محدّش بيحكيهالك.</span>
               <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent block">
                 كل جنيه في إيديك
               </span>
@@ -269,7 +269,7 @@ export default function Budget() {
             </h1>
 
             <p className="sr text-sm text-[#3D4758] max-w-md mx-auto leading-relaxed">
-              حكاية بتبدأ مع كل مصري — ومش بتمشى غير لما تعرفها.
+              حكاية تبدأ منك — وتوصل لكل مصري.
             </p>
 
             <div className="sr mt-6 flex items-center justify-center gap-2 text-[#2A3040] text-[10px] tracking-wider">
@@ -306,7 +306,7 @@ export default function Budget() {
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
               فيه <span className="text-[#E8C874]">تريليونات</span> من الجنيهات
               <br />
-              بتمشي في <span className="text-[#D4A853]">مصر</span> كل يوم.
+              بتعدي من إيدك كل يوم.
             </h2>
 
             <div className="sr w-px h-12 bg-gradient-to-b from-[#D4A853]/40 to-transparent mx-auto my-8" />
@@ -375,14 +375,14 @@ export default function Budget() {
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              بس فيه <span className="text-[#E8B94A]">فرق.</span>
+              بس فيه <span className="text-[#E8B94A]">مشكلة.</span>
             </h2>
 
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
               اللي الدولة بتجيبه
               <span className="text-white font-bold"> مش دايمًا بيكفي.</span>
               <br />
-              <span className="text-[#8B95A8]">وفي فرق بين اللي عندنا — واللي محتاجينه.</span>
+              <span className="text-[#8B95A8]">وفي فرق كبير بين اللي عندنا — واللي مصر محتاجاه.</span>
             </p>
 
             <div className="sr mt-10 flex justify-center gap-6">
@@ -408,14 +408,14 @@ export default function Budget() {
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <p className="sr text-[#4A5568] text-xs mb-8 tracking-wider">
-              الموازنة دي مش مجرد أوراق.
+              عشان نفهم — هنقسمها
             </p>
 
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-10">
-              لو جمعنا كل جنيه
+              لو قسمنا كل جنيه
               <br />
               في الموازنة
-              <span className="text-[#D4A853]"> وصفّيناه...</span>
+              <span className="text-[#D4A853]"> على 100...</span>
             </h2>
 
             <div className="sr scale-reveal inline-block">
@@ -425,7 +425,7 @@ export default function Budget() {
             </div>
 
             <p className="sr text-xl sm:text-2xl text-[#5A6578] mt-6 max-w-lg mx-auto">
-              جنيه بس — بس فين بتروح؟
+              جنيه — بس فين بتروح؟
             </p>
 
             <div className="sr mt-10 flex justify-center gap-1.5">
@@ -452,7 +452,7 @@ export default function Budget() {
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
               كل جنيه
               <br />
-              <span className="text-[#6ABFA7]">بيحل مشكلة.</span>
+              <span className="text-[#6ABFA7]">بيروح لحد.</span>
             </h2>
 
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
@@ -478,15 +478,15 @@ export default function Budget() {
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              بس محدش
+              بس السؤال الأهم —
               <br />
-              <span className="text-[#A78BDA]">بيحكيلك الجزئية.</span>
+              <span className="text-[#A78BDA]">كام جنيه بيوصل للخدمات؟</span>
             </h2>
 
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              بتشيل المحفظة كل يوم.
+              مش كل جنيه بيروح لمكان واحد.
               <br />
-              <span className="text-[#8B95A8]">بس هل فكرت — إيه اللي ورا كل جنيه بتدفعه؟</span>
+              <span className="text-[#8B95A8]">فيه جزء كبير بيروح لحاجة تانية خالص.</span>
             </p>
           </div>
         </div>
@@ -505,9 +505,9 @@ export default function Budget() {
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-6">
-              ورقم كل جنيه
+              وفي النهاية —
               <br />
-              <span className="text-[#A78BDA]">فيه بني آدم.</span>
+              <span className="text-[#A78BDA]">كل جنيه فيه بني آدم.</span>
             </h2>
 
             <p className="sr text-base text-[#5A6578] max-w-lg mx-auto mb-14 leading-relaxed">
@@ -543,17 +543,14 @@ export default function Budget() {
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              كل جنيه
+              جنيه واحد
               <br />
-              <span className="text-[#D4A853]">بيعمل موجة.</span>
+              <span className="text-[#D4A853]">يغيّر يوم طفل.</span>
             </h2>
 
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              جنيه واحد يغيّر يوم طفل.
-              <br />
-              <span className="text-[#8B95A8]">ميه جنيه يبنوا مستشفى.</span>
-              <br />
-              ومليارات جنيه — تبني بلد.
+              ومليارات جنيه —
+              <span className="text-white font-bold">تبني بلد.</span>
             </p>
           </div>
         </div>
@@ -583,17 +580,15 @@ export default function Budget() {
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              عايزينك
+              دي مش مجرد أرقام.
               <br />
-              <span className="text-[#E8C874]">تعرف الحكاية كلها.</span>
+              <span className="text-[#E8C874]">دي موازنة بلدك.</span>
             </h2>
 
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              مش بس أرقام.
+              كل قرار فيها ليه تأثير على حياتك.
               <br />
-              <span className="text-[#8B95A8]">حكاية. قرارات. مستقبل.</span>
-              <br />
-              كل جنيه ليه صوت — و<strong className="text-white">صوتك مهم.</strong>
+              <span className="text-[#8B95A8]">وأنت كمان تقدر تأثر فيها.</span>
             </p>
           </div>
         </div>
@@ -627,23 +622,30 @@ export default function Budget() {
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
             <h2 className="sr text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.2] mb-8">
-              موازنتك مش مجرد
+              في الآخر —
               <br />
               <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent">
-                أرقام في ورقة.
+                الموازنة مش بعيدة عنك.
               </span>
             </h2>
 
             <div className="sr w-px h-10 bg-gradient-to-b from-[#D4A853]/30 to-transparent mx-auto my-8" />
 
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-xl mx-auto leading-relaxed">
-              دي <span className="text-white font-bold">حكاية</span> كل مصري.
+              كل جنيه بيتجمع أو بيتصرف —
               <br />
-              <span className="text-[#8B95A8]">حكاية كل قرار. كل جنيه. كل حلم.</span>
+              <span className="text-[#8B95A8]">جزء من دورة بتأثر على حياتك.</span>
             </p>
 
-            <p className="sr text-sm text-[#3D4758] mt-10 max-w-md mx-auto">
-              ادخل واعرف — الجاي أقوى بكتير.
+            <p className="sr text-base text-white font-bold mt-8">
+              دي موازنة بلدك.
+            </p>
+            <p className="sr text-sm text-[#5A6578] mt-2">
+              اسأل عنها. وشارك في مستقبلها.
+            </p>
+
+            <p className="sr text-xl sm:text-2xl font-black bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent mt-10">
+              موازنتك بين إيديك.
             </p>
 
             <div className="sr mt-12 flex justify-center gap-1">
