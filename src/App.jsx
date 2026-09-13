@@ -72,11 +72,11 @@ function App() {
                   <Route path="voting" element={<Voting />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="settings" element={<Settings />} />
-                  <Route path="budget-story" element={<BudgetStory />} />
-                  <Route path="budget" element={<Budget />} />
-                  <Route path="admin" element={<AdminDashboard />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
+                <Route path="budget-story" element={<BudgetStory />} />
+                <Route path="admin" element={<AdminDashboard />} />
+              </Route>
+              <Route path="budget" element={<Budget />} />
+              <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </div>
