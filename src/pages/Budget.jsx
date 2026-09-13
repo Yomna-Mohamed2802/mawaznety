@@ -62,12 +62,12 @@ const T = {
     s04ch2: 'دي موازنة بلدك.',
     s04cp1: 'كل قرار فيها ليه تأثير على حياتك.',
     s04cp2: 'وأنت كمان تقدر تأثر فيها.',
-    s05h1: 'في الآخر —',
-    s05h2: 'الموازنة مش بعيدة عنك.',
+    s05h1: 'وفي الآخر —',
+    s05h2: 'الجنيه ده راجع لمين؟',
     s05p1: 'كل جنيه بيتجمع أو بيتصرف —',
     s05p2: 'جزء من دورة بتأثر على حياتك.',
-    s05bold: 'دي موازنة بلدك.',
-    s05sub: 'اسأل عنها. وشارك في مستقبلها.',
+    s05bold: 'ليك.',
+    s05sub: 'الموازنة مش أرقام بعيدة عنك. هي قرارات بتأثر على حياتك كل يوم.',
     s05cta: 'موازنتك بين إيديك.',
     s05btn: 'ادخل على موارننتي',
   },
@@ -123,11 +123,11 @@ const T = {
     s04cp1: 'Every decision in it affects your life.',
     s04cp2: 'And you can affect it too.',
     s05h1: 'In the end —',
-    s05h2: "the budget isn't far from you.",
+    s05h2: 'who does this pound come back to?',
     s05p1: 'Every pound collected or spent —',
     s05p2: 'is part of a cycle that affects your life.',
-    s05bold: "This is your country's budget.",
-    s05sub: 'Ask about it. And be part of its future.',
+    s05bold: 'To you.',
+    s05sub: "The budget isn't far from you. It's decisions that affect your life every day.",
     s05cta: 'Your budget is in your hands.',
     s05btn: 'Enter Mawaznety',
   },
@@ -135,6 +135,8 @@ const T = {
 
 /* ══════════════════════════════════════════════════════════ */
 /*  TEASER STORYTELLING — CINEMATIC INTRO                    */
+/*  The coin IS the story engine. Every visual event is      */
+/*  caused by the coin reaching/interacting with something.  */
 /* ══════════════════════════════════════════════════════════ */
 
 export default function Budget() {
@@ -143,6 +145,14 @@ export default function Budget() {
   const containerRef = useRef(null);
   const coinRef = useRef(null);
   const progressRef = useRef(null);
+
+  /* ── Scene-specific refs ──────────────────────── */
+  const glowRef = useRef(null);
+  const scaleWrapRef = useRef(null);
+  const scaleNumRef = useRef(null);
+  const debtWellRef = useRef(null);
+  const curveRef = useRef(null);
+  const growthPctRef = useRef(null);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -162,7 +172,8 @@ export default function Budget() {
       });
 
       /* ════════════════════════════════════════════════ */
-      /*  MASTER TIMELINE — ONE COIN, ONE JOURNEY         */
+      /*  MASTER TIMELINE — THE COIN IS THE STORY         */
+      /*  Coin position triggers visual state changes.    */
       /* ════════════════════════════════════════════════ */
       const master = gsap.timeline({
         scrollTrigger: {
@@ -174,15 +185,16 @@ export default function Budget() {
       });
 
       /* ──────────────────────────────────────────────── */
-      /*  01 — THE COIN ENTERS                            */
-      /*  Coin falls from above, subtle bounce, settles   */
+      /*  01 — HERO: THE COIN IS BORN                     */
+      /*  Coin enters from above, rotates, lands,         */
+      /*  subtle bounce, glow pulse, settles.              */
       /* ──────────────────────────────────────────────── */
       master
         .set(coin, {
           x: 0,
-          y: -window.innerHeight * 0.6,
-          scale: 0.3,
-          rotation: -30,
+          y: () => -window.innerHeight * 0.6,
+          scale: 0.2,
+          rotation: -40,
           opacity: 0,
         })
         .to(coin, {
@@ -190,160 +202,417 @@ export default function Budget() {
           y: 0,
           scale: 0.85,
           rotation: 0,
-          duration: 0.06,
+          duration: 0.8,
           ease: 'bounce.out',
         })
-        /* subtle settle */
-        .to(coin, {
-          y: -8,
-          scale: 0.82,
-          duration: 0.02,
+        /* glow pulse on arrival */
+        .fromTo(glowRef.current,
+          { opacity: 0, scale: 0.5 },
+          { opacity: 0.6, scale: 1.3, duration: 0.3, ease: 'power2.out' },
+          '<'
+        )
+        .to(glowRef.current, {
+          opacity: 0.15,
+          scale: 1,
+          duration: 0.4,
           ease: 'power2.inOut',
-        })
-        .to(coin, {
-          y: 0,
-          scale: 0.8,
-          duration: 0.02,
-          ease: 'power2.out',
         });
 
       /* ──────────────────────────────────────────────── */
-      /*  02 — THE COIN ENTERS THE BUDGET                 */
-      /*  Coin moves forward, entering the budget world   */
+      /*  02 — REVENUE: streams converge INTO the coin    */
+      /*  Coin is at center. Revenue streams physically   */
+      /*  travel toward it. On merge, coin reacts.        */
       /* ──────────────────────────────────────────────── */
+      const streams = gsap.utils.toArray('.revenue-stream');
+      master.to(coin, {
+        x: 0,
+        y: 0,
+        scale: 0.75,
+        duration: 0.5,
+        ease: 'power2.inOut',
+      });
+      /* streams converge from edges toward coin center */
+      streams.forEach((s, i) => {
+        const angles = [-35, 25, -20, 30];
+        const distances = [0.4, 0.35, 0.38, 0.42];
+        const a = (angles[i] * Math.PI) / 180;
+        const d = distances[i];
+        master.fromTo(s,
+          { x: Math.sin(a) * window.innerWidth * d, y: Math.cos(a) * window.innerHeight * d, opacity: 0, scale: 0.3 },
+          { x: 0, y: 0, opacity: 0.8, scale: 1, duration: 0.4, ease: 'power2.in' },
+          `<${0.1 * i}`
+        );
+      });
+      /* streams merge into coin — coin reacts with pulse */
+      master.to(coin, {
+        scale: 1,
+        duration: 0.15,
+        ease: 'power2.out',
+      });
+      master.to(glowRef.current, {
+        opacity: 0.7,
+        scale: 1.5,
+        duration: 0.15,
+        ease: 'power2.out',
+      }, '<');
+      master.to(coin, { scale: 0.7, duration: 0.2, ease: 'power2.inOut' });
+      master.to(glowRef.current, { opacity: 0.15, scale: 1, duration: 0.2 }, '<');
+      /* fade streams after merge */
+      streams.forEach((s) => {
+        master.to(s, { opacity: 0, scale: 0.2, duration: 0.15 }, '<');
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  03 — SCALE: trillions compress → 100 revealed   */
+      /*  The most important moment. Numbers visually     */
+      /*  compress toward center. Coin shrinks. "100"     */
+      /*  emerges from the compression.                    */
+      /* ──────────────────────────────────────────────── */
+      master.to(coin, {
+        x: 0,
+        y: 0,
+        scale: 0.6,
+        duration: 0.5,
+        ease: 'power2.inOut',
+      });
+      /* large numbers compress toward center */
+      if (scaleWrapRef.current) {
+        master.to(scaleWrapRef.current, {
+          scale: 0.15,
+          opacity: 0,
+          duration: 0.6,
+          ease: 'power3.in',
+        });
+      }
+      /* coin contracts with the compression */
+      master.to(coin, {
+        scale: 0.3,
+        duration: 0.3,
+        ease: 'power3.in',
+      }, '<');
+      /* "100" is revealed — emerges from compression */
+      if (scaleNumRef.current) {
+        master.fromTo(scaleNumRef.current,
+          { scale: 3, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.5)' }
+        );
+      }
+      /* coin settles next to the 100 */
+      master.to(coin, {
+        x: () => window.innerWidth * -0.12,
+        scale: 0.35,
+        duration: 0.3,
+        ease: 'power2.out',
+      }, '<');
+
+      /* ──────────────────────────────────────────────── */
+      /*  04 — DISTRIBUTION: coin splits, branches fly    */
+      /*  toward budget destinations. Coin is the trigger */
+      /*  — one budget → multiple destinations.            */
+      /* ──────────────────────────────────────────────── */
+      const splitCoins = gsap.utils.toArray('.split-coin');
+      const splitPaths = [
+        { x: () => window.innerWidth * -0.22, y: () => -window.innerHeight * 0.18 },
+        { x: () => window.innerWidth * 0.2,  y: () => -window.innerHeight * 0.12 },
+        { x: () => window.innerWidth * -0.15, y: () => window.innerHeight * 0.15 },
+        { x: () => window.innerWidth * 0.18,  y: () => window.innerHeight * 0.18 },
+      ];
+      /* main coin moves to distribution center */
+      master.to(coin, {
+        x: 0,
+        y: 0,
+        scale: 0.5,
+        duration: 0.4,
+        ease: 'power2.inOut',
+      });
+      /* split coins burst outward from main coin */
+      splitCoins.forEach((sc, i) => {
+        const p = splitPaths[i];
+        master.fromTo(sc,
+          { x: 0, y: 0, opacity: 0, scale: 0.1 },
+          {
+            x: p.x,
+            y: p.y,
+            opacity: 0.7,
+            scale: 0.25,
+            duration: 0.5,
+            ease: 'power2.out',
+          },
+          `<${0.08 * i}`
+        );
+      });
+      /* main coin shrinks as portions are distributed */
+      master.to(coin, { scale: 0.3, duration: 0.3 }, '<');
+      /* split coins arrive, glow briefly */
+      splitCoins.forEach((sc) => {
+        master.to(sc, { scale: 0.3, opacity: 0.9, duration: 0.15, ease: 'power2.out' });
+        master.to(sc, { opacity: 0.3, scale: 0.15, duration: 0.2 });
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  05 — DEBT: coin experiences gravitational pull  */
+      /*  Coin travels forward → approaches debt well →   */
+      /*  movement slows, bends inward, smaller coins get  */
+      /*  attracted → main coin escapes and continues.     */
+      /* ──────────────────────────────────────────────── */
+      /* coin approaches debt zone */
       master.to(coin, {
         x: () => window.innerWidth * 0.15,
-        y: () => -window.innerHeight * 0.15,
-        scale: 0.5,
-        rotation: 45,
-        duration: 0.6,
-        ease: 'power2.inOut',
-      });
-
-      /* ──────────────────────────────────────────────── */
-      /*  03 — WHERE DID THE MONEY COME FROM?             */
-      /*  Multiple streams converge toward the coin       */
-      /* ──────────────────────────────────────────────── */
-      master.to(coin, {
-        x: 0,
-        y: 0,
-        scale: 0.65,
-        rotation: 90,
-        duration: 0.6,
-        ease: 'power2.inOut',
-      });
-
-      /* ──────────────────────────────────────────────── */
-      /*  04 — THE SCALE TRANSFORMATION                   */
-      /*  Trillions → 100 pounds visual shrink            */
-      /* ──────────────────────────────────────────────── */
-      master.to(coin, {
-        x: 0,
-        y: 0,
-        scale: 1.1,
-        rotation: 180,
-        duration: 0.8,
-        ease: 'power3.inOut',
-      });
-
-      /* ──────────────────────────────────────────────── */
-      /*  05 — THE 100 POUND JOURNEY                      */
-      /*  Coin travels through destinations progressively */
-      /* ──────────────────────────────────────────────── */
-      master.to(coin, {
-        x: () => -window.innerWidth * 0.2,
-        y: () => -window.innerHeight * 0.15,
-        scale: 0.4,
-        rotation: 270,
-        duration: 0.7,
-        ease: 'power2.inOut',
-      });
-
-      /* ──────────────────────────────────────────────── */
-      /*  06 — DEBT SERVICE / INTEREST                    */
-      /*  Gravity effect — coin pulled toward debt        */
-      /* ──────────────────────────────────────────────── */
-      master.to(coin, {
-        x: () => window.innerWidth * 0.18,
-        y: () => window.innerHeight * 0.1,
+        y: () => window.innerHeight * 0.05,
         scale: 0.35,
-        rotation: 360,
-        duration: 0.6,
+        duration: 0.4,
+        ease: 'power1.in',
+      });
+      /* gravity well appears */
+      if (debtWellRef.current) {
+        master.fromTo(debtWellRef.current,
+          { scale: 0, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.3, ease: 'power2.out' }
+        );
+      }
+      /* coin bends toward gravity well — movement slows */
+      master.to(coin, {
+        x: () => window.innerWidth * 0.08,
+        y: () => window.innerHeight * 0.02,
+        scale: 0.28,
+        duration: 0.4,
         ease: 'power3.in',
       });
-
-      /* coin continues past the gravity pull */
+      /* gravity intensifies — coin pulled further */
       master.to(coin, {
-        x: () => -window.innerWidth * 0.12,
+        x: () => window.innerWidth * 0.04,
+        y: 0,
+        scale: 0.22,
+        duration: 0.3,
+        ease: 'power4.in',
+      });
+      /* gravity well intensifies */
+      if (debtWellRef.current) {
+        master.to(debtWellRef.current, {
+          scale: 1.3,
+          opacity: 0.9,
+          duration: 0.3,
+          ease: 'power2.in',
+        });
+      }
+      /* main coin ESCAPES the gravitational pull */
+      master.to(coin, {
+        x: () => -window.innerWidth * 0.15,
         y: () => -window.innerHeight * 0.08,
-        scale: 0.4,
-        rotation: 400,
+        scale: 0.35,
         duration: 0.5,
+        ease: 'power2.out',
+      });
+      /* gravity well fades */
+      if (debtWellRef.current) {
+        master.to(debtWellRef.current, {
+          scale: 0.5,
+          opacity: 0,
+          duration: 0.4,
+          ease: 'power2.in',
+        });
+      }
+
+      /* ──────────────────────────────────────────────── */
+      /*  06 — SERVICES: coin travels to each service,    */
+      /*  activates on arrival. COIN ARRIVES → SERVICE    */
+      /*  ACTIVATES.                                       */
+      /* ──────────────────────────────────────────────── */
+      const serviceIcons = gsap.utils.toArray('.svc-icon');
+      const servicePositions = [
+        { x: () => -window.innerWidth * 0.2, y: () => -window.innerHeight * 0.12 },
+        { x: () => window.innerWidth * 0.18,  y: () => -window.innerHeight * 0.08 },
+        { x: () => -window.innerWidth * 0.12, y: () => window.innerHeight * 0.1 },
+        { x: () => window.innerWidth * 0.15,  y: () => window.innerHeight * 0.12 },
+        { x: () => 0,                         y: () => 0 },
+      ];
+      serviceIcons.forEach((icon, i) => {
+        const pos = servicePositions[i];
+        /* coin travels to service */
+        master.to(coin, {
+          x: pos.x,
+          y: pos.y,
+          scale: 0.3,
+          duration: 0.35,
+          ease: 'power2.inOut',
+        });
+        /* coin arrives → service activates */
+        master.to(icon, {
+          opacity: 1,
+          scale: 1.2,
+          filter: 'brightness(1.5) drop-shadow(0 0 12px rgba(212,168,83,0.6))',
+          duration: 0.2,
+          ease: 'power2.out',
+        });
+        /* subtle glow on coin */
+        master.to(glowRef.current, {
+          opacity: 0.4,
+          scale: 1.2,
+          duration: 0.15,
+          ease: 'power2.out',
+        }, '<');
+        master.to(glowRef.current, {
+          opacity: 0.15,
+          scale: 1,
+          duration: 0.2,
+        });
+        /* service settles */
+        master.to(icon, {
+          scale: 1,
+          filter: 'brightness(1.2) drop-shadow(0 0 6px rgba(212,168,83,0.3))',
+          duration: 0.2,
+        }, '<');
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  07 — INVESTMENT: coin transforms                */
+      /*  Coin reaches investment area → seed → plant →   */
+      /*  building. MONEY → INVESTMENT → GROWTH.           */
+      /* ──────────────────────────────────────────────── */
+      const investStages = gsap.utils.toArray('.invest-stage');
+      /* coin travels to investment center */
+      master.to(coin, {
+        x: 0,
+        y: 0,
+        scale: 0.4,
+        duration: 0.4,
+        ease: 'power2.inOut',
+      });
+      /* coin enters investment zone — glow intensifies */
+      master.to(glowRef.current, {
+        opacity: 0.5,
+        scale: 1.4,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+      /* stage 0: seed appears */
+      if (investStages[0]) {
+        master.fromTo(investStages[0],
+          { scale: 0, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(2)' }
+        );
+      }
+      /* stage 1: seed grows into sprout */
+      if (investStages[1]) {
+        master.fromTo(investStages[1],
+          { scale: 0, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.3, ease: 'power2.out' },
+          '+=0.1'
+        );
+      }
+      if (investStages[0]) {
+        master.to(investStages[0], { opacity: 0.3, scale: 0.6, duration: 0.2 });
+      }
+      /* stage 2: sprout becomes building */
+      if (investStages[2]) {
+        master.fromTo(investStages[2],
+          { scale: 0, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.5)' },
+          '+=0.1'
+        );
+      }
+      if (investStages[1]) {
+        master.to(investStages[1], { opacity: 0, scale: 0.5, duration: 0.2 });
+      }
+      /* building lights up */
+      if (investStages[2]) {
+        master.to(investStages[2], {
+          filter: 'brightness(1.4) drop-shadow(0 0 15px rgba(212,168,83,0.5))',
+          duration: 0.3,
+          ease: 'power2.out',
+        });
+      }
+      /* coin glow confirms investment */
+      master.to(glowRef.current, {
+        opacity: 0.7,
+        scale: 1.6,
+        duration: 0.2,
+        ease: 'power2.out',
+      }, '<');
+      master.to(glowRef.current, {
+        opacity: 0.15,
+        scale: 1,
+        duration: 0.3,
+      });
+      /* investment stages fade */
+      investStages.forEach((s) => {
+        master.to(s, { opacity: 0, duration: 0.2 }, '-=0.1');
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  08 — GROWTH: coin creates the upward path       */
+      /*  Coin travels upward along a curve. Trail reveals*/
+      /*  the growth line. 5.4% appears at the peak.      */
+      /* ──────────────────────────────────────────────── */
+      /* coin starts at bottom-left of curve */
+      master.to(coin, {
+        x: () => -window.innerWidth * 0.22,
+        y: () => window.innerHeight * 0.15,
+        scale: 0.3,
+        duration: 0.3,
+        ease: 'power1.in',
+      });
+      /* coin travels UPWARD along curve — this IS the growth */
+      master.to(coin, {
+        x: () => window.innerWidth * 0.18,
+        y: () => -window.innerHeight * 0.18,
+        scale: 0.35,
+        rotation: '+=120',
+        duration: 0.8,
+        ease: 'power1.inOut',
+      });
+      /* growth curve appears as coin moves */
+      if (curveRef.current) {
+        master.fromTo(curveRef.current,
+          { strokeDashoffset: 500, opacity: 0 },
+          { strokeDashoffset: 0, opacity: 0.6, duration: 0.8, ease: 'none' },
+          '<'
+        );
+      }
+      /* 5.4% appears when coin reaches the peak */
+      if (growthPctRef.current) {
+        master.fromTo(growthPctRef.current,
+          { scale: 0.5, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.5)' }
+        );
+      }
+      /* coin pauses at peak, then continues */
+      master.to(coin, {
+        scale: 0.4,
+        duration: 0.2,
         ease: 'power2.out',
       });
 
       /* ──────────────────────────────────────────────── */
-      /*  07 — MONEY BECOMES SERVICES                     */
-      /*  Coin touches service icons, they illuminate    */
+      /*  09 — CITIZEN: the same coin returns              */
+      /*  Environment simplifies. Coin returns to normal   */
+      /*  scale. Travels toward citizen. STOPS. Does NOT   */
+      /*  fade. The user followed this coin the whole way.  */
       /* ──────────────────────────────────────────────── */
+      /* fade growth elements */
+      if (curveRef.current) {
+        master.to(curveRef.current, { opacity: 0, duration: 0.3 });
+      }
+      if (growthPctRef.current) {
+        master.to(growthPctRef.current, { opacity: 0, duration: 0.3 }, '<');
+      }
+      /* coin returns to center, normal scale */
       master.to(coin, {
         x: 0,
         y: 0,
-        scale: 0.7,
-        rotation: 480,
-        duration: 0.7,
-        ease: 'power2.inOut',
-      });
-
-      /* ──────────────────────────────────────────────── */
-      /*  08 — MONEY BECOMES INVESTMENT                   */
-      /*  Growth metaphor — coin → seed → plant           */
-      /* ──────────────────────────────────────────────── */
-      master.to(coin, {
-        x: () => window.innerWidth * 0.15,
-        y: () => -window.innerHeight * 0.2,
-        scale: 0.5,
-        rotation: 560,
-        duration: 0.6,
-        ease: 'power2.inOut',
-      });
-
-      /* ──────────────────────────────────────────────── */
-      /*  09 — ECONOMIC GROWTH                            */
-      /*  Coin travels along upward curve                 */
-      /* ──────────────────────────────────────────────── */
-      master.to(coin, {
-        x: 0,
-        y: () => -window.innerHeight * 0.1,
-        scale: 0.6,
-        rotation: 640,
-        duration: 0.6,
-        ease: 'power2.inOut',
-      });
-
-      /* ──────────────────────────────────────────────── */
-      /*  10 — RETURN TO THE CITIZEN                      */
-      /*  Coin returns to center, calm and satisfying     */
-      /* ──────────────────────────────────────────────── */
-      master.to(coin, {
-        x: 0,
-        y: 0,
-        scale: 0.9,
-        rotation: 720,
+        scale: 0.85,
+        rotation: '+=60',
         duration: 0.8,
         ease: 'power3.inOut',
       });
-
-      /* final — coin grows + fades as story concludes */
-      master.to(coin, {
-        x: 0,
-        y: 0,
-        scale: 3.5,
-        rotation: 900,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.in',
-      });
+      /* glow warm and calm */
+      master.to(glowRef.current, {
+        opacity: 0.25,
+        scale: 1.1,
+        duration: 0.5,
+        ease: 'power2.inOut',
+      }, '<');
+      /* coin STAYS visible — the protagonist remains */
 
       /* ── Per-scene reveals (staggered text) ────────── */
       gsap.utils.toArray('.scene').forEach((scene) => {
@@ -398,51 +667,8 @@ export default function Budget() {
         );
       });
 
-      /* ── Service icons — coin activates them ────────── */
-      gsap.utils.toArray('.service-icon').forEach((el) => {
-        gsap.fromTo(el,
-          { scale: 0.6, opacity: 0, filter: 'brightness(0.4)' },
-          {
-            scale: 1,
-            opacity: 1,
-            filter: 'brightness(1)',
-            ease: 'back.out(1.6)',
-            scrollTrigger: {
-              trigger: el.closest('.scene'),
-              start: 'top 45%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
-      });
-
-      /* ── Revenue streams — converge toward center ──── */
-      gsap.utils.toArray('.stream').forEach((el, i) => {
-        const directions = [
-          { x: -120, y: -80 },
-          { x: 100, y: -60 },
-          { x: -80, y: 70 },
-          { x: 90, y: 90 },
-        ];
-        const d = directions[i % directions.length];
-        gsap.fromTo(el,
-          { x: d.x, y: d.y, opacity: 0 },
-          {
-            x: 0,
-            y: 0,
-            opacity: 1,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: el.closest('.scene'),
-              start: 'top 55%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
-      });
-
-      /* ── Debt gravity — coins pulled toward center ─── */
-      gsap.utils.toArray('.debt-pull').forEach((el) => {
+      /* ── Debt gravity pull rings ───────────────────── */
+      gsap.utils.toArray('.debt-ring').forEach((el) => {
         gsap.fromTo(el,
           { scale: 0.5, opacity: 0 },
           {
@@ -458,10 +684,10 @@ export default function Budget() {
         );
       });
 
-      /* ── Investment growth — upward trajectory ─────── */
-      gsap.utils.toArray('.grow-up').forEach((el) => {
+      /* ── Investment growth dots ────────────────────── */
+      gsap.utils.toArray('.grow-dot').forEach((el) => {
         gsap.fromTo(el,
-          { y: 40, opacity: 0, scale: 0.8 },
+          { y: 30, opacity: 0, scale: 0.6 },
           {
             y: 0,
             opacity: 1,
@@ -476,7 +702,7 @@ export default function Budget() {
         );
       });
 
-      /* ── Auto-navigate to main site at end of scroll ── */
+      /* ── Auto-navigate to main site at end ─────────── */
       let hasNavigated = false;
       ScrollTrigger.create({
         trigger: containerRef.current,
@@ -484,9 +710,7 @@ export default function Budget() {
         onEnter: () => {
           if (!hasNavigated) {
             hasNavigated = true;
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 1200);
+            setTimeout(() => { window.location.href = '/'; }, 1200);
           }
         },
       });
@@ -518,82 +742,47 @@ export default function Budget() {
           </div>
         </a>
         <div className="flex items-center gap-2 pointer-events-auto">
-          <a
-            href="/"
-            className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/40 hover:bg-white/[0.1] hover:text-white/70 transition-all border border-white/[0.06]"
-          >
+          <a href="/" className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/40 hover:bg-white/[0.1] hover:text-white/70 transition-all border border-white/[0.06]">
             Skip ←
           </a>
-          <button
-            onClick={toggleLang}
-            className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/50 hover:bg-white/[0.1] hover:text-white/80 transition-all border border-white/[0.06]"
-          >
+          <button onClick={toggleLang} className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/50 hover:bg-white/[0.1] hover:text-white/80 transition-all border border-white/[0.06]">
             {lang === 'ar' ? 'EN' : 'عربي'}
           </button>
         </div>
       </div>
 
-      {/* ── Traveling Coin ────────────────────────────── */}
-      <div
-        ref={coinRef}
-        className="fixed top-1/2 left-1/2 z-[100] pointer-events-none will-change-transform"
-        style={{ transform: 'translate(-50%, -50%)' }}
-      >
+      {/* ── Traveling Coin + Glow ─────────────────────── */}
+      <div ref={coinRef} className="fixed top-1/2 left-1/2 z-[100] pointer-events-none will-change-transform" style={{ transform: 'translate(-50%, -50%)' }}>
+        <div ref={glowRef} className="absolute -inset-8 rounded-full bg-[#D4A853]/[0.12] blur-[30px] pointer-events-none" style={{ opacity: 0.15 }} />
         <Coin size={90} spinning={true} />
       </div>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S01 — THE HOOK                                  */}
+      {/* S01 — THE HOOK: The coin is born                 */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
-        {/* Ambient particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {Array.from({ length: 50 }).map((_, i) => (
-            <div
-              key={i}
-              className="float absolute rounded-full bg-[#D4A853]"
-              style={{
-                width: Math.random() * 2 + 0.5,
-                height: Math.random() * 2 + 0.5,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                opacity: 0.06 + Math.random() * 0.2,
-              }}
-            />
+            <div key={i} className="float absolute rounded-full bg-[#D4A853]"
+              style={{ width: Math.random() * 2 + 0.5, height: Math.random() * 2 + 0.5, left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, opacity: 0.06 + Math.random() * 0.2 }} />
           ))}
         </div>
-
-        {/* Central glow */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[600px] h-[600px] rounded-full bg-[#D4A853]/[0.02] blur-[120px]" />
         </div>
-
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-            <p className="sr text-[#D4A853]/30 text-xs tracking-[0.7em] uppercase mb-10 font-medium">
-              {t.tag}
-            </p>
-
+            <p className="sr text-[#D4A853]/30 text-xs tracking-[0.7em] uppercase mb-10 font-medium">{t.tag}</p>
             <h1 className="sr text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.2] mb-8">
               <span className="block mb-3">{t.h1a}</span>
               <span className="block mb-3">{t.h1b}</span>
-              <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent block">
-                {t.h1c}
-              </span>
-              <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent block">
-                {t.h1d}
-              </span>
+              <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent block">{t.h1c}</span>
+              <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent block">{t.h1d}</span>
             </h1>
-
-            <p className="sr text-sm text-[#3D4758] max-w-md mx-auto leading-relaxed">
-              {t.heroSub}
-            </p>
-
+            <p className="sr text-sm text-[#3D4758] max-w-md mx-auto leading-relaxed">{t.heroSub}</p>
             <div className="sr mt-6 flex items-center justify-center gap-2 text-[#2A3040] text-xs tracking-wider">
-              <span>🇪🇬</span>
-              <span>{t.fromEgypt}</span>
+              <span>🇪🇬</span><span>{t.fromEgypt}</span>
             </div>
-
             <div className="sr mt-16 flex flex-col items-center gap-3">
               <span className="text-[#2A3040] text-[10px] tracking-[0.5em] uppercase">Scroll</span>
               <div className="w-[18px] h-7 border border-[#1A2030] rounded-full flex justify-center">
@@ -608,33 +797,21 @@ export default function Budget() {
       {/* S02 — THE MYSTERY                               */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
-        {/* Floating orbs */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="float absolute top-[20%] left-[15%] w-32 h-32 rounded-full bg-[#D4A853]/[0.03] blur-[60px]" />
           <div className="float absolute top-[60%] right-[10%] w-40 h-40 rounded-full bg-[#7BAFD4]/[0.03] blur-[80px]" />
         </div>
-
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <p className="sr text-sm text-[#4A5568] mb-6 tracking-wider">
-              {t.s02Label}
-            </p>
-
+            <p className="sr text-sm text-[#4A5568] mb-6 tracking-wider">{t.s02Label}</p>
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              {t.s02h}
-              <br />
-              <span className="text-[#E8C874]">{t.s02h2}</span>
+              {t.s02h}<br /><span className="text-[#E8C874]">{t.s02h2}</span>
             </h2>
-
             <div className="sr w-px h-12 bg-gradient-to-b from-[#D4A853]/40 to-transparent mx-auto my-8" />
-
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              {t.s02p1}
-              <br />
-              <span className="text-[#8B95A8]">{t.s02p2}</span>
-              <br />
-              {t.s02p3}
-              <span className="text-white font-bold"> {t.s02p4}</span>
+              {t.s02p1}<br />
+              <span className="text-[#8B95A8]">{t.s02p2}</span><br />
+              {t.s02p3}<span className="text-white font-bold"> {t.s02p4}</span>
             </p>
           </div>
         </div>
@@ -644,31 +821,20 @@ export default function Budget() {
       {/* S02B — THE JOURNEY                              */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#080C16]">
-        {/* Moving lines */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="float absolute top-[30%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4A853]/10 to-transparent" />
           <div className="float absolute top-[55%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#7BAFD4]/8 to-transparent" />
           <div className="float absolute top-[75%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#A78BDA]/6 to-transparent" />
         </div>
-
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <p className="sr text-sm text-[#4A5568] mb-6 tracking-wider">
-              {t.s02bLabel}
-            </p>
-
-            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              {t.s02bh}
-            </h2>
-
+            <p className="sr text-sm text-[#4A5568] mb-6 tracking-wider">{t.s02bLabel}</p>
+            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">{t.s02bh}</h2>
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              {t.s02bp1}
-              <br />
-              <span className="text-[#8B95A8]">{t.s02bp2}</span>
-              <br />
+              {t.s02bp1}<br />
+              <span className="text-[#8B95A8]">{t.s02bp2}</span><br />
               {t.s02bp3}
             </p>
-
             <div className="sr mt-12 flex justify-center items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-[#D4A853]/30" />
               <div className="w-16 h-px bg-[#D4A853]/20" />
@@ -681,30 +847,24 @@ export default function Budget() {
       </section>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S02C — THE GAP                                  */}
+      {/* S02C — THE GAP: Revenue streams converge INTO   */}
+      {/* the coin. Different sources → one budget.        */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
-        {/* Revenue streams converging */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="stream absolute top-[25%] left-[20%] w-12 h-12 rounded-full bg-[#6ABFA7]/[0.08] blur-[2px]" />
-          <div className="stream absolute top-[30%] right-[25%] w-10 h-10 rounded-full bg-[#7BAFD4]/[0.08] blur-[2px]" />
-          <div className="stream absolute bottom-[30%] left-[30%] w-8 h-8 rounded-full bg-[#A78BDA]/[0.08] blur-[2px]" />
-          <div className="stream absolute bottom-[25%] right-[20%] w-11 h-11 rounded-full bg-[#E8B94A]/[0.08] blur-[2px]" />
+        {/* Revenue stream elements — converge toward coin */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="revenue-stream absolute top-[20%] left-[10%] w-3 h-3 rounded-full bg-[#6ABFA7]" style={{ opacity: 0 }} />
+          <div className="revenue-stream absolute top-[15%] right-[12%] w-2.5 h-2.5 rounded-full bg-[#7BAFD4]" style={{ opacity: 0 }} />
+          <div className="revenue-stream absolute bottom-[20%] left-[15%] w-2 h-2 rounded-full bg-[#A78BDA]" style={{ opacity: 0 }} />
+          <div className="revenue-stream absolute bottom-[15%] right-[10%] w-3.5 h-3.5 rounded-full bg-[#E8B94A]" style={{ opacity: 0 }} />
         </div>
-
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              {t.s02ch}
-            </h2>
-
+            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">{t.s02ch}</h2>
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              {t.s02cp1}
-              <span className="text-white font-bold"> {t.s02cp2}</span>
-              <br />
+              {t.s02cp1}<span className="text-white font-bold"> {t.s02cp2}</span><br />
               <span className="text-[#8B95A8]">{t.s02cp3}</span>
             </p>
-
             <div className="sr mt-10 flex justify-center gap-6">
               <div className="w-px h-16 bg-gradient-to-b from-[#D4A853]/30 to-transparent" />
               <div className="w-px h-16 bg-gradient-to-b from-[#E8B94A]/30 to-transparent" />
@@ -714,72 +874,56 @@ export default function Budget() {
       </section>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S03 — THE SCALE                                 */}
+      {/* S03 — THE SCALE: Trillions compress → 100       */}
+      {/* THE MOST IMPORTANT MOMENT.                      */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] via-[#0D1120] to-[#0A0E18]">
-        {/* Grid pattern */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.02]"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        />
-
+          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <p className="sr text-sm text-[#4A5568] mb-8 tracking-wider">
-              {t.s03Label}
-            </p>
-
+            <p className="sr text-sm text-[#4A5568] mb-8 tracking-wider">{t.s03Label}</p>
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-10">
-              {t.s03h1}
-              <br />
-              {t.s03h2}
-              <span className="text-[#D4A853]"> {t.s03h3}</span>
+              {t.s03h1}<br />{t.s03h2}<span className="text-[#D4A853]"> {t.s03h3}</span>
             </h2>
-
-            <div className="sr scale-reveal inline-block">
+            {/* Large numbers that COMPRESS during transformation */}
+            <div ref={scaleWrapRef} className="sr inline-block">
               <span className="text-[7rem] sm:text-[9rem] md:text-[11rem] font-black bg-gradient-to-b from-[#E8C874] via-[#D4A853] to-[#B8922E] bg-clip-text text-transparent leading-none drop-shadow-[0_0_60px_rgba(212,168,83,0.15)]">
                 {t.s03num}
               </span>
             </div>
-
-            <p className="sr text-xl sm:text-2xl text-[#5A6578] mt-6 max-w-lg mx-auto">
-              {t.s03p}
-            </p>
-
+            <p className="sr text-xl sm:text-2xl text-[#5A6578] mt-6 max-w-lg mx-auto">{t.s03p}</p>
             <div className="sr mt-10 flex justify-center gap-1.5">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#D4A853]/30" />
-              ))}
+              {[...Array(5)].map((_, i) => (<div key={i} className="w-1.5 h-1.5 rounded-full bg-[#D4A853]/30" />))}
             </div>
           </div>
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S03B — THE FLOW                                 */}
+      {/* S03B — DISTRIBUTION: Coin splits into branches  */}
+      {/* One budget → multiple destinations               */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#080C16]">
-        {/* Flow lines */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="float absolute top-[40%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#6ABFA7]/10 to-transparent" />
           <div className="float absolute top-[65%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#A78BDA]/8 to-transparent" />
         </div>
-
+        {/* Split coins — burst from main coin toward destinations */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div className="split-coin absolute w-5 h-5 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
+          <div className="split-coin absolute w-5 h-5 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
+          <div className="split-coin absolute w-5 h-5 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
+          <div className="split-coin absolute w-5 h-5 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
+        </div>
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              {t.s03bh}
-              <br />
-              <span className="text-[#6ABFA7]">{t.s03bh2}</span>
+              {t.s03bh}<br /><span className="text-[#6ABFA7]">{t.s03bh2}</span>
             </h2>
-
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              {t.s03bp1}
-              <br />
-              <span className="text-[#8B95A8]">{t.s03bp2}</span>
-              <br />
+              {t.s03bp1}<br />
+              <span className="text-[#8B95A8]">{t.s03bp2}</span><br />
               {t.s03bp3}
             </p>
           </div>
@@ -787,204 +931,162 @@ export default function Budget() {
       </section>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S03C — THE UNSEEN                               */}
+      {/* S03C — DEBT: Actual gravitational pull          */}
+      {/* Coin experiences gravity, escapes.               */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
-        {/* Gravity / debt pull */}
+        {/* Gravity well — dark center that attracts */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="debt-pull absolute w-[200px] h-[200px] rounded-full border border-[#E8B94A]/[0.08]" />
-          <div className="debt-pull absolute w-[300px] h-[300px] rounded-full border border-[#E8B94A]/[0.05]" />
-          <div className="debt-pull absolute w-[400px] h-[400px] rounded-full border border-[#E8B94A]/[0.03]" />
+          <div ref={debtWellRef} className="absolute" style={{ opacity: 0 }}>
+            <div className="debt-ring absolute -inset-4 rounded-full border border-[#E8B94A]/[0.12]" />
+            <div className="debt-ring absolute -inset-10 rounded-full border border-[#E8B94A]/[0.08]" />
+            <div className="debt-ring absolute -inset-16 rounded-full border border-[#E8B94A]/[0.05]" />
+            <div className="w-4 h-4 rounded-full bg-[#E8B94A]/20 blur-[4px]" />
+          </div>
         </div>
-
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              {t.s03ch}
-              <br />
-              <span className="text-[#A78BDA]">{t.s03ch2}</span>
+              {t.s03ch}<br /><span className="text-[#A78BDA]">{t.s03ch2}</span>
             </h2>
-
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              {t.s03cp1}
-              <br />
-              <span className="text-[#8B95A8]">{t.s03cp2}</span>
+              {t.s03cp1}<br /><span className="text-[#8B95A8]">{t.s03cp2}</span>
             </p>
           </div>
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S04 — THE HUMAN                                 */}
+      {/* S04 — SERVICES: Coin travels to each, activates */}
+      {/* COIN ARRIVES → SERVICE ACTIVATES                 */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
-        {/* Warm glow */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="float absolute top-[30%] left-[20%] w-48 h-48 rounded-full bg-[#A78BDA]/[0.03] blur-[80px]" />
           <div className="float absolute bottom-[25%] right-[15%] w-56 h-56 rounded-full bg-[#6ABFA7]/[0.03] blur-[80px]" />
         </div>
-
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-6">
-              {t.s04h1}
-              <br />
-              <span className="text-[#A78BDA]">{t.s04h2}</span>
+              {t.s04h1}<br /><span className="text-[#A78BDA]">{t.s04h2}</span>
             </h2>
-
-            <p className="sr text-base text-[#5A6578] max-w-lg mx-auto mb-14 leading-relaxed">
-              {t.s04p}
-            </p>
-
-            <div className="sr scale-reveal flex justify-center gap-5 sm:gap-8 text-4xl sm:text-5xl md:text-6xl">
-              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">🎓</span>
-              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">👨‍👩‍👧‍👦</span>
-              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">🏢</span>
-              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">🏥</span>
-              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">🌿</span>
+            <p className="sr text-base text-[#5A6578] max-w-lg mx-auto mb-14 leading-relaxed">{t.s04p}</p>
+            {/* Service icons — each activates when coin arrives */}
+            <div className="sr flex justify-center gap-5 sm:gap-8 text-4xl sm:text-5xl md:text-6xl">
+              <span className="svc-icon opacity-30 transition-none cursor-default">🎓</span>
+              <span className="svc-icon opacity-30 transition-none cursor-default">👨‍👩‍👧‍👦</span>
+              <span className="svc-icon opacity-30 transition-none cursor-default">🏢</span>
+              <span className="svc-icon opacity-30 transition-none cursor-default">🏥</span>
+              <span className="svc-icon opacity-30 transition-none cursor-default">🌿</span>
             </div>
-
-            <p className="sr text-sm text-[#3D4758] mt-10">
-              {t.s04foot}
-            </p>
+            <p className="sr text-sm text-[#3D4758] mt-10">{t.s04foot}</p>
           </div>
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S04B — THE RIPPLE                               */}
+      {/* S04B — INVESTMENT: Coin transforms              */}
+      {/* MONEY → INVESTMENT → GROWTH                      */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
-        {/* Growth trajectory — upward arc */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="grow-up absolute bottom-[35%] w-3 h-3 rounded-full bg-[#6ABFA7]/40" />
-          <div className="grow-up absolute bottom-[42%] left-[45%] w-4 h-4 rounded-full bg-[#6ABFA7]/50" />
-          <div className="grow-up absolute bottom-[52%] left-[55%] w-5 h-5 rounded-full bg-[#6ABFA7]/60" />
-          <div className="grow-up absolute bottom-[60%] left-[48%] w-6 h-6 rounded-full bg-[#6ABFA7]/70" />
+          {/* Investment stages: seed → sprout → building */}
+          <div className="relative w-40 h-40 flex items-center justify-center">
+            <div className="invest-stage absolute opacity-0" style={{ fontSize: '2rem' }}>🌱</div>
+            <div className="invest-stage absolute opacity-0" style={{ fontSize: '2.5rem' }}>🌿</div>
+            <div className="invest-stage absolute opacity-0" style={{ fontSize: '3rem' }}>🏗️</div>
+          </div>
         </div>
-
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              {t.s04bh}
-              <br />
-              <span className="text-[#D4A853]">{t.s04bh2}</span>
+              {t.s04bh}<br /><span className="text-[#D4A853]">{t.s04bh2}</span>
             </h2>
-
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              {t.s04bp}
-              <span className="text-white font-bold">{t.s04bp2}</span>
+              {t.s04bp}<span className="text-white font-bold">{t.s04bp2}</span>
             </p>
+            {/* Growth dots — appear as investment grows */}
+            <div className="sr mt-12 flex justify-center gap-3">
+              <div className="grow-dot w-2 h-2 rounded-full bg-[#6ABFA7]/40" />
+              <div className="grow-dot w-3 h-3 rounded-full bg-[#6ABFA7]/50" />
+              <div className="grow-dot w-3.5 h-3.5 rounded-full bg-[#6ABFA7]/60" />
+              <div className="grow-dot w-4 h-4 rounded-full bg-[#6ABFA7]/70" />
+            </div>
           </div>
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S04C — THE INVITATION                           */}
+      {/* S04C — GROWTH: Coin creates the upward path     */}
+      {/* Coin travels upward → curve reveals → 5.4%      */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
-        {/* Warm particles */}
-        <div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 25 }).map((_, i) => (
-            <div
-              key={i}
-              className="float absolute rounded-full bg-[#D4A853]"
-              style={{
-                width: Math.random() * 1.5 + 0.5,
-                height: Math.random() * 1.5 + 0.5,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                opacity: 0.04 + Math.random() * 0.1,
-              }}
-            />
-          ))}
+        {/* Growth curve SVG — revealed as coin travels */}
+        <div className="absolute inset-0 pointer-events-none flex items-end justify-center pb-[25%]">
+          <svg ref={curveRef} width="600" height="200" viewBox="0 0 600 200" className="opacity-0" style={{ strokeDasharray: 500 }}>
+            <path d="M 50 180 Q 150 160 250 120 Q 350 80 450 50 Q 500 35 550 20"
+              fill="none" stroke="url(#growGrad)" strokeWidth="3" strokeLinecap="round"
+              style={{ strokeDasharray: 500, strokeDashoffset: 500 }} />
+            <defs>
+              <linearGradient id="growGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#6ABFA7" />
+                <stop offset="100%" stopColor="#D4A853" />
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
-
+        {/* 5.4% — appears at the peak */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div ref={growthPctRef} className="absolute top-[20%] right-[25%] opacity-0">
+            <span className="text-5xl sm:text-6xl font-black bg-gradient-to-l from-[#6ABFA7] to-[#D4A853] bg-clip-text text-transparent">
+              5.4%
+            </span>
+          </div>
+        </div>
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
-              {t.s04ch}
-              <br />
-              <span className="text-[#E8C874]">{t.s04ch2}</span>
+              {t.s04ch}<br /><span className="text-[#E8C874]">{t.s04ch2}</span>
             </h2>
-
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
-              {t.s04cp1}
-              <br />
-              <span className="text-[#8B95A8]">{t.s04cp2}</span>
+              {t.s04cp1}<br /><span className="text-[#8B95A8]">{t.s04cp2}</span>
             </p>
           </div>
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S05 — THE CURIOSITY                             */}
+      {/* S05 — CITIZEN: The same coin returns             */}
+      {/* Coin returns to center. Does NOT fade.           */}
+      {/* The protagonist remains.                         */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
-        {/* Particles */}
         <div className="absolute inset-0 pointer-events-none">
           {Array.from({ length: 30 }).map((_, i) => (
-            <div
-              key={i}
-              className="float absolute rounded-full bg-[#D4A853]"
-              style={{
-                width: Math.random() * 2 + 0.5,
-                height: Math.random() * 2 + 0.5,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                opacity: 0.04 + Math.random() * 0.12,
-              }}
-            />
+            <div key={i} className="float absolute rounded-full bg-[#D4A853]"
+              style={{ width: Math.random() * 2 + 0.5, height: Math.random() * 2 + 0.5, left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, opacity: 0.04 + Math.random() * 0.12 }} />
           ))}
         </div>
-
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[500px] h-[500px] rounded-full bg-[#D4A853]/[0.02] blur-[100px]" />
         </div>
-
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
             <h2 className="sr text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.2] mb-8">
-              {t.s05h1}
-              <br />
-              <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent">
-                {t.s05h2}
-              </span>
+              {t.s05h1}<br />
+              <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent">{t.s05h2}</span>
             </h2>
-
             <div className="sr w-px h-10 bg-gradient-to-b from-[#D4A853]/30 to-transparent mx-auto my-8" />
-
             <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-xl mx-auto leading-relaxed">
-              {t.s05p1}
-              <br />
-              <span className="text-[#8B95A8]">{t.s05p2}</span>
+              {t.s05p1}<br /><span className="text-[#8B95A8]">{t.s05p2}</span>
             </p>
-
-            <p className="sr text-xl text-white font-bold mt-8">
-              {t.s05bold}
-            </p>
-            <p className="sr text-base text-[#5A6578] mt-2">
-              {t.s05sub}
-            </p>
-
-            <p className="sr text-2xl sm:text-3xl font-black bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent mt-10">
-              {t.s05cta}
-            </p>
-
-            {/* Enter the site — smooth transition */}
+            <p className="sr text-xl text-white font-bold mt-8">{t.s05bold}</p>
+            <p className="sr text-base text-[#5A6578] mt-2">{t.s05sub}</p>
+            <p className="sr text-2xl sm:text-3xl font-black bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent mt-10">{t.s05cta}</p>
             <div className="sr mt-14">
-              <a
-                href="/"
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#D4A853] to-[#E8B94A] text-[#06080F] text-base font-bold hover:shadow-lg hover:shadow-[#D4A853]/20 transition-all duration-500 hover:-translate-y-0.5 group"
-              >
+              <a href="/" className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#D4A853] to-[#E8B94A] text-[#06080F] text-base font-bold hover:shadow-lg hover:shadow-[#D4A853]/20 transition-all duration-500 hover:-translate-y-0.5 group">
                 <span>{t.s05btn}</span>
-                <svg
-                  className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                >
+                <svg className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
