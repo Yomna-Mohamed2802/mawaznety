@@ -161,119 +161,187 @@ export default function Budget() {
         },
       });
 
-      /* ── MASTER TIMELINE — coin travels ────────────── */
+      /* ════════════════════════════════════════════════ */
+      /*  MASTER TIMELINE — ONE COIN, ONE JOURNEY         */
+      /* ════════════════════════════════════════════════ */
       const master = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.5,
+          scrub: 0.6,
         },
       });
 
-      /* S01: Hero — coin fades in center */
+      /* ──────────────────────────────────────────────── */
+      /*  01 — THE COIN ENTERS                            */
+      /*  Coin falls from above, subtle bounce, settles   */
+      /* ──────────────────────────────────────────────── */
       master
-        .set(coin, { x: 0, y: 0, scale: 0.6, rotation: 0, opacity: 0 })
-        .to(coin, { opacity: 1, scale: 0.8, duration: 0.04 });
+        .set(coin, {
+          x: 0,
+          y: -window.innerHeight * 0.6,
+          scale: 0.3,
+          rotation: -30,
+          opacity: 0,
+        })
+        .to(coin, {
+          opacity: 1,
+          y: 0,
+          scale: 0.85,
+          rotation: 0,
+          duration: 0.06,
+          ease: 'bounce.out',
+        })
+        /* subtle settle */
+        .to(coin, {
+          y: -8,
+          scale: 0.82,
+          duration: 0.02,
+          ease: 'power2.inOut',
+        })
+        .to(coin, {
+          y: 0,
+          scale: 0.8,
+          duration: 0.02,
+          ease: 'power2.out',
+        });
 
-      /* S01 → S02: coin slides top-right */
+      /* ──────────────────────────────────────────────── */
+      /*  02 — THE COIN ENTERS THE BUDGET                 */
+      /*  Coin moves forward, entering the budget world   */
+      /* ──────────────────────────────────────────────── */
       master.to(coin, {
-        x: () => window.innerWidth * 0.3,
-        y: () => -window.innerHeight * 0.3,
-        scale: 0.3,
-        rotation: 120,
-        duration: 0.8,
-        ease: 'power2.inOut',
-      });
-
-      /* S02 → S02B: coin drifts left */
-      master.to(coin, {
-        x: () => -window.innerWidth * 0.25,
-        y: () => window.innerHeight * 0.1,
-        scale: 0.25,
-        rotation: 240,
-        duration: 0.8,
-        ease: 'power2.inOut',
-      });
-
-      /* S02B → S02C: coin sweeps right */
-      master.to(coin, {
-        x: () => window.innerWidth * 0.2,
+        x: () => window.innerWidth * 0.15,
         y: () => -window.innerHeight * 0.15,
-        scale: 0.28,
-        rotation: 360,
-        duration: 0.8,
+        scale: 0.5,
+        rotation: 45,
+        duration: 0.6,
         ease: 'power2.inOut',
       });
 
-      /* S02C → S03: coin center for 100 */
+      /* ──────────────────────────────────────────────── */
+      /*  03 — WHERE DID THE MONEY COME FROM?             */
+      /*  Multiple streams converge toward the coin       */
+      /* ──────────────────────────────────────────────── */
       master.to(coin, {
         x: 0,
         y: 0,
-        scale: 1,
-        rotation: 480,
-        duration: 1,
-        ease: 'power3.inOut',
-      });
-
-      /* S03 → S03B: coin to corner */
-      master.to(coin, {
-        x: () => -window.innerWidth * 0.28,
-        y: () => -window.innerHeight * 0.2,
-        scale: 0.3,
-        rotation: 600,
-        duration: 0.8,
+        scale: 0.65,
+        rotation: 90,
+        duration: 0.6,
         ease: 'power2.inOut',
       });
 
-      /* S03B → S03C: coin drifts */
-      master.to(coin, {
-        x: () => window.innerWidth * 0.22,
-        y: () => window.innerHeight * 0.15,
-        scale: 0.25,
-        rotation: 720,
-        duration: 0.8,
-        ease: 'power2.inOut',
-      });
-
-      /* S03C → S04: coin back center for humans */
+      /* ──────────────────────────────────────────────── */
+      /*  04 — THE SCALE TRANSFORMATION                   */
+      /*  Trillions → 100 pounds visual shrink            */
+      /* ──────────────────────────────────────────────── */
       master.to(coin, {
         x: 0,
         y: 0,
-        scale: 0.8,
-        rotation: 840,
-        duration: 1,
+        scale: 1.1,
+        rotation: 180,
+        duration: 0.8,
         ease: 'power3.inOut',
       });
 
-      /* S04 → S04B: coin to side */
-      master.to(coin, {
-        x: () => window.innerWidth * 0.25,
-        y: () => -window.innerHeight * 0.25,
-        scale: 0.3,
-        rotation: 960,
-        duration: 0.8,
-        ease: 'power2.inOut',
-      });
-
-      /* S04B → S04C: coin drifts */
+      /* ──────────────────────────────────────────────── */
+      /*  05 — THE 100 POUND JOURNEY                      */
+      /*  Coin travels through destinations progressively */
+      /* ──────────────────────────────────────────────── */
       master.to(coin, {
         x: () => -window.innerWidth * 0.2,
-        y: () => window.innerHeight * 0.1,
-        scale: 0.25,
-        rotation: 1080,
-        duration: 0.8,
+        y: () => -window.innerHeight * 0.15,
+        scale: 0.4,
+        rotation: 270,
+        duration: 0.7,
         ease: 'power2.inOut',
       });
 
-      /* S04C → S05: coin grows huge + dissolves */
+      /* ──────────────────────────────────────────────── */
+      /*  06 — DEBT SERVICE / INTEREST                    */
+      /*  Gravity effect — coin pulled toward debt        */
+      /* ──────────────────────────────────────────────── */
+      master.to(coin, {
+        x: () => window.innerWidth * 0.18,
+        y: () => window.innerHeight * 0.1,
+        scale: 0.35,
+        rotation: 360,
+        duration: 0.6,
+        ease: 'power3.in',
+      });
+
+      /* coin continues past the gravity pull */
+      master.to(coin, {
+        x: () => -window.innerWidth * 0.12,
+        y: () => -window.innerHeight * 0.08,
+        scale: 0.4,
+        rotation: 400,
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  07 — MONEY BECOMES SERVICES                     */
+      /*  Coin touches service icons, they illuminate    */
+      /* ──────────────────────────────────────────────── */
       master.to(coin, {
         x: 0,
         y: 0,
-        scale: 4,
-        rotation: 1440,
+        scale: 0.7,
+        rotation: 480,
+        duration: 0.7,
+        ease: 'power2.inOut',
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  08 — MONEY BECOMES INVESTMENT                   */
+      /*  Growth metaphor — coin → seed → plant           */
+      /* ──────────────────────────────────────────────── */
+      master.to(coin, {
+        x: () => window.innerWidth * 0.15,
+        y: () => -window.innerHeight * 0.2,
+        scale: 0.5,
+        rotation: 560,
+        duration: 0.6,
+        ease: 'power2.inOut',
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  09 — ECONOMIC GROWTH                            */
+      /*  Coin travels along upward curve                 */
+      /* ──────────────────────────────────────────────── */
+      master.to(coin, {
+        x: 0,
+        y: () => -window.innerHeight * 0.1,
+        scale: 0.6,
+        rotation: 640,
+        duration: 0.6,
+        ease: 'power2.inOut',
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  10 — RETURN TO THE CITIZEN                      */
+      /*  Coin returns to center, calm and satisfying     */
+      /* ──────────────────────────────────────────────── */
+      master.to(coin, {
+        x: 0,
+        y: 0,
+        scale: 0.9,
+        rotation: 720,
+        duration: 0.8,
+        ease: 'power3.inOut',
+      });
+
+      /* final — coin grows + fades as story concludes */
+      master.to(coin, {
+        x: 0,
+        y: 0,
+        scale: 3.5,
+        rotation: 900,
         opacity: 0,
-        duration: 1.5,
+        duration: 1,
         ease: 'power3.in',
       });
 
@@ -282,17 +350,17 @@ export default function Budget() {
         const items = scene.querySelectorAll('.sr');
         if (items.length === 0) return;
         gsap.fromTo(items,
-          { y: 60, opacity: 0, filter: 'blur(8px)' },
+          { y: 50, opacity: 0, filter: 'blur(6px)' },
           {
             y: 0,
             opacity: 1,
             filter: 'blur(0px)',
-            stagger: 0.2,
+            stagger: 0.18,
             ease: 'power3.out',
             scrollTrigger: {
               trigger: scene,
               start: 'top 70%',
-              end: 'top 10%',
+              end: 'top 15%',
               toggleActions: 'play none none reverse',
             },
           }
@@ -302,7 +370,7 @@ export default function Budget() {
       /* ── Floating elements parallax ────────────────── */
       gsap.utils.toArray('.float').forEach((el) => {
         gsap.to(el, {
-          y: -80,
+          y: -60,
           ease: 'none',
           scrollTrigger: {
             trigger: el.closest('.scene'),
@@ -313,17 +381,95 @@ export default function Budget() {
         });
       });
 
-      /* ── Scale-up reveals ──────────────────────────── */
+      /* ── Scale-up reveals (100 number) ─────────────── */
       gsap.utils.toArray('.scale-reveal').forEach((el) => {
+        gsap.fromTo(el,
+          { scale: 0.4, opacity: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            ease: 'back.out(1.4)',
+            scrollTrigger: {
+              trigger: el.closest('.scene'),
+              start: 'top 50%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      });
+
+      /* ── Service icons — coin activates them ────────── */
+      gsap.utils.toArray('.service-icon').forEach((el) => {
+        gsap.fromTo(el,
+          { scale: 0.6, opacity: 0, filter: 'brightness(0.4)' },
+          {
+            scale: 1,
+            opacity: 1,
+            filter: 'brightness(1)',
+            ease: 'back.out(1.6)',
+            scrollTrigger: {
+              trigger: el.closest('.scene'),
+              start: 'top 45%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      });
+
+      /* ── Revenue streams — converge toward center ──── */
+      gsap.utils.toArray('.stream').forEach((el, i) => {
+        const directions = [
+          { x: -120, y: -80 },
+          { x: 100, y: -60 },
+          { x: -80, y: 70 },
+          { x: 90, y: 90 },
+        ];
+        const d = directions[i % directions.length];
+        gsap.fromTo(el,
+          { x: d.x, y: d.y, opacity: 0 },
+          {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: el.closest('.scene'),
+              start: 'top 55%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      });
+
+      /* ── Debt gravity — coins pulled toward center ─── */
+      gsap.utils.toArray('.debt-pull').forEach((el) => {
         gsap.fromTo(el,
           { scale: 0.5, opacity: 0 },
           {
             scale: 1,
             opacity: 1,
-            ease: 'back.out(1.2)',
+            ease: 'power3.in',
             scrollTrigger: {
               trigger: el.closest('.scene'),
               start: 'top 50%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      });
+
+      /* ── Investment growth — upward trajectory ─────── */
+      gsap.utils.toArray('.grow-up').forEach((el) => {
+        gsap.fromTo(el,
+          { y: 40, opacity: 0, scale: 0.8 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: el.closest('.scene'),
+              start: 'top 55%',
               toggleActions: 'play none none reverse',
             },
           }
@@ -538,9 +684,12 @@ export default function Budget() {
       {/* S02C — THE GAP                                  */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
-        {/* Tension glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-[#E8B94A]/[0.02] blur-[80px]" />
+        {/* Revenue streams converging */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div className="stream absolute top-[25%] left-[20%] w-12 h-12 rounded-full bg-[#6ABFA7]/[0.08] blur-[2px]" />
+          <div className="stream absolute top-[30%] right-[25%] w-10 h-10 rounded-full bg-[#7BAFD4]/[0.08] blur-[2px]" />
+          <div className="stream absolute bottom-[30%] left-[30%] w-8 h-8 rounded-full bg-[#A78BDA]/[0.08] blur-[2px]" />
+          <div className="stream absolute bottom-[25%] right-[20%] w-11 h-11 rounded-full bg-[#E8B94A]/[0.08] blur-[2px]" />
         </div>
 
         <div className="sticky top-0 h-screen flex items-center justify-center">
@@ -641,9 +790,11 @@ export default function Budget() {
       {/* S03C — THE UNSEEN                               */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
-        {/* Subtle mystery */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-[#A78BDA]/[0.02] blur-[80px]" />
+        {/* Gravity / debt pull */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div className="debt-pull absolute w-[200px] h-[200px] rounded-full border border-[#E8B94A]/[0.08]" />
+          <div className="debt-pull absolute w-[300px] h-[300px] rounded-full border border-[#E8B94A]/[0.05]" />
+          <div className="debt-pull absolute w-[400px] h-[400px] rounded-full border border-[#E8B94A]/[0.03]" />
         </div>
 
         <div className="sticky top-0 h-screen flex items-center justify-center">
@@ -686,11 +837,11 @@ export default function Budget() {
             </p>
 
             <div className="sr scale-reveal flex justify-center gap-5 sm:gap-8 text-4xl sm:text-5xl md:text-6xl">
-              <span className="hover:scale-125 transition-transform duration-300 cursor-default">🎓</span>
-              <span className="hover:scale-125 transition-transform duration-300 cursor-default">👨‍👩‍👧‍👦</span>
-              <span className="hover:scale-125 transition-transform duration-300 cursor-default">🏢</span>
-              <span className="hover:scale-125 transition-transform duration-300 cursor-default">🏥</span>
-              <span className="hover:scale-125 transition-transform duration-300 cursor-default">🌿</span>
+              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">🎓</span>
+              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">👨‍👩‍👧‍👦</span>
+              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">🏢</span>
+              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">🏥</span>
+              <span className="service-icon hover:scale-125 transition-transform duration-300 cursor-default">🌿</span>
             </div>
 
             <p className="sr text-sm text-[#3D4758] mt-10">
@@ -704,11 +855,12 @@ export default function Budget() {
       {/* S04B — THE RIPPLE                               */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
-        {/* Ripple rings */}
+        {/* Growth trajectory — upward arc */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="float w-[200px] h-[200px] rounded-full border border-[#D4A853]/[0.06]" />
-          <div className="float absolute w-[350px] h-[350px] rounded-full border border-[#D4A853]/[0.04]" />
-          <div className="float absolute w-[500px] h-[500px] rounded-full border border-[#D4A853]/[0.02]" />
+          <div className="grow-up absolute bottom-[35%] w-3 h-3 rounded-full bg-[#6ABFA7]/40" />
+          <div className="grow-up absolute bottom-[42%] left-[45%] w-4 h-4 rounded-full bg-[#6ABFA7]/50" />
+          <div className="grow-up absolute bottom-[52%] left-[55%] w-5 h-5 rounded-full bg-[#6ABFA7]/60" />
+          <div className="grow-up absolute bottom-[60%] left-[48%] w-6 h-6 rounded-full bg-[#6ABFA7]/70" />
         </div>
 
         <div className="sticky top-0 h-screen flex items-center justify-center">
