@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect, useMemo } from 'react';
+import React, { useRef, useLayoutEffect, useMemo, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Coin from '../components/ui/Coin';
@@ -301,6 +301,10 @@ export default function Budget() {
   const curveRef = useRef(null);
   const growthPctRef = useRef(null);
   const multiCoinsRef = useRef(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const s01Dots = useMemo(() => Array.from({ length: 50 }, (_, i) => {
     const r = () => Math.random();

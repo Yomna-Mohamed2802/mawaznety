@@ -65,7 +65,7 @@ function App() {
                 <Route path="/cookies" element={<CookiesPolicy />} />
                 <Route path="/refund" element={<RefundPolicy />} />
                 <Route path="/teaser" element={<Navigate to="/budget" replace />} />
-                <Route path="/" element={<Budget />} />
+                <Route path="/" element={<Navigate to="/budget" replace />} />
                 <Route path="/budget" element={<Budget />} />
                 <Route path="/dashboard" element={<Layout />}>
                   <Route index element={<MasterDashboard />} />
