@@ -25,15 +25,15 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
   const isAdmin = user?.isAdmin || ADMIN_EMAILS.includes(user?.email);
 
   const menuItems = [
-    { path: '/', label: t.home, icon: HiOutlineHome },
-    { path: '/budget-story', label: t.budgetStory, icon: HiOutlineBookOpen },
-    { path: '/budget100', label: t.budget100, icon: HiOutlineChartBar },
-    { path: '/finance-minister', label: t.financeMinister, icon: HiOutlineDocumentText },
-    { path: '/quiz', label: t.quiz, icon: HiOutlineClipboardCheck },
-    { path: '/voting', label: t.voting, icon: HiOutlineSparkles },
-    { path: '/reports', label: t.reports, icon: HiOutlineChartBar },
-    { path: '/settings', label: t.settings, icon: HiOutlineCog },
-    ...(isAdmin ? [{ path: '/admin', label: 'لوحة التحكم', icon: HiOutlineCog }] : []),
+    { path: '/home', label: t.home, icon: HiOutlineHome },
+    { path: '/home/learn', label: t.budgetStory, icon: HiOutlineBookOpen },
+    { path: '/home/budget100', label: t.budget100, icon: HiOutlineChartBar },
+    { path: '/home/finance-minister', label: t.financeMinister, icon: HiOutlineDocumentText },
+    { path: '/home/quiz', label: t.quiz, icon: HiOutlineClipboardCheck },
+    { path: '/home/voting', label: t.voting, icon: HiOutlineSparkles },
+    { path: '/home/reports', label: t.reports, icon: HiOutlineChartBar },
+    { path: '/home/settings', label: t.settings, icon: HiOutlineCog },
+    ...(isAdmin ? [{ path: '/home/admin', label: 'لوحة التحكم', icon: HiOutlineCog }] : []),
   ];
 
   return (

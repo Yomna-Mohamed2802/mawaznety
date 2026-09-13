@@ -6,6 +6,137 @@ import { useLang } from '../context/LangContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* ─── Sound Effects (Web Audio API) ─────────────────────── */
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playDrop() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.2);
+  } catch (e) {}
+}
+
+function playBounce() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(400, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.05);
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.15);
+  } catch (e) {}
+}
+
+function playSplash() {
+  try {
+    const ctx = getAudioCtx();
+    const bufferSize = ctx.sampleRate * 0.3;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 3);
+    }
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 2000;
+    filter.Q.value = 0.5;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    source.connect(filter).connect(gain).connect(ctx.destination);
+    source.start(ctx.currentTime);
+  } catch (e) {}
+}
+
+function playWhoosh() {
+  try {
+    const ctx = getAudioCtx();
+    const bufferSize = ctx.sampleRate * 0.4;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    }
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(800, ctx.currentTime);
+    filter.frequency.linearRampToValueAtTime(3000, ctx.currentTime + 0.15);
+    filter.frequency.linearRampToValueAtTime(500, ctx.currentTime + 0.4);
+    filter.Q.value = 1;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    source.connect(filter).connect(gain).connect(ctx.destination);
+    source.start(ctx.currentTime);
+  } catch (e) {}
+}
+
+function playCoin() {
+  try {
+    const ctx = getAudioCtx();
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.value = 1200;
+    osc2.type = 'sine';
+    osc2.frequency.value = 1600;
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc1.connect(gain).connect(ctx.destination);
+    osc2.connect(gain);
+    osc1.start(ctx.currentTime);
+    osc2.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 0.3);
+    osc2.stop(ctx.currentTime + 0.3);
+  } catch (e) {}
+}
+
+function playWobble() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, ctx.currentTime);
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.frequency.value = 8;
+    lfoGain.gain.value = 100;
+    lfo.connect(lfoGain).connect(osc.frequency);
+    lfo.start(ctx.currentTime);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+    lfo.stop(ctx.currentTime + 0.5);
+  } catch (e) {}
+}
+
 /* ══════════════════════════════════════════════════════════ */
 /*  TRANSLATIONS                                              */
 /* ══════════════════════════════════════════════════════════ */
@@ -183,7 +314,7 @@ export default function Budget() {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 6,
+          scrub: 2,
         },
       });
 
@@ -208,6 +339,7 @@ export default function Budget() {
           duration: 0.15,
           ease: 'power2.in',
         })
+        .call(playDrop)
         /* FIRST BOUNCE — squish on impact */
         .to(coin, {
           scaleY: 0.7,
@@ -216,6 +348,7 @@ export default function Budget() {
           duration: 0.04,
           ease: 'power2.out',
         })
+        .call(playBounce)
         /* bounce up */
         .to(coin, {
           scaleY: 1,
@@ -232,6 +365,7 @@ export default function Budget() {
           duration: 0.05,
           ease: 'power2.in',
         })
+        .call(playBounce)
         /* SECOND bounce up (smaller) */
         .to(coin, {
           scaleY: 1,
@@ -257,6 +391,7 @@ export default function Budget() {
           duration: 0.03,
           ease: 'power2.out',
         })
+        .call(playSplash)
         /* ground settle */
         .to(coin, {
           scaleY: 1,
@@ -343,12 +478,14 @@ export default function Budget() {
           `<${0.1 * i}`
         );
       });
+      master.call(playWhoosh);
       /* streams merge into coin — coin reacts with pulse */
       master.to(coin, {
         scale: 1,
         duration: 0.15,
         ease: 'power2.out',
       });
+      master.call(playCoin);
       master.to(glowRef.current, {
         opacity: 0.7,
         scale: 1.5,
@@ -384,6 +521,7 @@ export default function Budget() {
         duration: 0.8,
         ease: 'power1.inOut',
       });
+      master.call(playWhoosh);
       /* coin arrives at destination, small settle */
       master.to(coin, {
         scale: 0.45,
@@ -846,6 +984,7 @@ export default function Budget() {
         ease: 'power2.in',
       });
       /* first wobble — hits ground, tilts left */
+      master.call(playWobble);
       master.to(coin, {
         rotationZ: 15,
         scaleY: 0.9,
@@ -1032,7 +1171,7 @@ export default function Budget() {
           </div>
         </a>
         <div className="flex items-center gap-2 pointer-events-auto">
-          <a href="/" className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/40 hover:bg-white/[0.1] hover:text-white/70 transition-all border border-white/[0.06]">
+          <a href="/home" className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/40 hover:bg-white/[0.1] hover:text-white/70 transition-all border border-white/[0.06]">
             Skip ←
           </a>
           <button onClick={toggleLang} className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/50 hover:bg-white/[0.1] hover:text-white/80 transition-all border border-white/[0.06]">
@@ -1050,7 +1189,7 @@ export default function Budget() {
       {/* ════════════════════════════════════════════════ */}
       {/* S01 — THE HOOK: The coin is born                 */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {Array.from({ length: 50 }).map((_, i) => (
             <div key={i} className="float absolute rounded-full bg-[#D4A853]"
@@ -1115,7 +1254,7 @@ export default function Budget() {
       {/* ════════════════════════════════════════════════ */}
       {/* S02 — THE MYSTERY                               */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
         <div className="absolute inset-0 pointer-events-none">
           <div className="float absolute top-[20%] left-[15%] w-32 h-32 rounded-full bg-[#D4A853]/[0.03] blur-[60px]" />
           <div className="float absolute top-[60%] right-[10%] w-40 h-40 rounded-full bg-[#7BAFD4]/[0.03] blur-[80px]" />
@@ -1139,7 +1278,7 @@ export default function Budget() {
       {/* ════════════════════════════════════════════════ */}
       {/* S02B — THE JOURNEY                              */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#080C16]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#080C16]">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="float absolute top-[30%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4A853]/10 to-transparent" />
           <div className="float absolute top-[55%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#7BAFD4]/8 to-transparent" />
@@ -1169,7 +1308,7 @@ export default function Budget() {
       {/* S02C — THE GAP: Revenue streams converge INTO   */}
       {/* the coin. Different sources → one budget.        */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
         {/* Revenue stream elements — converge toward coin */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="revenue-stream absolute top-[20%] left-[10%] w-3 h-3 rounded-full bg-[#6ABFA7]" style={{ opacity: 0 }} />
@@ -1196,7 +1335,7 @@ export default function Budget() {
       {/* S03 — THE SCALE: Trillions compress → 100       */}
       {/* THE MOST IMPORTANT MOMENT.                      */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] via-[#0D1120] to-[#0A0E18]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] via-[#0D1120] to-[#0A0E18]">
         <div className="absolute inset-0 pointer-events-none opacity-[0.02]"
           style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
         {/* Multiplied coins — burst from main coin during scale transformation */}
@@ -1229,7 +1368,7 @@ export default function Budget() {
       {/* S03B — DISTRIBUTION: Coin splits into branches  */}
       {/* One budget → multiple destinations               */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#080C16]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#080C16]">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="float absolute top-[40%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#6ABFA7]/10 to-transparent" />
           <div className="float absolute top-[65%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#A78BDA]/8 to-transparent" />
@@ -1259,7 +1398,7 @@ export default function Budget() {
       {/* S03C — DEBT: Actual gravitational pull          */}
       {/* Coin experiences gravity, escapes.               */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
         {/* Gravity well — dark center that attracts */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
           <div ref={debtWellRef} className="absolute" style={{ opacity: 0 }}>
@@ -1285,7 +1424,7 @@ export default function Budget() {
       {/* S04 — SERVICES: Coin travels to each, activates */}
       {/* COIN ARRIVES → SERVICE ACTIVATES                 */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
         <div className="absolute inset-0 pointer-events-none">
           <div className="float absolute top-[30%] left-[20%] w-48 h-48 rounded-full bg-[#A78BDA]/[0.03] blur-[80px]" />
           <div className="float absolute bottom-[25%] right-[15%] w-56 h-56 rounded-full bg-[#6ABFA7]/[0.03] blur-[80px]" />
@@ -1313,7 +1452,7 @@ export default function Budget() {
       {/* S04B — INVESTMENT: Coin transforms              */}
       {/* MONEY → INVESTMENT → GROWTH                      */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
           {/* Investment stages: seed → sprout → building */}
           <div className="relative w-40 h-40 flex items-center justify-center">
@@ -1345,7 +1484,7 @@ export default function Budget() {
       {/* S04C — GROWTH: Coin creates the upward path     */}
       {/* Coin travels upward → curve reveals → 5.4%      */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
         {/* Growth curve SVG — revealed as coin travels */}
         <div className="absolute inset-0 pointer-events-none flex items-end justify-center pb-[25%]">
           <svg ref={curveRef} width="600" height="200" viewBox="0 0 600 200" className="opacity-0" style={{ strokeDasharray: 500 }}>
@@ -1385,7 +1524,7 @@ export default function Budget() {
       {/* Coin returns to center. Does NOT fade.           */}
       {/* The protagonist remains.                         */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
+      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
         <div className="absolute inset-0 pointer-events-none">
           {Array.from({ length: 30 }).map((_, i) => (
             <div key={i} className="float absolute rounded-full bg-[#D4A853]"

@@ -64,7 +64,8 @@ function App() {
                 <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/cookies" element={<CookiesPolicy />} />
                 <Route path="/refund" element={<RefundPolicy />} />
-                <Route path="/" element={<Layout />}>
+                <Route path="/" element={<Budget />} />
+                <Route path="/home" element={<Layout />}>
                   <Route index element={<MasterDashboard />} />
                   <Route path="budget100" element={<Budget100 />} />
                   <Route path="finance-minister" element={<FinanceMinister />} />
@@ -72,11 +73,10 @@ function App() {
                   <Route path="voting" element={<Voting />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="settings" element={<Settings />} />
-                <Route path="budget-story" element={<BudgetStory />} />
-                <Route path="admin" element={<AdminDashboard />} />
-              </Route>
-              <Route path="budget" element={<Budget />} />
-              <Route path="*" element={<NotFound />} />
+                  <Route path="learn" element={<BudgetStory />} />
+                  <Route path="admin" element={<AdminDashboard />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </div>
