@@ -67,6 +67,14 @@ function App() {
                 <Route path="/teaser" element={<Navigate to="/budget" replace />} />
                 <Route path="/" element={<Navigate to="/budget" replace />} />
                 <Route path="/budget" element={<Budget />} />
+                <Route path="/learn" element={<Navigate to="/dashboard/learn" replace />} />
+                <Route path="/budget100" element={<Navigate to="/dashboard/budget100" replace />} />
+                <Route path="/finance-minister" element={<Navigate to="/dashboard/finance-minister" replace />} />
+                <Route path="/quiz" element={<Navigate to="/dashboard/quiz" replace />} />
+                <Route path="/voting" element={<Navigate to="/dashboard/voting" replace />} />
+                <Route path="/reports" element={<Navigate to="/dashboard/reports" replace />} />
+                <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
+                <Route path="/admin" element={<Navigate to="/dashboard/admin" replace />} />
                 <Route path="/dashboard" element={<Layout />}>
                   <Route index element={<MasterDashboard />} />
                   <Route path="budget100" element={<Budget100 />} />
