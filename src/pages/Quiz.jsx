@@ -30,7 +30,9 @@ const Quiz = () => {
   const [userStats, setUserStats] = useState(null);
   const [saving, setSaving] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
   const [serverScore, setServerScore] = useState(null);
+  const [quizError, setQuizError] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -75,11 +77,14 @@ const Quiz = () => {
     setScore(0);
     setAnswers([]);
     setShowLeaderboard(false);
+    setIsFinished(false);
+    setQuizError(null);
   };
 
   const finishQuiz = async () => {
     if (isAuthenticated && user) {
       setSaving(true);
+      setQuizError(null);
       try {
         const answerPayload = answers.map(({ questionId, answer }) => ({ questionId, answer }));
         const result = await saveQuizScore(answerPayload);
@@ -102,15 +107,15 @@ const Quiz = () => {
         }
         const board = await getLeaderboard(10);
         setLeaderboard(board);
+        setIsFinished(true);
         setShowLeaderboard(true);
       } catch (err) {
         console.error('Failed to save score:', err);
+        setQuizError(err.message || 'حدث خطأ أثناء حفظ النتيجة. حاول مرة أخرى.');
       }
       setSaving(false);
     }
   };
-
-  const isFinished = currentQuestion === questions.length - 1 && showResult;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -141,6 +146,12 @@ const Quiz = () => {
           />
         </div>
       </div>
+
+      {quizError && (
+        <div className="mb-4 bg-red-50 text-red-700 p-3 rounded-xl text-sm text-center">
+          {quizError}
+        </div>
+      )}
 
       {/* Question Card */}
       <AnimatePresence mode="wait">
