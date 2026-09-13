@@ -149,6 +149,7 @@ export default function Budget() {
   /* ── Scene-specific refs ──────────────────────── */
   const glowRef = useRef(null);
   const groundRef = useRef(null);
+  const splashCoinsRef = useRef([]);
   const scaleWrapRef = useRef(null);
   const scaleNumRef = useRef(null);
   const debtWellRef = useRef(null);
@@ -263,6 +264,32 @@ export default function Budget() {
           y: () => window.innerHeight * 0.15,
           duration: 0.06,
           ease: 'elastic.out(1.2, 0.5)',
+        })
+        /* SPLASH — mini coins burst outward like water on impact */
+        .call(() => {
+          const angles = splashCoinsRef.current.map((_, i) => ({
+            angle: (i / 16) * Math.PI * 2 + (Math.random() - 0.5) * 0.4,
+            dist: 60 + Math.random() * 140,
+            dur: 0.15 + Math.random() * 0.15,
+            delay: Math.random() * 0.04,
+            rot: (Math.random() - 0.5) * 720,
+            scale: 0.5 + Math.random() * 0.6,
+          }));
+          angles.forEach((cfg, i) => {
+            const el = splashCoinsRef.current[i];
+            if (!el) return;
+            gsap.set(el, { x: 0, y: 0, scale: 0.3, opacity: 1 });
+            gsap.to(el, {
+              x: Math.cos(cfg.angle) * cfg.dist,
+              y: Math.sin(cfg.angle) * cfg.dist * 0.6 - 40,
+              scale: cfg.scale,
+              rotation: cfg.rot,
+              opacity: 0,
+              duration: cfg.dur,
+              delay: cfg.delay,
+              ease: 'power2.out',
+            });
+          });
         })
         /* ground ripple effect */
         .to(groundRef.current, {
@@ -1060,6 +1087,28 @@ export default function Budget() {
             <div className="w-[120px] h-[2px] rounded-full bg-gradient-to-r from-transparent via-[#E8C874]/40 to-transparent mx-auto -mt-1 blur-[1px]" />
             <div className="w-[300px] h-[40px] rounded-full bg-[#D4A853]/[0.05] blur-[20px] mx-auto -mt-3" />
           </div>
+          {/* splash mini-coins — appear on ground impact */}
+          {Array.from({ length: 16 }).map((_, i) => (
+            <div
+              key={`splash-${i}`}
+              ref={(el) => { splashCoinsRef.current[i] = el; }}
+              className="absolute left-1/2 opacity-0 pointer-events-none"
+              style={{
+                bottom: '15%',
+                transform: 'translate(-50%, 0)',
+                width: 28,
+                height: 28,
+              }}
+            >
+              <div
+                className="w-full h-full rounded-full"
+                style={{
+                  background: 'linear-gradient(145deg, #f5d76e 0%, #d4a843 40%, #c49332 70%, #d4a843 100%)',
+                  boxShadow: '0 0 12px 3px rgba(212,168,83,0.35), inset 0 1px 2px rgba(255,255,255,0.3)',
+                }}
+              />
+            </div>
+          ))}
         </div>
       </section>
 
