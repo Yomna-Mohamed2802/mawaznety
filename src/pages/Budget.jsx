@@ -1081,11 +1081,11 @@ export default function Budget() {
             y: 0,
             opacity: 1,
             filter: 'blur(0px)',
-            stagger: 0.18,
+            stagger: 0.06,
             ease: 'power3.out',
             scrollTrigger: {
               trigger: scene,
-              start: 'top 40%',
+              start: 'top 70%',
               end: 'top 10%',
               toggleActions: 'play none none reverse',
             },
