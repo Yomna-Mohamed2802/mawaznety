@@ -8,9 +8,23 @@ gsap.registerPlugin(ScrollTrigger);
 
 /* ─── Sound Effects (Web Audio API) ─────────────────────── */
 let audioCtx = null;
+let audioUnlocked = false;
 function getAudioCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
+}
+/* unlock audio on first user interaction */
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  const ctx = getAudioCtx();
+  if (ctx.state === 'suspended') ctx.resume();
+}
+if (typeof window !== 'undefined') {
+  ['click', 'touchstart', 'keydown'].forEach(evt => {
+    window.addEventListener(evt, unlockAudio, { once: true, passive: true });
+  });
 }
 
 function playDrop() {
@@ -557,12 +571,12 @@ export default function Budget() {
         const angle = -Math.PI * 0.3 - progress * Math.PI * 0.4;
         const radius = window.innerWidth * (0.18 + progress * 0.12);
         master.fromTo(mc,
-          { x: 0, y: 0, opacity: 0, scale: 0.05, rotation: 0 },
+          { x: 0, y: 0, opacity: 0, scale: 0.3, rotation: 0 },
           {
             x: -Math.abs(Math.cos(angle) * radius),
             y: Math.sin(angle) * radius * 0.6,
             opacity: 0.9,
-            scale: 0.18 + progress * 0.06,
+            scale: 0.5 + progress * 0.1,
             rotation: 360 + i * 30,
             duration: 0.5,
             ease: 'back.out(1.2)',
@@ -1057,8 +1071,8 @@ export default function Budget() {
             ease: 'power3.out',
             scrollTrigger: {
               trigger: scene,
-              start: 'top 70%',
-              end: 'top 15%',
+              start: 'top 40%',
+              end: 'top 10%',
               toggleActions: 'play none none reverse',
             },
           }
@@ -1235,8 +1249,8 @@ export default function Budget() {
               style={{
                 bottom: '15%',
                 transform: 'translate(-50%, 0)',
-                width: 28,
-                height: 28,
+                width: 40,
+                height: 40,
               }}
             >
               <div
@@ -1341,7 +1355,7 @@ export default function Budget() {
         {/* Multiplied coins — burst from main coin during scale transformation */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="multi-coin absolute w-4 h-4 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-md shadow-[#D4A853]/15" style={{ opacity: 0 }} />
+            <div key={i} className="multi-coin absolute w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-md shadow-[#D4A853]/15" style={{ opacity: 0 }} />
           ))}
         </div>
         <div className="sticky top-0 h-screen flex items-center justify-center">
@@ -1375,10 +1389,10 @@ export default function Budget() {
         </div>
         {/* Split coins — burst from main coin toward destinations */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="split-coin absolute w-5 h-5 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
-          <div className="split-coin absolute w-5 h-5 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
-          <div className="split-coin absolute w-5 h-5 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
-          <div className="split-coin absolute w-5 h-5 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
+          <div className="split-coin absolute w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
+          <div className="split-coin absolute w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
+          <div className="split-coin absolute w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
+          <div className="split-coin absolute w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-lg shadow-[#D4A853]/20" style={{ opacity: 0 }} />
         </div>
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
