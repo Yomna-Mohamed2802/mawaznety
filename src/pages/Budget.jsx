@@ -353,43 +353,46 @@ export default function Budget() {
         duration: 0.4,
         ease: 'power2.inOut',
       });
-      /* coins burst OUT from main coin — multiplication */
+      /* coins burst LEFT from main coin — fan out beautifully */
       multiCoins.forEach((mc, i) => {
-        const angle = (i / multiCoins.length) * Math.PI * 2;
-        const radius = window.innerWidth * 0.15;
+        const total = multiCoins.length;
+        /* fan arc: from top-left to bottom-left */
+        const progress = i / (total - 1);
+        const angle = -Math.PI * 0.3 - progress * Math.PI * 0.4;
+        const radius = window.innerWidth * (0.18 + progress * 0.12);
         master.fromTo(mc,
-          { x: 0, y: 0, opacity: 0, scale: 0.1, rotation: 0 },
+          { x: 0, y: 0, opacity: 0, scale: 0.05, rotation: 0 },
           {
-            x: Math.cos(angle) * radius,
-            y: Math.sin(angle) * radius * 0.5,
-            opacity: 0.8,
-            scale: 0.2,
-            rotation: 360 + i * 45,
-            duration: 0.4,
-            ease: 'power2.out',
+            x: -Math.abs(Math.cos(angle) * radius),
+            y: Math.sin(angle) * radius * 0.6,
+            opacity: 0.9,
+            scale: 0.18 + progress * 0.06,
+            rotation: 360 + i * 30,
+            duration: 0.5,
+            ease: 'back.out(1.2)',
           },
-          `<${0.04 * i}`
+          `<${0.06 * i}`
         );
       });
       /* "100" fades in behind the multiplied coins */
       if (scaleNumRef.current) {
         master.fromTo(scaleNumRef.current,
-          { scale: 2, opacity: 0 },
-          { scale: 1, opacity: 0.4, duration: 0.3, ease: 'power2.out' },
-          '-=0.2'
+          { scale: 3, opacity: 0 },
+          { scale: 1, opacity: 0.5, duration: 0.4, ease: 'back.out(1.3)' },
+          '-=0.3'
         );
       }
-      /* ALL coins compress back into ONE — the key transformation */
+      /* ALL coins compress back into ONE — from left to center */
       multiCoins.forEach((mc, i) => {
         master.to(mc, {
           x: 0,
           y: 0,
           scale: 0,
           opacity: 0,
-          rotation: '+=180',
-          duration: 0.4,
+          rotation: '+=360',
+          duration: 0.5,
           ease: 'power3.in',
-        }, `<${0.03 * i}`);
+        }, `<${0.04 * i}`);
       });
       /* "100" compresses too */
       if (scaleNumRef.current) {
