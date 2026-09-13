@@ -2,40 +2,18 @@ import React, { useRef, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Coin from '../components/ui/Coin';
-import { budget100 } from '../data';
-import { useLang } from '../context/LangContext';
-import { getDataLabel } from '../data/translateData';
 
 gsap.registerPlugin(ScrollTrigger);
-
-/* ══════════════════════════════════════════════════════════ */
-/*  DATA                                                      */
-/* ══════════════════════════════════════════════════════════ */
-
-const REVENUE_SOURCES = [
-  { id: 'taxes', label: 'الضرائب', value: '3.5', icon: '📋', desc: 'الضريبة المباشرة وغير المباشرة', color: '#D4A853' },
-  { id: 'customs', label: 'الرسوم الجمركية', value: '0.2', icon: '📦', desc: 'رسوم الوارد والصادر', color: '#7BAFD4' },
-  { id: 'services', label: 'الرسوم والخدمات', value: '0.02', icon: '🏛️', desc: 'رسوم الحكومة المختلفة', color: '#A78BDA' },
-  { id: 'investments', label: 'عوائد الاستثمارات', value: '0.5', icon: '📈', desc: 'عوائد الشركات والاستثمارات', color: '#E8B94A' },
-];
-
-const PERSONAS = [
-  { id: 'student', icon: '🎓', label: 'الطالب', desc: 'تعليم مجاني + كتب دراسية', color: '#7BAFD4' },
-  { id: 'family', icon: '👨‍👩‍👧‍👦', label: 'الأسرة', desc: 'دعم وحماية اجتماعية', color: '#A78BDA' },
-  { id: 'business', icon: '🏢', label: 'صاحب المشروع', desc: 'استثمارات ودعم اقتصادي', color: '#E8B94A' },
-  { id: 'health', icon: '🏥', label: 'الصحة', desc: 'مستشفيات وتأمين صحي', color: '#D4736A' },
-  { id: 'environment', icon: '🌿', label: 'البيئة', desc: 'تنمية مستدامة', color: '#6ABFA7' },
-];
 
 /* ══════════════════════════════════════════════════════════ */
 /*  SCENE WRAPPER                                            */
 /* ══════════════════════════════════════════════════════════ */
 
-function Scene({ id, bg = '', children, className = '' }) {
+function Scene({ id, bg = '', children }) {
   return (
     <div
       data-scene={id}
-      className={`scene relative h-screen w-full flex items-center justify-center overflow-hidden ${bg} ${className}`}
+      className={`scene relative h-screen w-full flex items-center justify-center overflow-hidden ${bg}`}
     >
       {children}
     </div>
@@ -43,20 +21,18 @@ function Scene({ id, bg = '', children, className = '' }) {
 }
 
 /* ══════════════════════════════════════════════════════════ */
-/*  MAIN — TEASER STORYTELLING INTRO                         */
+/*  TEASER — PURE STORYTELLING INTRO                         */
 /* ══════════════════════════════════════════════════════════ */
 
 export default function Budget() {
-  const { lang } = useLang();
   const containerRef = useRef(null);
   const coinRef = useRef(null);
   const progressRef = useRef(null);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      const scenes = gsap.utils.toArray('.scene');
       const coin = coinRef.current;
-      if (!coin || scenes.length === 0) return;
+      if (!coin) return;
 
       /* ── Progress bar ──────────────────────────────── */
       gsap.to(progressRef.current, {
@@ -80,111 +56,82 @@ export default function Budget() {
         },
       });
 
-      /* S01: Hero — coin hidden, appears center */
+      /* S01: Hero — coin fades in center */
       master
         .set(coin, { x: 0, y: 0, scale: 0.8, rotation: 0, opacity: 0 })
         .to(coin, { opacity: 1, scale: 1, duration: 0.08 });
 
-      /* S01 → S02 */
+      /* S01 → S02: coin shrinks + moves top-right */
       master.to(coin, {
-        x: () => window.innerWidth * 0.28,
-        y: () => -window.innerHeight * 0.25,
-        scale: 0.45,
+        x: () => window.innerWidth * 0.3,
+        y: () => -window.innerHeight * 0.3,
+        scale: 0.35,
         rotation: 180,
         duration: 1,
         ease: 'power2.inOut',
       });
 
-      /* S02 → S03 */
+      /* S02 → S03: coin moves left */
       master.to(coin, {
-        x: () => -window.innerWidth * 0.3,
+        x: () => -window.innerWidth * 0.32,
         y: () => window.innerHeight * 0.15,
-        scale: 0.5,
+        scale: 0.4,
         rotation: 360,
         duration: 1,
         ease: 'power2.inOut',
       });
 
-      /* S03 → S04 */
+      /* S03 → S04: coin back center, grows */
       master.to(coin, {
         x: 0,
         y: 0,
-        scale: 1.2,
+        scale: 1.1,
         rotation: 540,
         duration: 1,
         ease: 'power3.inOut',
       });
 
-      /* S04: Budget100 — coin big center */
-
-      /* S04 → S05 */
+      /* S04 → S05: coin shrinks + moves away */
       master.to(coin, {
-        x: () => window.innerWidth * 0.2,
-        y: () => -window.innerHeight * 0.2,
-        scale: 0.5,
+        x: () => window.innerWidth * 0.25,
+        y: () => -window.innerHeight * 0.25,
+        scale: 0.3,
         rotation: 720,
         duration: 1,
         ease: 'power2.inOut',
       });
 
-      /* S05 → S06 */
+      /* S05 → S06: coin grows huge + fades out (end) */
       master.to(coin, {
         x: 0,
         y: 0,
-        scale: 2.5,
+        scale: 3,
         rotation: 900,
         opacity: 0,
-        duration: 1.2,
+        duration: 1.5,
         ease: 'power3.in',
       });
 
-      /* ── Per-scene reveals ────────────────────────── */
-      scenes.forEach((scene) => {
+      /* ── Per-scene content reveals ────────────────── */
+      gsap.utils.toArray('.scene').forEach((scene) => {
         const reveals = scene.querySelectorAll('.sr');
         if (reveals.length === 0) return;
         gsap.fromTo(reveals,
-          { y: 50, opacity: 0 },
+          { y: 40, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            stagger: 0.12,
+            stagger: 0.15,
             ease: 'power2.out',
             scrollTrigger: {
               trigger: scene,
-              start: 'top 80%',
-              end: 'top 20%',
+              start: 'top 75%',
+              end: 'top 25%',
               toggleActions: 'play none none reverse',
             },
           }
         );
       });
-
-      /* ── Revenue cards ────────────────────────────── */
-      gsap.fromTo('.rev-card',
-        { x: -60, opacity: 0 },
-        {
-          x: 0, opacity: 1, stagger: 0.15, ease: 'power2.out',
-          scrollTrigger: { trigger: '[data-scene="revenue"]', start: 'top 60%', toggleActions: 'play none none reverse' },
-        }
-      );
-
-      /* ── Persona cards ────────────────────────────── */
-      gsap.fromTo('.persona',
-        { scale: 0.7, opacity: 0 },
-        {
-          scale: 1, opacity: 1, stagger: 0.12, ease: 'back.out(1.4)',
-          scrollTrigger: { trigger: '[data-scene="citizens"]', start: 'top 60%', toggleActions: 'play none none reverse' },
-        }
-      );
-
-      /* ── Budget 100 bars ──────────────────────────── */
-      gsap.fromTo('.bar-fill',
-        { scaleX: 0 },
-        {
-          scaleX: 1, stagger: 0.08, ease: 'power2.out',
-          scrollTrigger: { trigger: '[data-scene="budget100"]', start: 'top 60%', toggleActions: 'play none none reverse' },
-        }
-      );
 
     }, containerRef);
 
@@ -202,7 +149,7 @@ export default function Budget() {
         />
       </div>
 
-      {/* ── Traveling Coin (fixed) ────────────────────── */}
+      {/* ── Traveling Coin ────────────────────────────── */}
       <div
         ref={coinRef}
         className="fixed top-1/2 left-1/2 z-[100] pointer-events-none will-change-transform"
@@ -215,9 +162,8 @@ export default function Budget() {
       {/* S01 — HERO                                       */}
       {/* ════════════════════════════════════════════════ */}
       <Scene id="hero" bg="bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
-        {/* Ambient particles */}
         <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 60 }).map((_, i) => (
+          {Array.from({ length: 50 }).map((_, i) => (
             <div
               key={i}
               className="absolute rounded-full bg-[#D4A853]"
@@ -226,19 +172,18 @@ export default function Budget() {
                 height: Math.random() * 2 + 0.5,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                opacity: 0.1 + Math.random() * 0.3,
+                opacity: 0.08 + Math.random() * 0.25,
               }}
             />
           ))}
         </div>
 
-        {/* Central glow */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-[500px] h-[500px] rounded-full bg-[#D4A853]/[0.03] blur-[100px]" />
         </div>
 
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <p className="sr text-[#D4A853]/50 text-[10px] tracking-[0.6em] uppercase mb-8 font-medium">
+          <p className="sr text-[#D4A853]/40 text-[10px] tracking-[0.6em] uppercase mb-8 font-medium">
             موازنتي — موازنة Citizen 2027/2026
           </p>
           <h1 className="sr text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-black text-white leading-[1.15] mb-7">
@@ -248,159 +193,68 @@ export default function Budget() {
               وراه حكاية.
             </span>
           </h1>
-          <p className="sr text-base sm:text-lg text-[#8B95A8] max-w-lg mx-auto mb-14 leading-relaxed">
-            اكتشف معانا كيف بتجمع الدولة إيراداتها، وفين بتروح، وإزاي بتأثر على حياتك — في دقائق.
+          <p className="sr text-base sm:text-lg text-[#5A6578] max-w-lg mx-auto leading-relaxed">
+            اكتشف معانا حكاية موازنتك.
           </p>
-          <div className="sr flex flex-col items-center gap-3">
-            <span className="text-[#4A5568] text-[9px] tracking-[0.5em] uppercase">Scroll</span>
-            <div className="w-[18px] h-7 border border-[#2A3040] rounded-full flex justify-center">
-              <div className="w-[3px] h-[6px] bg-[#D4A853] rounded-full mt-1.5 animate-bounce" />
-            </div>
-          </div>
         </div>
       </Scene>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S02 — THE BIG NUMBER                             */}
+      {/* S02 — THE BIG NUMBER (minimal)                  */}
       {/* ════════════════════════════════════════════════ */}
-      <Scene id="revenue" bg="bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
-        <div className="section-container w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="sr inline-flex items-center gap-2 px-3 py-1.5 bg-[#D4A853]/10 text-[#D4A853] rounded-full text-[10px] font-semibold mb-6 border border-[#D4A853]/20">
-                <span className="w-1.5 h-1.5 bg-[#D4A853] rounded-full" />
-                من أين تأتي الإيرادات؟
-              </div>
-              <h2 className="sr text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight mb-7">
-                الدولة بتجيب
-                <br />
-                <span className="text-[#D4A853]">فلوسها منين؟</span>
-              </h2>
-              <div className="sr">
-                <span className="text-7xl sm:text-8xl font-black text-[#E8C874]">4.1</span>
-                <span className="text-xl text-[#5A6578] mr-2">تريليون جنيه</span>
-                <p className="text-[#3D4758] text-sm mt-1">إجمالي إيرادات الدولة</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {REVENUE_SOURCES.map((src) => (
-                <div
-                  key={src.id}
-                  className="rev-card flex items-center gap-4 p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.04] transition-colors"
-                >
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                    style={{ backgroundColor: src.color + '12' }}
-                  >
-                    {src.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <h4 className="font-bold text-white text-sm">{src.label}</h4>
-                      <span className="text-[#D4A853] font-bold text-sm">{src.value} تريليون</span>
-                    </div>
-                    <p className="text-[11px] text-[#4A5568]">{src.desc}</p>
-                  </div>
-                  <div className="w-20 h-1 bg-white/[0.04] rounded-full overflow-hidden flex-shrink-0">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${(parseFloat(src.value) / 4.1) * 100}%`, backgroundColor: src.color }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+      <Scene id="number" bg="bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
+        <div className="text-center px-6">
+          <p className="sr text-[#4A5568] text-sm mb-4">إجمالي إيرادات الدولة</p>
+          <div className="sr">
+            <span className="text-[6rem] sm:text-[8rem] md:text-[10rem] font-black bg-gradient-to-b from-[#E8C874] to-[#D4A853] bg-clip-text text-transparent leading-none">
+              4.1
+            </span>
           </div>
+          <p className="sr text-[#5A6578] text-lg mt-2">تريليون جنيه</p>
         </div>
       </Scene>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S03 — BUDGET 100                                 */}
+      {/* S03 — 100 GENIH (concept only)                  */}
       {/* ════════════════════════════════════════════════ */}
-      <Scene id="budget100" bg="bg-gradient-to-b from-[#0A0E18] via-[#0D1120] to-[#0A0E18]">
-        <div className="section-container w-full">
-          <div className="text-center mb-10">
-            <div className="sr inline-flex items-center gap-2 px-3 py-1.5 bg-[#A78BDA]/10 text-[#A78BDA] rounded-full text-[10px] font-semibold mb-5 border border-[#A78BDA]/20">
-              <span className="w-1.5 h-1.5 bg-[#A78BDA] rounded-full" />
-              لو معاك 100 جنيه
-            </div>
-            <h2 className="sr text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight">
-              الـ100 جنيه
-              <br />
-              <span className="text-[#E8C874]">بتروح فين؟</span>
-            </h2>
+      <Scene id="100" bg="bg-gradient-to-b from-[#0A0E18] via-[#0D1120] to-[#0A0E18]">
+        <div className="text-center px-6">
+          <p className="sr text-[#4A5568] text-sm mb-4">لو معاك 100 جنيه</p>
+          <div className="sr">
+            <span className="text-[6rem] sm:text-[8rem] md:text-[10rem] font-black text-white leading-none">
+              100
+            </span>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-5xl mx-auto">
-            {budget100.map((item) => {
-              const pct = item.percentage;
-              return (
-                <div
-                  key={item.id}
-                  className="bg-white/[0.02] rounded-xl border border-white/[0.04] p-5 hover:bg-white/[0.04] transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-white text-sm">{item.name}</h4>
-                    <span className="text-lg font-black" style={{ color: item.color }}>
-                      {pct}%
-                    </span>
-                  </div>
-                  <div className="w-full h-1 bg-white/[0.04] rounded-full overflow-hidden mb-2">
-                    <div
-                      className="bar-fill h-full rounded-full origin-left"
-                      style={{ width: `${pct}%`, backgroundColor: item.color }}
-                    />
-                  </div>
-                  <p className="text-[10px] text-[#4A5568] leading-relaxed">{item.description}</p>
-                  <p className="text-[9px] text-[#3D4758] mt-1">
-                    {(item.amountM / 1000).toFixed(0)} مليار جنيه
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+          <p className="sr text-[#5A6578] text-lg mt-2">بتروح فين؟</p>
         </div>
       </Scene>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S04 — CITIZENS                                   */}
+      {/* S04 — CITIZENS (icons only)                     */}
       {/* ════════════════════════════════════════════════ */}
       <Scene id="citizens" bg="bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
-        <div className="section-container w-full">
-          <div className="text-center mb-12">
-            <div className="sr inline-flex items-center gap-2 px-3 py-1.5 bg-[#6ABFA7]/10 text-[#6ABFA7] rounded-full text-[10px] font-semibold mb-5 border border-[#6ABFA7]/20">
-              <span className="w-1.5 h-1.5 bg-[#6ABFA7] rounded-full" />
-              الموازنة بتوصلك إنت
-            </div>
-            <h2 className="sr text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight">
-              مش مجرد أرقام
-              <br />
-              <span className="text-[#A78BDA]">أرقام بتأثر في حياتك.</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
-            {PERSONAS.map((p) => (
-              <div
-                key={p.id}
-                className="persona text-center bg-white/[0.02] rounded-xl border border-white/[0.04] p-5 hover:bg-white/[0.04] transition-all group cursor-default"
-              >
-                <span className="text-3xl mb-3 block group-hover:scale-110 transition-transform duration-300">{p.icon}</span>
-                <h4 className="font-bold text-white text-sm mb-1">{p.label}</h4>
-                <p className="text-[10px] text-[#4A5568] leading-relaxed">{p.desc}</p>
-              </div>
-            ))}
+        <div className="text-center px-6 max-w-3xl mx-auto">
+          <h2 className="sr text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight mb-12">
+            موازنتك بتأثر
+            <br />
+            <span className="text-[#A78BDA]">في حياة كل مصري.</span>
+          </h2>
+          <div className="sr flex justify-center gap-6 sm:gap-10 text-4xl sm:text-5xl">
+            <span>🎓</span>
+            <span>👨‍👩‍👧‍👦</span>
+            <span>🏢</span>
+            <span>🏥</span>
+            <span>🌿</span>
           </div>
         </div>
       </Scene>
 
       {/* ════════════════════════════════════════════════ */}
-      {/* S05 — CTA / ENTER THE SITE                       */}
+      {/* S05 — CLOSING TEASER                             */}
       {/* ════════════════════════════════════════════════ */}
-      <Scene id="cta" bg="bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
+      <Scene id="closing" bg="bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
         <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 40 }).map((_, i) => (
+          {Array.from({ length: 30 }).map((_, i) => (
             <div
               key={i}
               className="absolute rounded-full bg-[#D4A853]"
@@ -409,7 +263,7 @@ export default function Budget() {
                 height: Math.random() * 2 + 0.5,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                opacity: 0.05 + Math.random() * 0.2,
+                opacity: 0.05 + Math.random() * 0.15,
               }}
             />
           ))}
@@ -417,30 +271,13 @@ export default function Budget() {
 
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <h2 className="sr text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-6">
-            دلوقتي
+            موازنتك مش مجرد
             <br />
-            <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent">
-              شوف التفاصيل.
-            </span>
+            <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent">أرقام.</span>
           </h2>
-          <p className="sr text-base text-[#5A6578] mb-4 max-w-md mx-auto leading-relaxed">
-            الموازنة مش مجرد وثيقة مالية — دي خطة لحياة كل مصري.
+          <p className="sr text-base text-[#4A5568] mt-6">
+            حكاية كل جنيه — اكتشفها بنفسك.
           </p>
-          <p className="sr text-sm text-[#3D4758] mb-12">
-            اكتشف الأرقام، جرّب توزيع الموازنة، وصوّت لأولوياتك.
-          </p>
-
-          <div className="sr flex flex-col sm:flex-row flex-wrap justify-center gap-3">
-            <a href="/" className="px-8 py-3.5 bg-gradient-to-r from-[#D4A853] to-[#E8B94A] text-[#06080F] text-sm font-bold rounded-full hover:shadow-lg hover:shadow-[#D4A853]/20 transition-all duration-300 hover:-translate-y-0.5">
-              ادخل على موارننتي ←
-            </a>
-            <a href="/budget100" className="px-8 py-3.5 bg-white/[0.04] text-white text-sm font-bold rounded-full border border-white/[0.08] hover:bg-white/[0.08] transition-all duration-300">
-              استكشف الـ 100 جنيه
-            </a>
-            <a href="/voting" className="px-8 py-3.5 bg-white/[0.04] text-white text-sm font-bold rounded-full border border-white/[0.08] hover:bg-white/[0.08] transition-all duration-300">
-              صوّت لأولوياتك
-            </a>
-          </div>
         </div>
       </Scene>
     </div>
