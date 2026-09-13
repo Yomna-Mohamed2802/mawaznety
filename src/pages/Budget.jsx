@@ -181,7 +181,7 @@ export default function Budget() {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 1.2,
+          scrub: 2,
         },
       });
 
