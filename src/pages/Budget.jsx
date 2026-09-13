@@ -41,57 +41,107 @@ export default function Budget() {
         },
       });
 
-      /* S01: Hero — coin fades in, centered, modest */
+      /* S01: Hero — coin fades in center */
       master
         .set(coin, { x: 0, y: 0, scale: 0.6, rotation: 0, opacity: 0 })
-        .to(coin, { opacity: 1, scale: 0.8, duration: 0.05 });
+        .to(coin, { opacity: 1, scale: 0.8, duration: 0.04 });
 
-      /* S01 → S02: coin slides top-right, shrinks */
+      /* S01 → S02: coin slides top-right */
       master.to(coin, {
-        x: () => window.innerWidth * 0.32,
-        y: () => -window.innerHeight * 0.35,
+        x: () => window.innerWidth * 0.3,
+        y: () => -window.innerHeight * 0.3,
         scale: 0.3,
-        rotation: 180,
-        duration: 1,
+        rotation: 120,
+        duration: 0.8,
         ease: 'power2.inOut',
       });
 
-      /* S02 → S03: coin sweeps left */
+      /* S02 → S02B: coin drifts left */
       master.to(coin, {
-        x: () => -window.innerWidth * 0.35,
-        y: () => window.innerHeight * 0.18,
-        scale: 0.35,
-        rotation: 360,
-        duration: 1,
+        x: () => -window.innerWidth * 0.25,
+        y: () => window.innerHeight * 0.1,
+        scale: 0.25,
+        rotation: 240,
+        duration: 0.8,
         ease: 'power2.inOut',
       });
 
-      /* S03 → S04: coin back center, grows */
+      /* S02B → S02C: coin sweeps right */
+      master.to(coin, {
+        x: () => window.innerWidth * 0.2,
+        y: () => -window.innerHeight * 0.15,
+        scale: 0.28,
+        rotation: 360,
+        duration: 0.8,
+        ease: 'power2.inOut',
+      });
+
+      /* S02C → S03: coin center for 100 */
       master.to(coin, {
         x: 0,
         y: 0,
         scale: 1,
-        rotation: 540,
-        duration: 1.2,
+        rotation: 480,
+        duration: 1,
         ease: 'power3.inOut',
       });
 
-      /* S04 → S05: coin to corner */
+      /* S03 → S03B: coin to corner */
       master.to(coin, {
-        x: () => window.innerWidth * 0.28,
-        y: () => -window.innerHeight * 0.3,
-        scale: 0.35,
-        rotation: 720,
-        duration: 1,
+        x: () => -window.innerWidth * 0.28,
+        y: () => -window.innerHeight * 0.2,
+        scale: 0.3,
+        rotation: 600,
+        duration: 0.8,
         ease: 'power2.inOut',
       });
 
-      /* S05 → S06: coin grows huge + dissolves */
+      /* S03B → S03C: coin drifts */
+      master.to(coin, {
+        x: () => window.innerWidth * 0.22,
+        y: () => window.innerHeight * 0.15,
+        scale: 0.25,
+        rotation: 720,
+        duration: 0.8,
+        ease: 'power2.inOut',
+      });
+
+      /* S03C → S04: coin back center for humans */
+      master.to(coin, {
+        x: 0,
+        y: 0,
+        scale: 0.8,
+        rotation: 840,
+        duration: 1,
+        ease: 'power3.inOut',
+      });
+
+      /* S04 → S04B: coin to side */
+      master.to(coin, {
+        x: () => window.innerWidth * 0.25,
+        y: () => -window.innerHeight * 0.25,
+        scale: 0.3,
+        rotation: 960,
+        duration: 0.8,
+        ease: 'power2.inOut',
+      });
+
+      /* S04B → S04C: coin drifts */
+      master.to(coin, {
+        x: () => -window.innerWidth * 0.2,
+        y: () => window.innerHeight * 0.1,
+        scale: 0.25,
+        rotation: 1080,
+        duration: 0.8,
+        ease: 'power2.inOut',
+      });
+
+      /* S04C → S05: coin grows huge + dissolves */
       master.to(coin, {
         x: 0,
         y: 0,
         scale: 4,
-        rotation: 1080,
+        rotation: 1440,
         opacity: 0,
         duration: 1.5,
         ease: 'power3.in',
@@ -274,6 +324,76 @@ export default function Budget() {
       </section>
 
       {/* ════════════════════════════════════════════════ */}
+      {/* S02B — THE JOURNEY                              */}
+      {/* ════════════════════════════════════════════════ */}
+      <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#080C16]">
+        {/* Moving lines */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="float absolute top-[30%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4A853]/10 to-transparent" />
+          <div className="float absolute top-[55%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#7BAFD4]/8 to-transparent" />
+          <div className="float absolute top-[75%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#A78BDA]/6 to-transparent" />
+        </div>
+
+        <div className="sticky top-0 h-screen flex items-center justify-center">
+          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+            <p className="sr text-[#4A5568] text-xs mb-6 tracking-wider">
+              الجنيه مش واقف
+            </p>
+
+            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
+              الجنيه <span className="text-[#D4A853]">بيسافر.</span>
+            </h2>
+
+            <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
+              بيبدأ من مكتب ضريبة.
+              <br />
+              <span className="text-[#8B95A8]">بيروح مدرسة. مستشفى. شارع. مشروع.</span>
+              <br />
+              كل يوم — جنيه جنيه — بيحوّل حياة.
+            </p>
+
+            <div className="sr mt-12 flex justify-center items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-[#D4A853]/30" />
+              <div className="w-16 h-px bg-[#D4A853]/20" />
+              <div className="w-2 h-2 rounded-full bg-[#D4A853]/50" />
+              <div className="w-16 h-px bg-[#D4A853]/20" />
+              <div className="w-2 h-2 rounded-full bg-[#D4A853]/30" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════ */}
+      {/* S02C — THE GAP                                  */}
+      {/* ════════════════════════════════════════════════ */}
+      <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
+        {/* Tension glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-[#E8B94A]/[0.02] blur-[80px]" />
+        </div>
+
+        <div className="sticky top-0 h-screen flex items-center justify-center">
+          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
+              بس فيه <span className="text-[#E8B94A]">فرق.</span>
+            </h2>
+
+            <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
+              اللي الدولة بتجيبه
+              <span className="text-white font-bold"> مش دايمًا بيكفي.</span>
+              <br />
+              <span className="text-[#8B95A8]">وفي فرق بين اللي عندنا — واللي محتاجينه.</span>
+            </p>
+
+            <div className="sr mt-10 flex justify-center gap-6">
+              <div className="w-px h-16 bg-gradient-to-b from-[#D4A853]/30 to-transparent" />
+              <div className="w-px h-16 bg-gradient-to-b from-[#E8B94A]/30 to-transparent" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════ */}
       {/* S03 — THE SCALE                                 */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] via-[#0D1120] to-[#0A0E18]">
@@ -318,6 +438,61 @@ export default function Budget() {
       </section>
 
       {/* ════════════════════════════════════════════════ */}
+      {/* S03B — THE FLOW                                 */}
+      {/* ════════════════════════════════════════════════ */}
+      <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#080C16]">
+        {/* Flow lines */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="float absolute top-[40%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#6ABFA7]/10 to-transparent" />
+          <div className="float absolute top-[65%] left-0 w-full h-px bg-gradient-to-r from-transparent via-[#A78BDA]/8 to-transparent" />
+        </div>
+
+        <div className="sticky top-0 h-screen flex items-center justify-center">
+          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
+              كل جنيه
+              <br />
+              <span className="text-[#6ABFA7]">بيحل مشكلة.</span>
+            </h2>
+
+            <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
+              جنيه يبني مدرسة.
+              <br />
+              <span className="text-[#8B95A8]">جنيه يشفي مريض.</span>
+              <br />
+              جنيه يفتح شارع. جنيه يعلّم طفل.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════ */}
+      {/* S03C — THE UNSEEN                               */}
+      {/* ════════════════════════════════════════════════ */}
+      <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#080C16] to-[#0A0E18]">
+        {/* Subtle mystery */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-[#A78BDA]/[0.02] blur-[80px]" />
+        </div>
+
+        <div className="sticky top-0 h-screen flex items-center justify-center">
+          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
+              بس محدش
+              <br />
+              <span className="text-[#A78BDA]">بيحكيلك الجزئية.</span>
+            </h2>
+
+            <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
+              بتشيل المحفظة كل يوم.
+              <br />
+              <span className="text-[#8B95A8]">بس هل فكرت — إيه اللي ورا كل جنيه بتدفعه؟</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════ */}
       {/* S04 — THE HUMAN                                 */}
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
@@ -349,6 +524,76 @@ export default function Budget() {
 
             <p className="sr text-sm text-[#3D4758] mt-10">
               كل واحد فيهم ليه نصيب من الـ 100 جنيه دول.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════ */}
+      {/* S04B — THE RIPPLE                               */}
+      {/* ════════════════════════════════════════════════ */}
+      <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] to-[#0A0E18]">
+        {/* Ripple rings */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div className="float w-[200px] h-[200px] rounded-full border border-[#D4A853]/[0.06]" />
+          <div className="float absolute w-[350px] h-[350px] rounded-full border border-[#D4A853]/[0.04]" />
+          <div className="float absolute w-[500px] h-[500px] rounded-full border border-[#D4A853]/[0.02]" />
+        </div>
+
+        <div className="sticky top-0 h-screen flex items-center justify-center">
+          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
+              كل جنيه
+              <br />
+              <span className="text-[#D4A853]">بيعمل موجة.</span>
+            </h2>
+
+            <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
+              جنيه واحد يغيّر يوم طفل.
+              <br />
+              <span className="text-[#8B95A8]">ميه جنيه يبنوا مستشفى.</span>
+              <br />
+              ومليارات جنيه — تبني بلد.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════ */}
+      {/* S04C — THE INVITATION                           */}
+      {/* ════════════════════════════════════════════════ */}
+      <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
+        {/* Warm particles */}
+        <div className="absolute inset-0 pointer-events-none">
+          {Array.from({ length: 25 }).map((_, i) => (
+            <div
+              key={i}
+              className="float absolute rounded-full bg-[#D4A853]"
+              style={{
+                width: Math.random() * 1.5 + 0.5,
+                height: Math.random() * 1.5 + 0.5,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                opacity: 0.04 + Math.random() * 0.1,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="sticky top-0 h-screen flex items-center justify-center">
+          <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-8">
+              عايزينك
+              <br />
+              <span className="text-[#E8C874]">تعرف الحكاية كلها.</span>
+            </h2>
+
+            <p className="sr text-lg sm:text-xl text-[#5A6578] max-w-2xl mx-auto leading-relaxed">
+              مش بس أرقام.
+              <br />
+              <span className="text-[#8B95A8]">حكاية. قرارات. مستقبل.</span>
+              <br />
+              كل جنيه ليه صوت — و<strong className="text-white">صوتك مهم.</strong>
             </p>
           </div>
         </div>
