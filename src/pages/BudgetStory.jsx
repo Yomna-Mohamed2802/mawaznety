@@ -1,511 +1,400 @@
-import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { useLang } from '../context/LangContext';
+import Coin from '../components/ui/Coin';
 
-/* ─── The Coin Component (from LoadingScreen) ──────────── */
-
-function Coin({ size = 120, spinning = true }) {
-  return (
-    <div style={{ perspective: 800 }} className="relative">
-      {/* Outer glow ring */}
-      <motion.div
-        className="absolute -inset-6 rounded-full"
-        animate={spinning ? {
-          boxShadow: [
-            '0 0 30px 8px rgba(5,150,105,0.15), 0 0 60px 15px rgba(59,130,246,0.08)',
-            '0 0 50px 15px rgba(5,150,105,0.25), 0 0 80px 25px rgba(59,130,246,0.12)',
-            '0 0 30px 8px rgba(5,150,105,0.15), 0 0 60px 15px rgba(59,130,246,0.08)',
-          ],
-        } : {}}
-        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-      />
-
-      {/* Spinning coin */}
-      <motion.div
-        animate={spinning ? { rotateY: [0, 360] } : {}}
-        transition={{ duration: 1.8, repeat: Infinity, ease: [0.4, 0, 0.2, 1] }}
-        className="relative"
-        style={{ width: size, height: size, transformStyle: 'preserve-3d' }}
-      >
-        {/* Front face */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{
-            backfaceVisibility: 'hidden',
-            background: 'linear-gradient(145deg, #f5d76e 0%, #d4a843 25%, #c49332 50%, #d4a843 75%, #f5d76e 100%)',
-            boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.2), 0 8px 32px rgba(0,0,0,0.5)',
-          }}
-        >
-          <div className="absolute inset-[6px] rounded-full border-2 border-white/20" />
-          <div className="absolute inset-[10px] rounded-full border border-white/10" />
-          <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" style={{ padding: `${size * 0.18}px` }}>
-            <defs>
-              <linearGradient id="shieldGold" x1="0" y1="0" x2="100" y2="100">
-                <stop offset="0%" stopColor="#102a43" />
-                <stop offset="100%" stopColor="#1a3a5c" />
-              </linearGradient>
-            </defs>
-            <path d="M50 10 L85 28 L85 58 Q85 82 50 95 Q15 82 15 58 L15 28 Z" fill="url(#shieldGold)" />
-            <g transform="translate(50, 50)">
-              <path d="M-14 -7 Q-14 -16 -5 -16 Q4 -16 4 -7 L4 11 Q4 16 0 16 Q-4 16 -4 11 L-4 -1 L-14 -1 Q-17 -1 -17 2 L-17 11 Q-17 16 -22 16" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-            </g>
-          </svg>
-          <motion.div
-            className="absolute inset-0 rounded-full overflow-hidden"
-            animate={{ opacity: [0, 0.4, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <div
-              className="absolute top-0 left-[-50%] w-[50%] h-full"
-              style={{
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)',
-                transform: 'skewX(-20deg)',
-              }}
-            />
-          </motion.div>
-          <div className="absolute inset-0 rounded-full" style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 40%, rgba(0,0,0,0.1) 100%)',
-          }} />
-        </div>
-
-        {/* Back face */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            background: 'linear-gradient(145deg, #c49332 0%, #a67c28 25%, #d4a843 50%, #a67c28 75%, #c49332 100%)',
-            boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.3), 0 8px 32px rgba(0,0,0,0.5)',
-          }}
-        >
-          <div className="absolute inset-[6px] rounded-full border-2 border-white/15" />
-          <div className="absolute inset-[10px] rounded-full border border-white/10" />
-          <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" style={{ padding: `${size * 0.2}px` }}>
-            <text x="50" y="58" textAnchor="middle" fontFamily="Arial" fontSize="28" fontWeight="bold" fill="#102a43">EGP</text>
-            <text x="50" y="78" textAnchor="middle" fontFamily="Arial" fontSize="10" fill="#102a43" opacity="0.7">2026</text>
-          </svg>
-          <div className="absolute inset-0 rounded-full" style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 40%, rgba(0,0,0,0.15) 100%)',
-          }} />
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-/* ─── SVG Path Drawing ──────────────────────────────────── */
-
-function SVGPathDrawing({ path, color = '#10b981', strokeWidth = 2 }) {
+function Section({ children, className = '', delay = 0 }) {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start 0.8', 'end 0.2'],
-  });
-  const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
   return (
-    <svg ref={ref} className="w-full h-full" viewBox="0 0 100 100">
-      <motion.path d={path} fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" style={{ pathLength }} />
-    </svg>
-  );
-}
-
-/* ─── Word Reveal ───────────────────────────────────────── */
-
-function WordReveal({ text, className = '' }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.9', 'start 0.4'] });
-  const words = text.split(' ');
-  return (
-    <div ref={ref} className={`flex flex-wrap gap-x-3 ${className}`} style={{ direction: 'rtl' }}>
-      {words.map((word, i) => {
-        const start = i / words.length;
-        const end = start + (1 / words.length);
-        const opacity = useTransform(scrollYProgress, [start, end], [0.1, 1]);
-        const y = useTransform(scrollYProgress, [start, end], [40, 0]);
-        return <motion.span key={i} style={{ opacity, y }} className="inline-block">{word}</motion.span>;
-      })}
-    </div>
-  );
-}
-
-/* ─── Floating Blob ─────────────────────────────────────── */
-
-function FloatingBlob({ color, className = '' }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 180]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 0.8]);
-  return <motion.div ref={ref} className={`absolute rounded-full blur-3xl ${className}`} style={{ background: color, y, rotate, scale, opacity: 0.6 }} />;
-}
-
-/* ─── Moving Coin (replaces airplane) ───────────────────── */
-
-function MovingCoin() {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
-
-  const x = useTransform(scrollYProgress, [0, 0.15, 0.3, 0.5, 0.7, 0.85, 1], ['80vw', '50vw', '10vw', '50vw', '80vw', '30vw', '50vw']);
-  const y = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6, 0.8, 1], ['50vh', '30vh', '60vh', '25vh', '55vh', '50vh']);
-  const scale = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [0.6, 1, 1.3, 1, 0.6]);
-  const rotateX = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0, 90, 180, 270, 360]);
-  const rotateZ = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0, -15, 0, 15, 0]);
-  const opacity = useTransform(scrollYProgress, [0, 0.05, 0.95, 1], [0, 1, 1, 0]);
-
-  return (
-    <motion.div ref={ref} className="fixed top-0 left-0 w-full h-full pointer-events-none z-10" style={{ perspective: 1000 }}>
-      <motion.div style={{ x, y, scale, rotateX, rotateZ, opacity, transformStyle: 'preserve-3d' }} className="absolute">
-        <Coin size={140} spinning={true} />
-      </motion.div>
+    <motion.div ref={ref} initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay, ease: 'easeOut' }} className={className}>
+      {children}
     </motion.div>
   );
 }
 
-/* ─── Main Component ────────────────────────────────────── */
+function Stat({ value, label, sub }) {
+  return (
+    <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 hover:bg-white/[0.07] transition-colors">
+      <p className="text-3xl font-black text-[#D4A853] mb-1">{value}</p>
+      <p className="text-sm font-bold text-white/80">{label}</p>
+      {sub && <p className="text-xs text-white/40 mt-1">{sub}</p>}
+    </div>
+  );
+}
+
+function Chapter({ num, title, children }) {
+  return (
+    <Section className="mb-16">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 rounded-xl bg-[#D4A853]/10 border border-[#D4A853]/20 flex items-center justify-center flex-shrink-0">
+          <span className="text-[#D4A853] font-black text-lg">{num}</span>
+        </div>
+        <div>
+          <p className="text-[#D4A853]/50 text-[10px] tracking-[0.3em] uppercase font-medium">الفصل {num}</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-white">{title}</h2>
+        </div>
+      </div>
+      <div className="text-white/60 leading-[1.9] space-y-4 text-[15px]">{children}</div>
+    </Section>
+  );
+}
+
+function TipBox({ title, children }) {
+  return (
+    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 mt-4">
+      <p className="text-xs text-[#D4A853]/70 mb-2 font-bold">{title}</p>
+      <p className="text-sm text-white/60">{children}</p>
+    </div>
+  );
+}
+
+function ListItem({ color = 'bg-[#D4A853]', val, label }) {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-lg">
+      <div className={`w-2 h-2 rounded-full ${color}`} />
+      {val && <span className={`text-xs font-bold w-24 ${color === 'bg-[#D4A853]' ? 'text-[#D4A853]' : color === 'bg-[#6ABFA7]' ? 'text-[#6ABFA7]' : color === 'bg-[#7BAFD4]' ? 'text-[#7BAFD4]' : 'text-[#A78BDA]'}`}>{val}</span>}
+      <span className="text-xs text-white/60">{label}</span>
+    </div>
+  );
+}
 
 export default function BudgetStory() {
   const { lang } = useLang();
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
-  const progressWidth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
 
   return (
-    <div ref={containerRef} className="bg-white" dir="rtl">
-      <motion.div style={{ scaleX: progressWidth }} className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 z-[100] origin-left" />
-      <MovingCoin />
+    <div className="min-h-screen bg-[#06080F]" dir="rtl">
+      <div className="fixed top-0 left-0 right-0 h-1 z-[100]">
+        <div className="h-full bg-gradient-to-l from-[#D4A853] to-[#E8C874]" style={{ width: '100%' }} />
+      </div>
 
-      {/* ═══════ HERO ═══════ */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <motion.div style={{ y: bgY }} className="absolute inset-0 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50" />
-        <FloatingBlob color="linear-gradient(135deg, #f59e0b, #eab308)" className="w-[500px] h-[500px] -right-40 top-20" />
-        <FloatingBlob color="linear-gradient(135deg, #d97706, #f59e0b)" className="w-[400px] h-[400px] -left-32 bottom-20" />
-
-        <div className="relative z-20 text-center px-4 max-w-5xl">
-          <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }} className="mb-8 flex justify-center">
-            <div className="relative">
-              <Coin size={160} spinning={true} />
+      <section className="relative py-24 sm:py-32 flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#D4A853]/[0.03] blur-[100px]" />
+        </div>
+        <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
+          <Section>
+            <div className="flex justify-center mb-8">
+              <Coin size={120} spinning={true} />
             </div>
-          </motion.div>
-
-          <motion.h1 initial={{ opacity: 0, y: 100 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3 }} className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-primary-900 leading-[0.9] tracking-tighter mb-6">
-            <span className="block">حكاية</span>
-            <span className="block bg-gradient-to-l from-amber-500 via-yellow-500 to-orange-500 bg-clip-text text-transparent">الجنيه المصري</span>
-          </motion.h1>
-
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-xl sm:text-2xl text-primary-600 mb-4">
-            من الخزينة لحدك — موازنة Citizen 2027/2026
-          </motion.p>
-
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-sm text-primary-400 tracking-[0.3em] uppercase">
-            الإصدار الثالث عشر — أغسطس 2026
-          </motion.p>
-
-          <motion.div animate={{ y: [0, 15, 0] }} transition={{ duration: 2, repeat: Infinity }} className="mt-16 flex flex-col items-center gap-2">
-            <span className="text-primary-400 text-xs tracking-[0.3em]">اسحب للأسفل</span>
-            <div className="w-8 h-12 border-2 border-primary-300 rounded-full flex justify-center">
-              <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-2 h-2 bg-primary-400 rounded-full mt-2" />
-            </div>
-          </motion.div>
+          </Section>
+          <Section delay={0.1}>
+            <p className="text-[#D4A853]/40 text-xs tracking-[0.5em] uppercase mb-6 font-medium">موازنة المواطن 2027/2026</p>
+          </Section>
+          <Section delay={0.2}>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-[1.2] mb-6">
+              حكاية<br />
+              <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent">الجنيه المصري</span>
+            </h1>
+          </Section>
+          <Section delay={0.3}>
+            <p className="text-white/50 text-lg leading-relaxed max-w-lg mx-auto">
+              شرح مبسط لكل مفهوم في موازنة الدولة — من الإيرادات والمصروفات للدين العام والحماية الاجتماعية.
+            </p>
+          </Section>
+          <Section delay={0.4}>
+            <p className="text-[#D4A853]/30 text-xs mt-8">الإصدار الثالث عشر — أغسطس 2026</p>
+          </Section>
         </div>
       </section>
 
-      {/* ═══════ LETTER ═══════ */}
-      <section className="relative min-h-screen flex items-center bg-white py-32 overflow-hidden">
-        <FloatingBlob color="linear-gradient(135deg, #f59e0b20, #eab30820)" className="w-[400px] h-[400px] -right-48 top-1/4" />
-        <div className="section-container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-semibold mb-6">
-                <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                رسالة من الوزير
-              </motion.div>
-              <WordReveal text="رؤية واضحة للمستقبل" className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900 mb-6" />
-              <motion.p initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-lg text-primary-600 leading-relaxed mb-6">
-                للعام الثالث عشر على التوالي، تصدر وزارة المالية تقرير موازنة المواطن كأحد أهم الأدوات لمد جسور التواصل ورفع وعي المواطن المصري.
-              </motion.p>
-              <motion.p initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-lg text-primary-600 leading-relaxed">
-                تنطلق موازنة الدولة من رؤية واضحة تضع المواطن والمستثمر في قلب الأولويات.
-              </motion.p>
-            </div>
-            <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl opacity-20 blur-2xl" />
-              <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-primary-100">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
-                    <Coin size={50} spinning={true} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-primary-900 text-lg">أحمد كجوك</h3>
-                    <p className="text-sm text-primary-500">وزير المالية</p>
-                  </div>
-                </div>
-                <p className="text-primary-700 leading-relaxed italic border-r-4 border-amber-500 pr-4">
-                  "أننا نقف اليوم على أسس اقتصادية أفضل وأكثر صلابهة تسمح باستكمال مسيرة الإصلاح والقدم."
-                </p>
-              </div>
-            </motion.div>
+      <div className="max-w-3xl mx-auto px-6 pb-32">
+
+        <Chapter num="١" title="يعني إيه موازنة؟">
+          <p>الموازنة هي <strong className="text-white/90">خطة الدولة المالية لمدة سنة</strong>. بتحدد الدولة هتجيب فلوس منين (الإيرادات) وهتها فين (المصروفات).</p>
+          <p>زي بالظبط أنت لما بتبص على مرتبك وبتقرر تصرف كام على أكل وكام على مواصلات وكام توفر — الدولة بتعمل نفس الكلام بس بأرقام أكتر بكتير.</p>
+          <p>مصر بت音乐d الموازنة بتاعتها كل سنة وبتقدمها للبرلمان للمناقشة والتصويت. الموازنة دي مش مجرد أرقام — هي <strong className="text-white/90">قرارات بتأثر على حياتك كل يوم</strong>: تعليمك، صحتك، شوارعك، ومستقبلك.</p>
+          <TipBox title="معلومة مهمة">موازنة 2026/2027 هي الإصدار الثالث عشر من "موازنة المواطن" — ملف إرشادي بيفسر الموازنة للمواطن المصري بأسلوب بسيط.</TipBox>
+        </Chapter>
+
+        <Chapter num="٢" title="الأرقام الكبيرة — الصورة الكاملة">
+          <p>قبل ما نفصّل، خلينا نشوف الصورة الكبيرة. دي أرقام الموازنة الإجمالية لسنة 2026/2027:</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="٤.١ تريليون" label="إجمالي الإيرادات" sub="الفلوس اللي الدولة بتجيبها" />
+            <Stat value="٥.٢ تريليون" label="إجمالي المصروفات" sub="الفلوس اللي الدولة بتصرفها" />
+            <Stat value="١.١٣ تريليون" label="العجز النقدي" sub="الفرق بين الدخل والصرف" />
+            <Stat value="١.٢٢ تريليون" label="الفائض الأولي" sub="قبل فوائد الدين" />
           </div>
-        </div>
-      </section>
+          <p>يعني الدولة بتصرف أكتر مما بتجيب بحوالي ١.١٣ تريليون جنيه. الفرق ده اسمه <strong className="text-white/90">العجز النقدي</strong> وبيمثل ٤.٦% من الناتج المحلي.</p>
+          <p>بس لو شلنا فوائد الدين من المعادلة، هنلاقي إن الدولة عندها <strong className="text-white/90">فائض أولي</strong> بقيمة ١.٢٢ تريليون جنيه (٥% من الناتج المحلي). يعني الإيرادات كفاية تغطي كل المصروفات ما عدا فوائد الدين.</p>
+          <TipBox title="يعني إيه فائض أولي؟">الفائض الأولي هو الفرق بين الإيرادات والمصروفات <strong>قبل</strong> دفع فوائد الدين. لو الفائض إيجابي، ده معناه إن الدولة بتجيب أكتر مما بتصرف في خدماتها ومشاريعها — المشكلة بس في فوائد الدين.</TipBox>
+        </Chapter>
 
-      {/* ═══════ BLUEPRINT (SVG Drawing) ═══════ */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-32 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(245,158,11,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.3) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
-        </div>
-        <div className="section-container relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="relative">
-              <div className="relative w-full aspect-square max-w-md mx-auto">
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-                  <SVGPathDrawing path="M 10 80 L 90 80" color="#f59e0b" strokeWidth={0.5} />
-                  <SVGPathDrawing path="M 10 50 L 40 35 M 60 35 L 90 50" color="#eab308" strokeWidth={0.5} />
-                  <SVGPathDrawing path="M 60 60 m -15 0 a 15 15 0 1 0 30 0 a 15 15 0 1 0 -30 0" color="#d97706" strokeWidth={0.5} />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Coin size={120} spinning={true} />
-                </div>
+        <Chapter num="٣" title="الناتج المحلي — قوة الاقتصاد">
+          <p>الناتج المحلي الإجمالي (GDP) هو <strong className="text-white/90">قيمة كل البضائع والخدمات اللي انتجتها الدولة في سنة</strong>. هو المقياس الرئيسي لقوة الاقتصاد.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="٢٤.٥ تريليون" label="الناتج المحلي" sub="قيمة الإنتاج الكلي" />
+            <Stat value="٥.٤%" label="معدل النمو" sub="النمو الحقيقي المتوقع" />
+            <Stat value="٩.٣%" label="معدل التضخم" sub="الضاغط السعري" />
+            <Stat value="١٧%" label="معدل الاستثمار" sub="نسبة الاستثمارات للناتج" />
+          </div>
+          <p>مصر متوقع يتحقق منها نمو حقيقي ٥.٤% في 2026/2027. النمو ده معناه إن الاقتصاد بيكبر وبيوفر فرص عمل أكتر.</p>
+          <p>الناتج المحلي مش بس رقم — هو بيعكس قدرة الدولة على تقديم خدماتها وتحقيق أهدافها. كل ما الناتج أكبر، كل ما الموازنة بقت أقوى.</p>
+          <TipBox title="ليه النمو مهم؟">لما الاقتصاد بينمو، الشركات بتكبر وبتوظف أكتر، الضرائب بتكتر، والدولة بتنفق أكتر على التعليم والصحة والبنية التحتية. يعني النمو بيدور دورة إيجابية للكل.</TipBox>
+        </Chapter>
+
+        <Chapter num="٤" title="الإيرادات — الدولة بتجيب فلوس منين؟">
+          <p>إجمالي إيرادات الدولة ٤.٠٦ تريليون جنيه. الدولة بتجيب فلوسها من مصادر كتير:</p>
+          <div className="space-y-3 my-6">
+            <div className="flex items-start gap-4 p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+              <div className="w-12 h-12 rounded-lg bg-[#D4A853]/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-[#D4A853] font-black text-sm">٨٧٪</span>
+              </div>
+              <div>
+                <p className="font-bold text-white/90 text-sm">الضرائب</p>
+                <p className="text-xs text-[#D4A853]/60 mb-1">٣.٥٣ تريليون جنيه</p>
+                <p className="text-xs text-white/40">ضريبة الدخل، ضريبة القيمة المضافة، الرسوم الجمركية، الدمغة</p>
               </div>
             </div>
-            <div>
-              <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 text-amber-300 rounded-full text-sm font-semibold mb-6">
-                <span className="w-2 h-2 bg-amber-400 rounded-full" />
-                المفاهيم الأساسية
-              </motion.div>
-              <WordReveal text="يعني إيه موازنة؟" className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-6" />
-              <motion.p initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-lg text-slate-300 leading-relaxed mb-8">
-                الموازنة هي خطة الدولة للدخل والصرف لمدة سنة. بتحدد الدولة هتجيب فلوس منين وه_tensorsها فين.
-              </motion.p>
-              <div className="space-y-4">
-                {[
-                  { icon: '📊', title: 'وثيقة رسمية', desc: 'تُبين الإيرادات المتوقعة للدولة خلال العام المالي' },
-                  { icon: '🎯', title: 'خطة الأولويات', desc: 'خطة الحكومة لإعادة ترتيب أولويات الإنفاق' },
-                  { icon: '🔍', title: 'أداة الرقابة', desc: 'تمكّن المواطنين من التأكيد من توافق الخطط' },
-                ].map((item, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="flex items-start gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
-                    <span className="text-2xl">{item.icon}</span>
-                    <div>
-                      <h4 className="font-bold text-white">{item.title}</h4>
-                      <p className="text-sm text-slate-300">{item.desc}</p>
+            <div className="flex items-start gap-4 p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+              <div className="w-12 h-12 rounded-lg bg-[#D4A853]/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-[#D4A853] font-black text-sm">١٢.٥٪</span>
+              </div>
+              <div>
+                <p className="font-bold text-white/90 text-sm">إيرادات أخرى</p>
+                <p className="text-xs text-[#D4A853]/60 mb-1">٥٠٧ مليار جنيه</p>
+                <p className="text-xs text-white/40">إيرادات المرافق العامة وصافي أرباح الجهات الحكومية</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+              <div className="w-12 h-12 rounded-lg bg-[#D4A853]/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-[#D4A853] font-black text-sm">٠.٥٪</span>
+              </div>
+              <div>
+                <p className="font-bold text-white/90 text-sm">المنح والمساعدات</p>
+                <p className="text-xs text-[#D4A853]/60 mb-1">١٩.٧ مليار جنيه</p>
+                <p className="text-xs text-white/40">منح دولية ومساعدات خارجية</p>
+              </div>
+            </div>
+          </div>
+          <p>الضرائب هي المصدر الرئيسي لإيرادات الدولة — ٨٧% من الإجمالي. ضريبة القيمة المضافة (VAT) هي أكبر ضريبة بتحصلها الدولة، وبعدها ضريبة الدخل والرسوم الجمركية.</p>
+          <TipBox title="ليه الضرائب مهمة؟">الضرائب هي الدخل الأساسي للدولة. من غيرها، مفيش فلوس تعليم أو صحة أو شوارع. كل جنيه بتدفعه ضريبة بيرجعلك في خدمات.</TipBox>
+        </Chapter>
+
+        <Chapter num="٥" title="المصروفات — الدولة بتنفق على إيه؟">
+          <p>إجمالي مصروفات الدولة ٥.١٩ تريليون جنيه. خلينا نشوف كل جنيه بيروح فين:</p>
+          <div className="my-8 p-6 bg-white/[0.03] border border-white/[0.06] rounded-2xl">
+            <p className="text-center text-[#D4A853] font-bold text-sm mb-6">من كل ١٠٠ جنيه مصري</p>
+            <div className="space-y-4">
+              {[
+                { gp: '٤٦.٦', label: 'فوائد الدين', color: 'bg-red-500', w: '46.6%' },
+                { gp: '١٦.١', label: 'الدعم والحماية الاجتماعية', color: 'bg-[#6ABFA7]', w: '16.1%' },
+                { gp: '١٥.٩', label: 'الأجور والرواتب', color: 'bg-[#7BAFD4]', w: '15.9%' },
+                { gp: '١٠.٧', label: 'الاستثمارات', color: 'bg-[#A78BDA]', w: '10.7%' },
+                { gp: '٥.٧', label: 'السلع والخدمات', color: 'bg-[#D4A853]', w: '5.7%' },
+                { gp: '٥.٠', label: 'أخرى (دفاع، أمن)', color: 'bg-white/20', w: '5%' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-10 text-center">
+                    <span className="text-[#D4A853] font-black text-sm">{item.gp}</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-white/70">{item.label}</span>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════ BIG NUMBERS (Horizontal Scroll) ═══════ */}
-      <section className="relative h-[250vh]">
-        <div className="sticky top-0 h-screen overflow-hidden bg-gradient-to-br from-amber-50 to-white">
-          <motion.div style={{ x: useTransform(useScroll({ offset: ['start start', 'end end'] }).scrollYProgress, [0, 1], ['0%', '-60%']) }} className="flex h-full items-center gap-8 px-8">
-            {[
-              { value: '5.2', label: 'تريليون جنيه', desc: 'إجمالي المصروفات', icon: '💸', bg: 'bg-gradient-to-br from-amber-500 to-orange-600' },
-              { value: '4.1', label: 'تريليون جنيه', desc: 'إجمالي الإيرادات', icon: '💵', bg: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
-              { value: '1.2', label: 'تريليون جنيه', desc: 'الفائض الأولي', icon: '📈', bg: 'bg-gradient-to-br from-blue-500 to-blue-700' },
-              { value: '4.9%', label: '', desc: 'العجز المستهدف', icon: '📊', bg: 'bg-gradient-to-br from-purple-500 to-purple-700' },
-              { value: '78.1%', label: '', desc: 'نسبة الدين المستهدفة', icon: '📉', bg: 'bg-gradient-to-br from-red-500 to-red-700' },
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className={`flex-shrink-0 w-[75vw] h-[65vh] rounded-3xl p-8 flex flex-col justify-end relative overflow-hidden ${item.bg}`}>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <div className="relative z-10 text-white">
-                  <span className="text-6xl mb-4 block">{item.icon}</span>
-                  <p className="text-6xl font-bold mb-2">{item.value}</p>
-                  <p className="text-2xl opacity-90">{item.label}</p>
-                  <p className="text-base opacity-70 mt-2">{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══════ ACHIEVEMENTS ═══════ */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 py-32 overflow-hidden">
-        <FloatingBlob color="linear-gradient(135deg, #05966930, #10b98130)" className="w-[500px] h-[500px] -right-64 top-1/4" />
-        <div className="section-container relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold mb-6">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                ما تم تحقيقه
-              </motion.div>
-              <WordReveal text="أرقام بتتكلم" className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900 mb-6" />
-              <motion.p initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-lg text-primary-600 leading-relaxed mb-8">
-                أثبت الاقتصاد المصري صلابة ومرونة في التصدي للتحديات العالمية بفضل الإصلاحات الهيكلية.
-              </motion.p>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { from: '82.5%', to: '78%', label: 'انخفاض الدين' },
-                  { from: '4$', to: 'B$', label: 'انخفاض الدين الخارجي' },
-                  { from: '5%', to: '', label: 'معدل النمو' },
-                  { from: '14.5%', to: '', label: 'توسع الائتمان' },
-                ].map((item, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-white p-4 rounded-xl shadow-sm border border-primary-100">
-                    <p className="text-2xl font-bold text-primary-900">{item.from}{item.to && <span className="text-emerald-500"> → {item.to}</span>}</p>
-                    <p className="text-sm text-primary-500">{item.label}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            <div className="relative">
-              <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="relative">
-                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 text-white shadow-2xl shadow-emerald-500/30">
-                  <p className="text-sm opacity-80 mb-2">النتائج الرئيسية</p>
-                  <p className="text-6xl font-black mb-4">2025/2026</p>
-                  <div className="space-y-3">
-                    {['✅ خفض الدين من 82.5% إلى 78%', '✅ انخفاض الدين الخارجي 4 مليار دولار', '✅ تحقيق فائض أولي مستدام', '✅ ارتفاع معدل النمو إلى 5%', '✅ توسع الائتمان 14.5%', '✅ استثمارات 637 مليار جنيه'].map((item, i) => (
-                      <motion.div key={i} initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="flex items-center gap-2 text-white/90">{item}</motion.div>
-                    ))}
+                    <div className="h-3 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div className={`h-full ${item.color} rounded-full`} style={{ width: item.w }} />
+                    </div>
                   </div>
                 </div>
-                <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-6 -left-6 bg-white rounded-2xl p-4 shadow-xl border border-primary-100">
-                  <p className="text-3xl font-bold text-primary-900">5%</p>
-                  <p className="text-xs text-primary-500">نمو اقتصادي</p>
-                </motion.div>
-              </motion.div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+          <p>أكبر بند في المصروفات هو <strong className="text-white/90">فوائد الدين</strong> — ٤٦.٦ جنيه من كل ١٠٠ جنيه. يعني تقريبًا نص الفلوس بتروح لسداد فوائد القروض.</p>
+          <p>بعدها comes <strong className="text-white/90">الدعم والحماية الاجتماعية</strong> (١٦.١ جنيه) — وده بيشمل دعم السلع التموينية والكهرباء والإسكان. وبعدها <strong className="text-white/90">الأجور والرواتب</strong> (١٥.٩ جنيه) — رواتب الموظفين والعلاوات.</p>
+          <TipBox title="ليه فوائد الدين كبيرة كده؟">الدين العام المصري كبير، وفوائده بتأخذ نصيب كبير من الموازنة. الحكومة بتحاول تقليل الدين عشان تحرر فلوس أكتر للصرف على الخدمات والمشاريع.</TipBox>
+        </Chapter>
 
-      {/* ═══════ SOCIAL PROTECTION ═══════ */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-br from-violet-50 via-white to-purple-50 py-32 overflow-hidden">
-        <FloatingBlob color="linear-gradient(135deg, #8b5cf630, #a855f730)" className="w-[500px] h-[500px] -left-64 top-1/4" />
-        <div className="section-container relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1">
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { value: '836.8', label: 'مليار جنيه', sub: 'للدعم والحماية', icon: '🛡️', color: 'from-violet-500 to-purple-600' },
-                  { value: '8,000', label: 'جنيه', sub: 'الحد الأدنى للدخل', icon: '💰', color: 'from-emerald-500 to-green-600' },
-                  { value: '21.2%', label: 'نمو سنوي', sub: 'في الأجور', icon: '📈', color: 'from-blue-500 to-cyan-600' },
-                  { value: '100', label: 'مليار جنيه', sub: 'تكلفة الزيادة', icon: '💵', color: 'from-amber-500 to-orange-600' },
-                ].map((stat, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="relative group">
-                    <div className={`absolute -inset-1 bg-gradient-to-r ${stat.color} rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl`} />
-                    <div className="relative bg-white p-6 rounded-2xl shadow-lg border border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                      <span className="text-3xl mb-3 block">{stat.icon}</span>
-                      <p className="text-3xl font-black text-primary-900">{stat.value}</p>
-                      <p className="text-sm text-primary-500">{stat.label}</p>
-                      <p className="text-xs text-primary-400 mt-1">{stat.sub}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-6 bg-white p-6 rounded-2xl shadow-lg border border-primary-100">
-                <h4 className="font-bold text-primary-900 mb-4">برامج الدعم</h4>
-                <div className="grid grid-cols-3 gap-3">
-                  {[{ val: '178.3', label: 'سلع تموينية', icon: '🍞' }, { val: '104.2', label: 'كهرباء', icon: '⚡' }, { val: '69.1', label: 'قمح', icon: '🌾' }, { val: '46', label: 'مناطق عشوائية', icon: '🏘️' }, { val: '33.3', label: 'أدوية', icon: '💊' }, { val: '13', label: 'إسكان', icon: '🏠' }].map((item, i) => (
-                    <div key={i} className="text-center p-2 bg-surface-warm rounded-xl">
-                      <span className="text-xl">{item.icon}</span>
-                      <p className="text-sm font-bold text-primary-900">{item.val}</p>
-                      <p className="text-xs text-primary-500">{item.label}</p>
-                    </div>
-                  ))}
+        <Chapter num="٦" title="الدين العام — الفلوس اللي الدولة مقترضها">
+          <p>الدين العام هو <strong className="text-white/90">إجمالي الفلوس اللي الدولة مقترضتها</strong> من بنوك ومfigureات مالية مصرية ودولية. الدولة بتعمل قروض عشان تغطي عجز الموازنة وتمول مشاريعها.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="٧٨.١٪" label="نسبة الدين المستهدفة" sub="من الناتج المحلي — يونيو 2027" />
+            <Stat value="٩٦٪" label="نسبة الدين ٢٠٢٣" sub="نقطة البداية" />
+            <Stat value="٧٤٪" label="الدين المحلي" sub="من إجمالي الدين" />
+            <Stat value="٧٨.٥ مليار$" label="الدين الخارجي" sub="يونيو 2025" />
+          </div>
+          <p>مصر عندها خطة واضحة لتقليل الدين: من ٩٦% من الناتج المحلي في ٢٠٢٣ لـ ٧٨.١% في ٢٠٢٧، ومنها لـ ٧٠% بحلول ٢٠٣٠.</p>
+          <p>الدين المحلي (الفلوس المقترضة من البنوك المصرية) بيمثل ٧٤% من إجمالي الدين، والباقي دين خارجي بالدولار.</p>
+          <TipBox title="الفرق بين دين أجهزة الموازنة ودين الحكومة العامة">دين أجهزة الموازنة (٧٨.١%) بيشمل بس الوزارات والجهات الحكومية. دين الحكومة العامة (٨٩.٥%) أوسع — بيشمل بشكل أكبر. مهم متخلطش بينهم.</TipBox>
+          <div className="mt-6">
+            <p className="text-sm font-bold text-white/80 mb-3">projections الدين على المدى الطويل:</p>
+            <div className="space-y-2">
+              {[
+                { year: '٢٠٢٧/٢٠٢٨', val: '75.2%' },
+                { year: '٢٠٢٨/٢٠٢٩', val: '72.2%' },
+                { year: '٢٠٢٩/٢٠٣٠', val: '69.9%' },
+                { year: 'هدف ٢٠٣٠', val: '70%' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-lg">
+                  <span className="text-xs text-white/40 w-20">{item.year}</span>
+                  <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#D4A853] rounded-full" style={{ width: item.val }} />
+                  </div>
+                  <span className="text-xs text-[#D4A853] font-bold w-12 text-left">{item.val}</span>
                 </div>
-              </motion.div>
-            </div>
-            <div className="order-1 lg:order-2">
-              <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-2 bg-violet-100 text-violet-700 rounded-full text-sm font-semibold mb-6">
-                <span className="w-2 h-2 bg-violet-500 rounded-full" />
-                الحماية الاجتماعية
-              </motion.div>
-              <WordReveal text="حياة كريمة للمواطن" className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900 mb-6" />
-              <motion.p initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-lg text-primary-600 leading-relaxed mb-8">
-                زيادة غير مسبوقة لتحسين دخول العاملين بالجهاز الحكومي وأصحاب المعاشات. الحد الأدنى للدخل وصل 8,000 جنيه.
-              </motion.p>
-              <div className="space-y-4">
-                {[{ val: '12%', label: 'علاوة دورية للخدمة المدنية' }, { val: '15%', label: 'علاوة دورية لغير المخاطبين' }, { val: '750 جنيه', label: 'حافز إضافي شهرياً' }, { val: '1,000 جنيه', label: 'حافز تدريس للمعلمين' }, { val: '750 جنيه', label: 'زيادة للقطاع الطبي' }].map((item, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-primary-100">
-                    <div className="w-2 h-2 bg-violet-500 rounded-full" />
-                    <p className="font-bold text-primary-900 text-sm">{item.val}</p>
-                    <p className="text-sm text-primary-600">{item.label}</p>
-                  </motion.div>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </Chapter>
 
-      {/* ═══════ EDUCATION & HEALTH (Horizontal Scroll) ═══════ */}
-      <section className="relative h-[250vh]">
-        <div className="sticky top-0 h-screen overflow-hidden bg-gradient-to-br from-blue-50 to-white">
-          <motion.div style={{ x: useTransform(useScroll({ offset: ['start start', 'end end'] }).scrollYProgress, [0, 1], ['0%', '-60%']) }} className="flex h-full items-center gap-8 px-8">
-            {[
-              { value: '1,475.3', label: 'مليار جنيه للتعليم', desc: '7.8% من الناتج المحلي', icon: '🎓', bg: 'bg-gradient-to-br from-blue-500 to-indigo-600' },
-              { value: '617.3', label: 'مليار جنيه للصحة', desc: '5.8% من الناتج المحلي', icon: '🏥', bg: 'bg-gradient-to-br from-red-500 to-rose-600' },
-              { value: '55.5', label: 'مليار للكتب الدراسية', desc: 'تعليم مجاني', icon: '📚', bg: 'bg-gradient-to-br from-emerald-500 to-teal-600' },
-              { value: '33.3', label: 'مليار للأدوية', desc: 'صحة للجميع', icon: '💊', bg: 'bg-gradient-to-br from-purple-500 to-violet-600' },
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className={`flex-shrink-0 w-[75vw] h-[65vh] rounded-3xl p-8 flex flex-col justify-end relative overflow-hidden ${item.bg}`}>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <div className="relative z-10 text-white">
-                  <span className="text-6xl mb-4 block">{item.icon}</span>
-                  <p className="text-6xl font-bold mb-2">{item.value}</p>
-                  <p className="text-2xl opacity-90">{item.label}</p>
-                  <p className="text-base opacity-70 mt-2">{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══════ ECONOMIC PROGRAMS ═══════ */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 py-32 overflow-hidden">
-        <FloatingBlob color="linear-gradient(135deg, #05966930, #10b98130)" className="w-[500px] h-[500px] -right-64 top-1/4" />
-        <div className="section-container relative z-10">
-          <div className="text-center mb-16">
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold mb-6">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-              البرامج الاقتصادية
-            </motion.div>
-            <WordReveal text="90 مليار جنيه للدعم" className="text-4xl sm:text-5xl md:text-6xl font-black text-primary-900" />
+        <Chapter num="٧" title="فوائد الدين — أكتر بند بياخد فلوس">
+          <p>فوائد الدين هي <strong className="text-white/90">التكلفة اللي الدولة بتدفعها عشان القروض</strong>. زي لما بتاخد قرض من البنك وبتدفع عليه فائدة — الدولة بتعمل نفس الكلام بس بأرقام أكبر بكتير.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="٢.٤٢ تريليون" label="فوائد الدين 2026/2027" sub="٤٦.٦٪ من المصروفات" />
+            <Stat value="٦٠٪" label="نسبة الفوائد للإيرادات" sub="من إجمالي الإيرادات" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { value: '48', label: 'مليار لرد الأعباء التصديرية', icon: '📦', color: 'from-emerald-500 to-green-600' },
-              { value: '6.7', label: 'مليار لدعم السياحة', icon: '✈️', color: 'from-blue-500 to-cyan-600' },
-              { value: '6', label: 'مليار للتسهيلات الإنتاجية', icon: '🏭', color: 'from-purple-500 to-violet-600' },
-              { value: '5.5', label: 'مليار لصناعة السيارات', icon: '🚗', color: 'from-amber-500 to-orange-600' },
-              { value: '5', label: 'مليار للمشروعات الصغيرة', icon: '💼', color: 'from-pink-500 to-rose-600' },
-              { value: '2', label: 'مليار للصناعات ذات الأولوية', icon: '⚡', color: 'from-red-500 to-red-600' },
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="relative group">
-                <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl`} />
-                <div className="relative bg-white p-6 rounded-2xl shadow-lg border border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full">
-                  <span className="text-4xl mb-4 block">{item.icon}</span>
-                  <p className="text-4xl font-black text-primary-900 mb-2">{item.value}</p>
-                  <p className="text-primary-600">{item.label}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <p>فوائد الدين ٢.٤٢ تريليون جنيه — وده أكبر بند واحد في الموازنة كلها. تقريبًا ٦٠% من إيرادات الدولة بتروح لدفع فوائد الدين.</p>
+          <p>بس الخبر الحسن: النسبة دي بتقل. كانت ٧٣% في فترات قبل كده وnościت لـ ٦٠%.</p>
+          <TipBox title="ليه الفوائد بتقل؟">لما الدولة بتحسّن مؤشراتها الاقتصادية وبتقلل الدين، الفوائد بتقل. كمان الحكومة بتمتد آجال الدين — يعني بتدفع على فترات أطول.</TipBox>
+        </Chapter>
 
-      {/* ═══════ CLOSING ═══════ */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 overflow-hidden">
-        <FloatingBlob color="linear-gradient(135deg, #f59e0b20, #eab30820)" className="w-[600px] h-[600px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
-        <div className="section-container relative z-10 text-center">
-          <motion.div initial={{ opacity: 0, scale: 0 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="flex justify-center mb-8">
-            <Coin size={100} spinning={true} />
-          </motion.div>
-          <WordReveal text="كده خلصنا!" className="text-5xl sm:text-6xl md:text-7xl font-black text-primary-900 mb-6" />
-          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-xl text-primary-600 mb-12 max-w-2xl mx-auto">
-            دلوقتي فاهم يعني إيه موازنة وإزاي الجنيه المصري بيوصل لحدك.
-          </motion.p>
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex flex-wrap justify-center gap-4">
-            <a href="/budget100" className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-full hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 hover:-translate-y-1">جرّب ميزانية 100 جنيه</a>
-            <a href="/finance-minister" className="px-8 py-4 bg-white text-primary-800 font-bold rounded-full border-2 border-primary-200 hover:border-primary-400 hover:shadow-lg transition-all duration-300">كون وزير المالية</a>
-            <a href="/quiz" className="px-8 py-4 bg-white text-primary-800 font-bold rounded-full border-2 border-primary-200 hover:border-primary-400 hover:shadow-lg transition-all duration-300">اختبر معلوماتك</a>
-          </motion.div>
-        </div>
-      </section>
+        <Chapter num="٨" title="الدعم والحماية الاجتماعية">
+          <p>الدولة بتنفق ٨٣٦.٨ مليار جنيه على <strong className="text-white/90">الدعم والحماية الاجتماعية</strong> — وده التاني أكبر بند في المصروفات.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="٨٣٦.٨ مليار" label="إجمالي الدعم" sub="١٦.١٪ من المصروفات" />
+            <Stat value="٨,٠٠٠ جنيه" label="الحد الأدنى للدخل" sub="من يوليو 2026" />
+            <Stat value="٢١.٢٪" label="نمو الأجور" sub="نمو سنوي" />
+            <Stat value="١٠٠ مليار" label="تكلفة الزيادة" sub="للرواتب الجديدة" />
+          </div>
+          <p className="font-bold text-white/80 mb-3">تفاصيل الدعم:</p>
+          <div className="space-y-2">
+            <ListItem color="bg-[#6ABFA7]" val="١٧٨.٣ مليار" label="سلع تموينية" />
+            <ListItem color="bg-[#6ABFA7]" val="١٠٤.٢ مليار" label="دعم الكهرباء" />
+            <ListItem color="bg-[#6ABFA7]" val="٦٩.١ مليار" label="شراء القمح" />
+            <ListItem color="bg-[#6ABFA7]" val="٤٦ مليار" label="تحسين المناطق العشوائية" />
+            <ListItem color="bg-[#6ABFA7]" val="٣٣.٣ مليار" label="أدوية" />
+            <ListItem color="bg-[#6ABFA7]" val="١٣ مليار" label="إسكان" />
+            <ListItem color="bg-[#6ABFA7]" val="٥٥.٢ مليار" label="برنامج تكافل وكرامة" />
+            <ListItem color="bg-[#6ABFA7]" val="٤٠.٣ مليار" label="حزمة رمضان 2026" />
+          </div>
+          <TipBox title="الحد الأدنى للدخل">من يوليو 2026، الحد الأدنى للدخل وصل ٨,٠٠٠ جنيه شهريًا. الزيادة دي بتأثر على ملايين العاملين بالجهاز الحكومي وأصحاب المعاشات.</TipBox>
+        </Chapter>
+
+        <Chapter num="٩" title="الأجور والرواتب — شغل الناس">
+          <p>الدولة بتصرف ٨٢٢.٨ مليار جنيه على <strong className="text-white/90">الأجور والرواتب</strong> — وده بيشمل رواتب موظفين الحكومة والجيش والشرطة.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="٨٢٢.٨ مليار" label="إجمالي الأجور" sub="١٥.٩٪ من المصروفات" />
+            <Stat value="٣.٤٪" label="نسبة الناتج المحلي" sub="من GDP" />
+          </div>
+          <p>في زيادة ٢١.٢% في الأجور مقارنة بالسنة اللي فاتت. ده بيشمل:</p>
+          <div className="space-y-2 my-4">
+            <ListItem color="bg-[#7BAFD4]" label="علاوة دورية ١٢٪ للخدمة المدنية" />
+            <ListItem color="bg-[#7BAFD4]" label="علاوة ١٥٪ لغير المخاطبين بقانون الخدمة المدنية" />
+            <ListItem color="bg-[#7BAFD4]" label="حافز إضافي ٧٥٠ جنيه شهريًا" />
+            <ListItem color="bg-[#7BAFD4]" label="حافز تدريس ١,٠٠٠ جنيه للمعلمين" />
+            <ListItem color="bg-[#7BAFD4]" label="زيادة ٧٥٠ جنيه للقطاع الطبي" />
+          </div>
+        </Chapter>
+
+        <Chapter num="١٠" title="التعليم — استثمار في المستقبل">
+          <p>مصر بتصرف ١,٢٢٩.٧ مليار جنيه على التعليم — وده <strong className="text-white/90">٦% من الناتج المحلي</strong>. أعلى من الحد الأدنى القانوني.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="١,٢٢٩.٧ مليار" label="مoubt التعليم" sub="٦٪ من الناتج المحلي" />
+            <Stat value="+٢٠٪" label="نمو سنوي" sub="مقارنة بالسنة اللي فاتت" />
+          </div>
+          <div className="space-y-2 my-4">
+            <ListItem color="bg-[#A78BDA]" val="٥٥.٥ مليار" label="طباعة الكتب الدراسية" />
+            <ListItem color="bg-[#A78BDA]" val="٧ مليار" label="وجبات مدرسية" />
+            <ListItem color="bg-[#A78BDA]" val="٢٠٥.٢ مليار" label="البحث العلمي (١٪ من GDP)" />
+            <ListItem color="bg-[#A78BDA]" val="٧.٨ مليار" label="مطبوعات تعليمية" />
+          </div>
+          <TipBox title="ليه التعليم مهم في الموازنة؟">التعليم هو الاستثمار الأكبر في مستقبل الدولة. كل جنيه في التعليم بيرجع في شكل كوادر مؤهلة وابتكار ونمو اقتصادي على المدى الطويل.</TipBox>
+        </Chapter>
+
+        <Chapter num="١١" title="الصحة — صحتك على راسنا">
+          <p>مصر بتصرف ٨٦٢.٩ مليار جنيه على الصحة — وده <strong className="text-white/90">٤.٢% من الناتج المحلي</strong>. الزيادة ٣٩.٦% مقارنة بالسنة اللي فاتت.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="٨٦٢.٩ مليار" label="مoubt الصحة" sub="٤.٢٪ من الناتج المحلي" />
+            <Stat value="+٣٩.٦٪" label="نمو سنوي" sub="مقارنة بالسنة اللي فاتت" />
+          </div>
+          <div className="space-y-2 my-4">
+            <ListItem color="bg-[#7BAFD4]" val="٩٠.٥ مليار" label="الشراء الموحد للعقاقير" />
+            <ListItem color="bg-[#7BAFD4]" val="٤٧.٥ مليار" label="علاج المواطنين" />
+            <ListItem color="bg-[#7BAFD4]" val="٣٣.٣ مليار" label="الأدوية" />
+            <ListItem color="bg-[#7BAFD4]" val="١٦.٦ مليار" label="دعم التأمين الصحي" />
+            <ListItem color="bg-[#7BAFD4]" val="١٥.٩ مليار" label="المستلزمات الطبية" />
+          </div>
+        </Chapter>
+
+        <Chapter num="١٢" title="الاستثمارات — بناء المستقبل">
+          <p>الدولة بتستثمر ٥٥٣.٧ مليار جنيه في <strong className="text-white/90">مشاريع استثمارية</strong> — وده بي爬上 المدارس والمستشفيات والطرق والمنشآت.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="٥٥٣.٧ مليار" label="استثمارات الحكومة" sub="من إجمالي ٤.١٧ تريليون" />
+            <Stat value="٤.١٧ تريليون" label="إجمالي الاستثمارات" sub="خاصة + حكومية" />
+          </div>
+          <p className="font-bold text-white/80 mb-3">تفاصيل الاستثمارات الحكومية:</p>
+          <div className="space-y-2 my-4">
+            <ListItem color="bg-[#D4A853]" val="٦٤٠.١ مليار" label="النقل والمواصلات" />
+            <ListItem color="bg-[#D4A853]" val="٢٨١.٣ مليار" label="الصناعة والموارد المعدنية" />
+            <ListItem color="bg-[#D4A853]" val="١٧٣.٢ مليار" label="الزراعة ومصائد الأسماك" />
+            <ListItem color="bg-[#D4A853]" val="٢٦٢.٩ مليار" label="قطاع الأعمال" />
+            <ListItem color="bg-[#D4A853]" val="٧٤٣.٤ مليار" label="الجهات الاقتصادية" />
+          </div>
+          <TipBox title="الاستثمارات الخاصة">٥٨.٨% من الاستثمارات الإجمالية من القطاع الخاص. ده معناه إن القطاع الخاص بيلعب دور كبير في بناء الاقتصاد، مش بس الحكومة.</TipBox>
+        </Chapter>
+
+        <Chapter num="١٣" title="حياة كريمة — مشروع تطوير الريف المصري">
+          <p>مشروع "حياة كريمة" هو أكبر مشروع تنموي في مصر — <strong className="text-white/90">١ تريليون جنيه</strong> على ٣ مراحل لتطوير القرى وال润区.</p>
+          <div className="grid grid-cols-2 gap-3 my-6">
+            <Stat value="١ تريليون" label="القيمة الإجمالية" sub="على ٣ مراحل" />
+            <Stat value="٣٥٠ مليار" label="المرحلة الأولى" sub="٢٠٢١/٢٢ – ٢٠٢٥/٢٦" />
+            <Stat value="٨٨٪" label="نسبة الصرف" sub="المرحلة الأولى" />
+            <Stat value="١٥٠ مليار" label="المرحلة الثانية" sub="مخططة ٢٠٢٥/٢٦ – ٢٠٢٧/٢٨" />
+          </div>
+          <p>المرحلة الأولى خلصت بنسبة تنفيذ ٨٨% (٣٠٠.٦ مليار من ٣٥٠ مليار). المرحلة الثانية متوقع فيها ١٥٠ مليار جنيه.</p>
+          <p>المشروع بيشمل تطوير البنية التحتية (مياه، كهرباء، مsapح)، والمرافق الصحية والتعليمية، وفرص العمل في الريف.</p>
+        </Chapter>
+
+        <Chapter num="١٤" title="البرامج الاقتصادية — دعم الإنتاج">
+          <p>الدولة بتصرف ٩٠ مليار جنيه في <strong className="text-white/90">برامج اقتصادية</strong> لدعم الشركات والمصانع والصادرات.</p>
+          <div className="space-y-2 my-4">
+            <ListItem color="bg-[#6ABFA7]" val="٤٨ مليار" label="رد الأعباء التصديرية" />
+            <ListItem color="bg-[#6ABFA7]" val="٦.٧ مليار" label="دعم السياحة" />
+            <ListItem color="bg-[#6ABFA7]" val="٦ مليار" label="التسهيلات الإنتاجية" />
+            <ListItem color="bg-[#6ABFA7]" val="٥.٥ مليار" label="صناعة السيارات" />
+            <ListItem color="bg-[#6ABFA7]" val="٥ مليار" label="المشاريع الصغيرة والمتوسطة" />
+            <ListItem color="bg-[#6ABFA7]" val="٢ مليار" label="الصناعات ذات الأولوية" />
+          </div>
+          <TipBox title="ليه البرامج الاقتصادية مهمة؟">البرامج دي بتساعد الشركات على التنافسية دوليًا، وبتوفر فرص عمل، وبتقلل التكلفة على المستهلك النهائي.</TipBox>
+        </Chapter>
+
+        <Chapter num="١٥" title="المشاريع القومية الكبرى">
+          <p>مصر بتنفذ مشاريع كبرى بتغير شكل الاقتصاد:</p>
+          <div className="space-y-3 my-6">
+            <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+              <p className="font-bold text-white/90 text-sm mb-1">العاصمة الإدارية الجديدة</p>
+              <p className="text-xs text-white/50">مدينة إدارية جديدة بالكامل — مكاتب الحكومة والسفارات والأعمال</p>
+            </div>
+            <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+              <p className="font-bold text-white/90 text-sm mb-1">تنمية قناة السويس</p>
+              <p className="text-xs text-white/50">توسعة القناة وتطوير الموانئ والمناطق الصناعية حولها</p>
+            </div>
+            <div className="p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+              <p className="font-bold text-white/90 text-sm mb-1">الطرق الوطنية</p>
+              <p className="text-xs text-white/50">شبكة طرق جديدة بربط المحافظات ببعضها وبتقلل وقت السفر</p>
+            </div>
+          </div>
+          <p>المشاريع دي بتحتاج استثمارات كبيرة، بس على المدى الطويل بتوفر فرص عمل وبتحقق دخل أكتر للدولة.</p>
+        </Chapter>
+
+        <Chapter num="١٦" title="الخلاصة — الجنيه بيوصلك إزاي">
+          <p>دلوقتي فاهم يعني إيه موازنة وإزاي جنيهاتك بتوصل لحدك. كل رقم في الموازنة دي قرار — قرار يأثر على مدرستك، مستشفاك، شارعك، ومستقبلك.</p>
+          <div className="my-8 p-6 bg-gradient-to-b from-[#D4A853]/[0.08] to-transparent border border-[#D4A853]/20 rounded-2xl text-center">
+            <div className="flex justify-center mb-4">
+              <Coin size={80} spinning={true} />
+            </div>
+            <p className="text-xl font-black text-white mb-2">مش مجرد أرقام.</p>
+            <p className="text-[#D4A853] font-bold">دي موازنة بلدك.</p>
+          </div>
+          <p>الموازنة مش شيء بعيد عنك — هي <strong className="text-white/90">قرارات بتأثر على حياتك كل يوم</strong>. عشان كده مهم تفهمها وتتابعها. لأنك أنت المواطن هو اللي بيحدد مسار البلد.</p>
+          <div className="flex flex-wrap justify-center gap-4 mt-8">
+            <a href="/budget" className="px-6 py-3 bg-[#D4A853] text-[#06080F] font-bold rounded-full text-sm hover:bg-[#E8C874] transition-colors">شوف حكاية الجنيه</a>
+            <a href="/budget100" className="px-6 py-3 bg-white/[0.06] text-white/70 font-bold rounded-full text-sm border border-white/[0.1] hover:bg-white/[0.1] transition-colors">جرّب ميزانية ١٠٠ جنيه</a>
+          </div>
+        </Chapter>
+
+      </div>
     </div>
   );
 }
