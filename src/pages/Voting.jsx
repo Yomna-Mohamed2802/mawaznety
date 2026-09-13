@@ -190,7 +190,7 @@ const Voting = () => {
                 </div>
                 <div className="text-left">
                   <p className="text-2xl font-bold text-primary-600">{getPercentage(candidate.id)}%</p>
-                  <p className="text-sm text-gray-500">{getVotes(candidate.id)} صوت</p>
+                   <p className="text-sm text-gray-500">{getVotes(candidate.id)} صوت</p>
                 </div>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
@@ -259,9 +259,15 @@ const Voting = () => {
           <button
             onClick={handleVote}
             disabled={selectedCandidate === null || !consentGiven || !isAuthenticated || voting}
-            className="w-full bg-primary-600 text-white py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary-600 text-white py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {voting ? '...' : t.voteConfirm}
+            {voting && (
+              <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
+            <span>{voting ? t.voteSaving : t.voteConfirm}</span>
           </button>
         </motion.div>
       )}

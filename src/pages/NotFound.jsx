@@ -1,21 +1,25 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useLang } from '../context/LangContext';
+import Coin from '../components/ui/Coin';
 
 const NotFound = () => {
   const { lang, t } = useLang();
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="text-center"
       >
+        <div className="flex justify-center mb-6">
+          <Coin size={80} spinning={true} />
+        </div>
         <div className="text-9xl font-bold text-primary-600 mb-4">404</div>
         <h1 className="text-2xl font-bold text-gray-800 mb-2">{t.notFoundTitle}</h1>
         <p className="text-gray-500 mb-6">{t.notFoundDesc}</p>
         <Link
-          to="/"
+          to="/dashboard"
           className="inline-block bg-primary-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors"
         >
           {t.notFoundHome}

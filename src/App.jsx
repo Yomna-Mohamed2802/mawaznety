@@ -65,7 +65,9 @@ function App() {
                 <Route path="/cookies" element={<CookiesPolicy />} />
                 <Route path="/refund" element={<RefundPolicy />} />
                 <Route path="/teaser" element={<Navigate to="/budget" replace />} />
-                <Route path="/" element={<Layout />}>
+                <Route path="/" element={<Budget />} />
+                <Route path="/budget" element={<Budget />} />
+                <Route path="/dashboard" element={<Layout />}>
                   <Route index element={<MasterDashboard />} />
                   <Route path="budget100" element={<Budget100 />} />
                   <Route path="finance-minister" element={<FinanceMinister />} />
@@ -76,7 +78,6 @@ function App() {
                   <Route path="learn" element={<BudgetStory />} />
                   <Route path="admin" element={<AdminDashboard />} />
                 </Route>
-                <Route path="budget" element={<Budget />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

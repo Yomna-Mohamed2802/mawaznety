@@ -871,6 +871,9 @@ export default function MasterDashboard() {
                         className="input-range w-full"
                         style={{ background: `linear-gradient(to left, ${item.color} ${(allocations[item.key] / 60) * 100}%, #e5e7eb ${(allocations[item.key] / 60) * 100}%)` }}
                         aria-label={item.label}
+                        aria-valuemin={0}
+                        aria-valuemax={60}
+                        aria-valuenow={allocations[item.key]}
                       />
                     </div>
                   ))}

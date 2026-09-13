@@ -1163,7 +1163,7 @@ export default function Budget() {
         onEnter: () => {
           if (!hasNavigated) {
             hasNavigated = true;
-            setTimeout(() => { window.location.href = '/'; }, 1200);
+            setTimeout(() => { window.location.href = '/dashboard'; }, 1200);
           }
         },
       });
@@ -1186,7 +1186,7 @@ export default function Budget() {
 
       {/* ── Top bar: Logo + Language Toggle ──────────── */}
       <div className="fixed top-4 left-0 right-0 z-[200] flex items-center justify-between px-6 pointer-events-none">
-        <a href="/" className="pointer-events-auto">
+        <a href="/dashboard" className="pointer-events-auto">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A853] to-[#B8922E] flex items-center justify-center">
               <span className="text-[#06080F] font-black text-xs">م</span>
@@ -1195,7 +1195,7 @@ export default function Budget() {
           </div>
         </a>
         <div className="flex items-center gap-2 pointer-events-auto">
-          <a href="/" className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/40 hover:bg-white/[0.1] hover:text-white/70 transition-all border border-white/[0.06]">
+          <a href="/dashboard" className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/40 hover:bg-white/[0.1] hover:text-white/70 transition-all border border-white/[0.06]">
             Skip ←
           </a>
           <button onClick={toggleLang} className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/50 hover:bg-white/[0.1] hover:text-white/80 transition-all border border-white/[0.06]">
@@ -1572,7 +1572,7 @@ export default function Budget() {
             <p className="sr text-base text-[#5A6578] mt-2">{t.s05sub}</p>
             <p className="sr text-2xl sm:text-3xl font-black bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent mt-10">{t.s05cta}</p>
             <div className="sr mt-14">
-              <a href="/" className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#D4A853] to-[#E8B94A] text-[#06080F] text-base font-bold hover:shadow-lg hover:shadow-[#D4A853]/20 transition-all duration-500 hover:-translate-y-0.5 group">
+               <a href="/dashboard" className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#D4A853] to-[#E8B94A] text-[#06080F] text-base font-bold hover:shadow-lg hover:shadow-[#D4A853]/20 transition-all duration-500 hover:-translate-y-0.5 group">
                 <span>{t.s05btn}</span>
                 <svg className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />

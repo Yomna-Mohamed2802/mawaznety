@@ -41,7 +41,7 @@ const Login = () => {
     } else {
       const result = await login(email, password);
       if (result.success) {
-        navigate('/');
+        navigate('/dashboard');
       } else {
         setError(result.error);
       }
@@ -59,7 +59,7 @@ const Login = () => {
     setLoading(true);
     const result = await loginWithGoogle();
     if (result.success) {
-      navigate('/');
+      navigate('/dashboard');
     } else {
       setError(result.error);
     }
@@ -102,7 +102,7 @@ const Login = () => {
               </div>
 
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="w-full btn-primary justify-center py-3.5"
               >
                 الذهاب للوحة التحكم

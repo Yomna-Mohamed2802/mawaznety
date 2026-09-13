@@ -84,7 +84,7 @@ export default function AdminDashboard() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">لوحة التحكم</h1>
+          <h1 className="text-2xl font-bold text-gray-800">{t.home}</h1>
           <p className="text-primary-600">إحصائيات الموقع والاستخدام</p>
         </div>
         <Link to="/reports" className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800">

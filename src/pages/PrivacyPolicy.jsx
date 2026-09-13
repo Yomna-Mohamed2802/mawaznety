@@ -7,7 +7,7 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-surface" dir="rtl">
       <div className="max-w-3xl mx-auto px-4 py-12">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-800 mb-8">
+           <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-800 mb-8">
             <span>←</span>
             <span>العودة للرئيسية</span>
           </Link>

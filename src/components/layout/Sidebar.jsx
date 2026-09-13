@@ -25,7 +25,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
   const isAdmin = user?.isAdmin || ADMIN_EMAILS.includes(user?.email);
 
   const menuItems = [
-    { path: '/', label: t.home, icon: HiOutlineHome },
+    { path: '/dashboard', label: t.home, icon: HiOutlineHome },
     { path: '/learn', label: t.budgetStory, icon: HiOutlineBookOpen },
     { path: '/budget100', label: t.budget100, icon: HiOutlineChartBar },
     { path: '/finance-minister', label: t.financeMinister, icon: HiOutlineDocumentText },
