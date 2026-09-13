@@ -121,7 +121,7 @@ export const subscribeToVoteCounts = (categoryId, callback) => {
 
 // ==================== QUIZ ====================
 
-export const saveQuizScore = async (score, total) => {
+export const saveQuizScore = async (answers) => {
   try {
     const { auth } = await import('./firebase');
     const currentUser = auth.currentUser;
@@ -134,7 +134,7 @@ export const saveQuizScore = async (score, total) => {
         Authorization: `Bearer ${idToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ score, total }),
+      body: JSON.stringify({ answers }),
     });
 
     const result = await response.json();

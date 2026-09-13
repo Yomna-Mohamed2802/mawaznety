@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useRef, useLayoutEffect, useMemo } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Coin from '../components/ui/Coin';
@@ -301,6 +301,16 @@ export default function Budget() {
   const curveRef = useRef(null);
   const growthPctRef = useRef(null);
   const multiCoinsRef = useRef(null);
+
+  const s01Dots = useMemo(() => Array.from({ length: 50 }, (_, i) => {
+    const r = () => Math.random();
+    return { w: r() * 2 + 0.5, h: r() * 2 + 0.5, left: `${r() * 100}%`, top: `${r() * 100}%`, opacity: 0.06 + r() * 0.2 };
+  }), []);
+
+  const s05Dots = useMemo(() => Array.from({ length: 30 }, (_, i) => {
+    const r = () => Math.random();
+    return { w: r() * 2 + 0.5, h: r() * 2 + 0.5, left: `${r() * 100}%`, top: `${r() * 100}%`, opacity: 0.04 + r() * 0.12 };
+  }), []);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -1205,9 +1215,9 @@ export default function Budget() {
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 50 }).map((_, i) => (
+          {s01Dots.map((dot, i) => (
             <div key={i} className="float absolute rounded-full bg-[#D4A853]"
-              style={{ width: Math.random() * 2 + 0.5, height: Math.random() * 2 + 0.5, left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, opacity: 0.06 + Math.random() * 0.2 }} />
+              style={{ width: dot.w, height: dot.h, left: dot.left, top: dot.top, opacity: dot.opacity }} />
           ))}
         </div>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -1540,9 +1550,9 @@ export default function Budget() {
       {/* ════════════════════════════════════════════════ */}
       <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
         <div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 30 }).map((_, i) => (
+          {s05Dots.map((dot, i) => (
             <div key={i} className="float absolute rounded-full bg-[#D4A853]"
-              style={{ width: Math.random() * 2 + 0.5, height: Math.random() * 2 + 0.5, left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, opacity: 0.04 + Math.random() * 0.12 }} />
+              style={{ width: dot.w, height: dot.h, left: dot.left, top: dot.top, opacity: dot.opacity }} />
           ))}
         </div>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

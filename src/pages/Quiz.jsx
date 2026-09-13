@@ -30,6 +30,7 @@ const Quiz = () => {
   const [userStats, setUserStats] = useState(null);
   const [saving, setSaving] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [serverScore, setServerScore] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -80,11 +81,16 @@ const Quiz = () => {
     if (isAuthenticated && user) {
       setSaving(true);
       try {
-        await saveQuizScore(score, questions.length);
+        const answerPayload = answers.map(({ questionId, answer }) => ({ questionId, answer }));
+        const result = await saveQuizScore(answerPayload);
+        const serverCalculatedScore = result.score;
+        const totalFromServer = result.total;
+        setServerScore({ score: serverCalculatedScore, total: totalFromServer });
+        setScore(serverCalculatedScore);
         await incrementCounter('quizzesCompleted');
         try {
           const saved = JSON.parse(localStorage.getItem('mawaznety_quiz') || '{}');
-          const newBest = Math.max(saved.bestScore || 0, score);
+          const newBest = Math.max(saved.bestScore || 0, serverCalculatedScore);
           const newTotal = (saved.totalAttempts || 0) + 1;
           localStorage.setItem('mawaznety_quiz', JSON.stringify({
             bestScore: newBest,
@@ -96,12 +102,12 @@ const Quiz = () => {
         }
         const board = await getLeaderboard(10);
         setLeaderboard(board);
+        setShowLeaderboard(true);
       } catch (err) {
         console.error('Failed to save score:', err);
       }
       setSaving(false);
     }
-    setShowLeaderboard(true);
   };
 
   const isFinished = currentQuestion === questions.length - 1 && showResult;

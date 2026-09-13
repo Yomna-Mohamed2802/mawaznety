@@ -19,6 +19,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -46,11 +47,14 @@ const Settings = () => {
     e.preventDefault();
     setSaving(true);
     setMessage('');
+    setIsError(false);
     try {
       await saveSettingsAdmin(settings);
       setMessage(t.saved);
+      setIsError(false);
     } catch (err) {
       setMessage(t.saveError);
+      setIsError(true);
     }
     setSaving(false);
   };
@@ -99,7 +103,7 @@ const Settings = () => {
 
       {message && (
         <div className={`mb-4 p-3 rounded-xl text-sm text-center ${
-          message.includes('خطأ') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+          isError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
         }`}>
           {message}
         </div>
@@ -114,10 +118,11 @@ const Settings = () => {
           <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.generalSettings}</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="settings-siteName" className="block text-sm font-medium text-gray-700 mb-2">
                 {t.siteName}
               </label>
               <input
+                id="settings-siteName"
                 type="text"
                 name="siteName"
                 value={settings.siteName}
@@ -126,10 +131,11 @@ const Settings = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="settings-siteDesc" className="block text-sm font-medium text-gray-700 mb-2">
                 {t.siteDescLabel}
               </label>
               <textarea
+                id="settings-siteDesc"
                 name="siteDescription"
                 value={settings.siteDescription}
                 onChange={handleChange}

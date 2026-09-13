@@ -22,6 +22,7 @@ const Voting = () => {
   const [voteCounts, setVoteCounts] = useState({});
   const [userVotes, setUserVotes] = useState({});
   const [error, setError] = useState('');
+  const [voting, setVoting] = useState(false);
 
   const currentCategory = votingCategories.find(c => c.id === selectedCategory);
   const candidates = currentCategory?.options || [];
@@ -64,19 +65,29 @@ const Voting = () => {
     if (selectedCandidate === null || !consentGiven) return;
 
     setError('');
-    setHasVoted(true);
-    setShowResults(true);
-    setUserVotes((prev) => ({ ...prev, [selectedCategory]: selectedCandidate }));
+    setVoting(true);
 
     try {
-      const saved = JSON.parse(localStorage.getItem('mawaznety_votes') || '{}');
-      saved[selectedCategory] = selectedCandidate;
-      localStorage.setItem('mawaznety_votes', JSON.stringify(saved));
-    } catch {}
+      const result = await saveVote(selectedCategory, selectedCandidate);
 
-    saveVote(selectedCategory, selectedCandidate)
-      .then(() => incrementCounter('totalVotes').catch(() => {}))
-      .catch(() => {});
+      if (result.success) {
+        setHasVoted(true);
+        setShowResults(true);
+        setUserVotes((prev) => ({ ...prev, [selectedCategory]: selectedCandidate }));
+        try {
+          const saved = JSON.parse(localStorage.getItem('mawaznety_votes') || '{}');
+          saved[selectedCategory] = selectedCandidate;
+          localStorage.setItem('mawaznety_votes', JSON.stringify(saved));
+        } catch {}
+        incrementCounter('totalVotes').catch(() => {});
+      } else {
+        setError(result.error || 'حدث خطأ أثناء التصويت. حاول مرة أخرى.');
+      }
+    } catch {
+      setError('حدث خطأ أثناء التصويت. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.');
+    }
+
+    setVoting(false);
   }, [selectedCategory, selectedCandidate, consentGiven, user, isAuthenticated]);
 
   const getPercentage = (optionId) => {
@@ -202,6 +213,7 @@ const Voting = () => {
                 setShowResults(false);
                 setHasVoted(false);
                 setSelectedCandidate(null);
+                setVoting(false);
                 setError('');
               }}
               className="bg-primary-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors"
@@ -246,10 +258,10 @@ const Voting = () => {
 
           <button
             onClick={handleVote}
-            disabled={selectedCandidate === null || !consentGiven || !isAuthenticated}
+            disabled={selectedCandidate === null || !consentGiven || !isAuthenticated || voting}
             className="w-full bg-primary-600 text-white py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {t.voteConfirm}
+            {voting ? '...' : t.voteConfirm}
           </button>
         </motion.div>
       )}

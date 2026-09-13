@@ -147,6 +147,10 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'uid and email are required' });
         }
 
+        if (uid !== decoded.uid) {
+          return res.status(403).json({ error: 'Cannot create profile for another user' });
+        }
+
         const { data: existing } = await supabase
           .from('user_profiles')
           .select('id')
@@ -191,6 +195,10 @@ export default async function handler(req, res) {
 
         if (!uid) {
           return res.status(400).json({ error: 'uid is required' });
+        }
+
+        if (uid !== decoded.uid) {
+          return res.status(403).json({ error: 'Cannot update profile of another user' });
         }
 
         const { is_admin: _, ...safeData } = updateData;

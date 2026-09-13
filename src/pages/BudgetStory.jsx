@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { useLang } from '../context/LangContext';
 import Coin from '../components/ui/Coin';
@@ -381,8 +382,8 @@ export default function BudgetStory() {
           </div>
           <p>الموازنة مش شيء بعيد عنك — هي <strong className="text-primary-900">قرارات بتأثر على حياتك كل يوم</strong>.</p>
           <div className="flex flex-wrap justify-center gap-4 mt-8">
-            <a href="/budget" className="px-6 py-3 bg-primary-700 text-white font-bold rounded-full text-sm hover:bg-primary-800 transition-colors">شوف حكاية الجنيه</a>
-            <a href="/budget100" className="px-6 py-3 bg-white text-primary-700 font-bold rounded-full text-sm border border-primary-200 hover:border-primary-400 transition-colors">جرّب ميزانية ١٠٠ جنيه</a>
+            <Link to="/budget" className="px-6 py-3 bg-primary-700 text-white font-bold rounded-full text-sm hover:bg-primary-800 transition-colors">شوف حكاية الجنيه</Link>
+            <Link to="/budget100" className="px-6 py-3 bg-white text-primary-700 font-bold rounded-full text-sm border border-primary-200 hover:border-primary-400 transition-colors">جرّب ميزانية ١٠٠ جنيه</Link>
           </div>
         </Chapter>
 

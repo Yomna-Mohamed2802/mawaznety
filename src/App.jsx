@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { LangProvider } from './context/LangContext';
@@ -64,7 +64,7 @@ function App() {
                 <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/cookies" element={<CookiesPolicy />} />
                 <Route path="/refund" element={<RefundPolicy />} />
-                <Route path="/teaser" element={<Budget />} />
+                <Route path="/teaser" element={<Navigate to="/budget" replace />} />
                 <Route path="/" element={<Layout />}>
                   <Route index element={<MasterDashboard />} />
                   <Route path="budget100" element={<Budget100 />} />

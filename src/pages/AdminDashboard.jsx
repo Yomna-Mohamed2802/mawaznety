@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   HiOutlineUsers, HiOutlineChartBar, HiOutlineCheckCircle,
@@ -86,10 +87,10 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold text-gray-800">لوحة التحكم</h1>
           <p className="text-primary-600">إحصائيات الموقع والاستخدام</p>
         </div>
-        <a href="/reports" className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800">
+        <Link to="/reports" className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800">
           <HiOutlineArrowLeft className="w-4 h-4" />
           التقارير العامة
-        </a>
+        </Link>
       </div>
 
       {/* Overview Cards */}

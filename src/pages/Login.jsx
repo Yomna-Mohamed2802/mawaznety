@@ -132,10 +132,11 @@ const Login = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {isRegister && (
                   <div>
-                    <label className="block text-xs font-medium text-primary-600 mb-2">
+                    <label htmlFor="login-name" className="block text-xs font-medium text-primary-600 mb-2">
                       {t.name}
                     </label>
                     <input
+                      id="login-name"
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
@@ -147,10 +148,11 @@ const Login = () => {
                 )}
 
                 <div>
-                  <label className="block text-xs font-medium text-primary-600 mb-2">
+                  <label htmlFor="login-email" className="block text-xs font-medium text-primary-600 mb-2">
                     {t.email}
                   </label>
                   <input
+                    id="login-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -161,10 +163,11 @@ const Login = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-primary-600 mb-2">
+                  <label htmlFor="login-password" className="block text-xs font-medium text-primary-600 mb-2">
                     {t.password}
                   </label>
                   <input
+                    id="login-password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

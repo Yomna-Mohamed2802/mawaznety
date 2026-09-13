@@ -14,6 +14,7 @@ const Layout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [email, setEmail] = useState('');
   const [emailMsg, setEmailMsg] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
   const { isAuthenticated, loading } = useAuth();
   const { t } = useLang();
   const location = useLocation();
@@ -30,7 +31,9 @@ const Layout = () => {
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || emailLoading) return;
+    setEmailLoading(true);
+    setEmailMsg('');
     try {
       const result = await subscribeEmail(email.trim());
       if (result.success) {
@@ -42,7 +45,8 @@ const Layout = () => {
     } catch {
       setEmailMsg('حدث خطأ، حاول مرة أخرى');
     }
-    setTimeout(() => setEmailMsg(''), 3000);
+    setEmailLoading(false);
+    setTimeout(() => setEmailMsg(''), 4000);
   };
 
   if (loading) {;
@@ -97,15 +101,18 @@ const Layout = () => {
               <Link to="/refund" className="text-primary-500 hover:text-primary-700 underline">{t.footerRefund}</Link>
             </div>
             <form onSubmit={handleEmailSubmit} className="flex items-center justify-center gap-2 max-w-sm mx-auto">
+              <label htmlFor="footer-email" className="sr-only">اشترك في التحديثات</label>
               <input
+                id="footer-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="اشترك في التحديثات"
-                className="flex-1 px-3 py-2 text-xs border border-primary-200 rounded-lg focus:ring-1 focus:ring-primary-400 outline-none"
+                disabled={emailLoading}
+                className="flex-1 px-3 py-2 text-xs border border-primary-200 rounded-lg focus:ring-1 focus:ring-primary-400 outline-none disabled:opacity-50"
               />
-              <button type="submit" className="px-3 py-2 text-xs bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                اشتراك
+              <button type="submit" disabled={emailLoading} className="px-3 py-2 text-xs bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50">
+                {emailLoading ? '...' : 'اشتراك'}
               </button>
             </form>
             {emailMsg && <p className="text-xs text-primary-600">{emailMsg}</p>}

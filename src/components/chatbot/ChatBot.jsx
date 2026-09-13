@@ -144,6 +144,7 @@ export default function ChatBot() {
       const reply = await callAI(query, [...messages, userMsg]);
       const botMsg = { id: Date.now() + 1, sender: 'bot', text: reply };
       setMessages((prev) => [...prev, botMsg]);
+      incrementCounter('questionsAsked').catch(() => {});
     } catch (err) {
       console.warn('AI error:', err.message);
       const errorText = lang === 'ar'
@@ -160,7 +161,6 @@ export default function ChatBot() {
     } finally {
       setIsTyping(false);
       if (!isOpen) setHasNewMessage(true);
-      incrementCounter('questionsAsked').catch(() => {});
     }
   };
 
@@ -189,7 +189,7 @@ export default function ChatBot() {
             className="fixed bottom-20 left-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] sm:left-6"
             dir="rtl"
           >
-            <div className="bg-white rounded-2xl overflow-hidden flex flex-col" style={{ height: '520px', boxShadow: '0 20px 60px -15px rgb(16 42 67 / 0.25)' }}>
+            <div id="chat-window" className="bg-white rounded-2xl overflow-hidden flex flex-col" style={{ height: '520px', boxShadow: '0 20px 60px -15px rgb(16 42 67 / 0.25)' }}>
               {/* Header */}
               <div className="bg-gradient-to-l from-primary-700 to-primary-900 px-4 py-3 flex items-center justify-between flex-shrink-0">
                 <div className="flex items-center gap-3">

@@ -1,13 +1,32 @@
 import { useAuth } from '../../context/AuthContext';
 import { useLang } from '../../context/LangContext';
 import { HiOutlineBell, HiOutlineLogout, HiOutlineMenu, HiOutlineUser } from 'react-icons/hi';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Header = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
   const { lang, toggleLang, t } = useLang();
   const [showNotif, setShowNotif] = useState(false);
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    if (!showNotif) return;
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotif(false);
+      }
+    };
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setShowNotif(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showNotif]);
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-primary-100/40">
@@ -39,7 +58,7 @@ const Header = ({ onMenuToggle }) => {
           </button>
 
           {/* Notifications */}
-          <div className="relative">
+          <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotif(!showNotif)}
               className="relative p-2.5 rounded-xl hover:bg-primary-50 transition-colors"

@@ -4,6 +4,7 @@
  * Vercel Serverless Function
  * Handles quiz score submission with Firebase token verification.
  * user_id is extracted from the verified Firebase token, NOT from the request body.
+ * Score is calculated SERVER-SIDE from submitted answers — never trusted from client.
  */
 
 import {
@@ -11,6 +12,21 @@ import {
   setCORSHeaders,
   verifyFirebaseToken,
 } from './_utils.js';
+
+// Authoritative quiz answers — same as src/data/quiz.js
+// Server calculates score; client cannot forge it.
+const QUIZ_ANSWERS = {
+  q1: 2,
+  q2: 2,
+  q3: 1,
+  q4: 3,
+  q5: 1,
+  q6: 1,
+  q7: 0,
+  q8: 2,
+};
+
+const TOTAL_QUESTIONS = Object.keys(QUIZ_ANSWERS).length;
 
 export default async function handler(req, res) {
   setCORSHeaders(res);
@@ -34,14 +50,35 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid JSON body' });
     }
 
-    const { score, total } = body;
+    const { answers } = body;
 
-    if (typeof score !== 'number' || typeof total !== 'number') {
-      return res.status(400).json({ error: 'score and total are required numbers' });
+    if (!answers || !Array.isArray(answers)) {
+      return res.status(400).json({ error: 'answers array is required' });
     }
 
-    if (score < 0 || total <= 0 || score > total) {
-      return res.status(400).json({ error: 'Invalid score/total values' });
+    if (answers.length !== TOTAL_QUESTIONS) {
+      return res.status(400).json({ error: `Expected ${TOTAL_QUESTIONS} answers, got ${answers.length}` });
+    }
+
+    // Validate and score server-side
+    let score = 0;
+    for (const entry of answers) {
+      if (!entry.questionId || typeof entry.answer !== 'number') {
+        return res.status(400).json({ error: 'Each answer must have questionId and answer (number)' });
+      }
+
+      const correctAnswer = QUIZ_ANSWERS[entry.questionId];
+      if (correctAnswer === undefined) {
+        return res.status(400).json({ error: `Unknown question: ${entry.questionId}` });
+      }
+
+      if (entry.answer < 0 || entry.answer > 3) {
+        return res.status(400).json({ error: `Invalid answer index for ${entry.questionId}` });
+      }
+
+      if (entry.answer === correctAnswer) {
+        score++;
+      }
     }
 
     const supabase = getSupabaseClient();
@@ -50,7 +87,7 @@ export default async function handler(req, res) {
       .from('quiz_scores')
       .select('best_score, total_attempts, history')
       .eq('user_id', user_id)
-      .single();
+      .maybeSingle();
 
     if (existing) {
       const newBest = Math.max(existing.best_score || 0, score);
@@ -58,7 +95,7 @@ export default async function handler(req, res) {
       const history = existing.history || [];
       history.push({
         score,
-        total,
+        total: TOTAL_QUESTIONS,
         date: new Date().toISOString(),
       });
 
@@ -74,7 +111,7 @@ export default async function handler(req, res) {
         .eq('user_id', user_id);
 
       if (error) throw error;
-      return res.status(200).json({ bestScore: newBest, totalAttempts: newTotal });
+      return res.status(200).json({ bestScore: newBest, totalAttempts: newTotal, score, total: TOTAL_QUESTIONS });
     } else {
       const { error } = await supabase
         .from('quiz_scores')
@@ -86,13 +123,13 @@ export default async function handler(req, res) {
           last_attempt: new Date().toISOString(),
           history: [{
             score,
-            total,
+            total: TOTAL_QUESTIONS,
             date: new Date().toISOString(),
           }],
         });
 
       if (error) throw error;
-      return res.status(200).json({ bestScore: score, totalAttempts: 1 });
+      return res.status(200).json({ bestScore: score, totalAttempts: 1, score, total: TOTAL_QUESTIONS });
     }
   } catch (err) {
     console.error('[quiz] Error:', err.message);
