@@ -2,6 +2,7 @@ import React, { useRef, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Coin from '../components/ui/Coin';
+import { useLang } from '../context/LangContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,6 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 /* ══════════════════════════════════════════════════════════ */
 
 export default function Budget() {
+  const { lang, toggleLang } = useLang();
   const containerRef = useRef(null);
   const coinRef = useRef(null);
   const progressRef = useRef(null);
@@ -216,6 +218,32 @@ export default function Budget() {
         />
       </div>
 
+      {/* ── Top bar: Logo + Language Toggle ──────────── */}
+      <div className="fixed top-4 left-0 right-0 z-[200] flex items-center justify-between px-6 pointer-events-none">
+        <a href="/" className="pointer-events-auto">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A853] to-[#B8922E] flex items-center justify-center">
+              <span className="text-[#06080F] font-black text-xs">م</span>
+            </div>
+            <span className="text-white/60 text-xs font-medium hidden sm:block">موازنتي</span>
+          </div>
+        </a>
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <a
+            href="/"
+            className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/40 hover:bg-white/[0.1] hover:text-white/70 transition-all border border-white/[0.06]"
+          >
+            Skip ←
+          </a>
+          <button
+            onClick={toggleLang}
+            className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/[0.06] text-white/50 hover:bg-white/[0.1] hover:text-white/80 transition-all border border-white/[0.06]"
+          >
+            {lang === 'ar' ? 'EN' : 'عربي'}
+          </button>
+        </div>
+      </div>
+
       {/* ── Traveling Coin ────────────────────────────── */}
       <div
         ref={coinRef}
@@ -253,7 +281,7 @@ export default function Budget() {
 
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-            <p className="sr text-[#D4A853]/30 text-[10px] tracking-[0.7em] uppercase mb-10 font-medium">
+            <p className="sr text-[#D4A853]/30 text-xs tracking-[0.7em] uppercase mb-10 font-medium">
               موازنتي — موازنة Citizen 2027/2026
             </p>
 
@@ -272,13 +300,13 @@ export default function Budget() {
               حكاية تبدأ منك — وتوصل لكل مصري.
             </p>
 
-            <div className="sr mt-6 flex items-center justify-center gap-2 text-[#2A3040] text-[10px] tracking-wider">
+            <div className="sr mt-6 flex items-center justify-center gap-2 text-[#2A3040] text-xs tracking-wider">
               <span>🇪🇬</span>
               <span>من مصر — لكل مصري</span>
             </div>
 
             <div className="sr mt-16 flex flex-col items-center gap-3">
-              <span className="text-[#2A3040] text-[9px] tracking-[0.5em] uppercase">Scroll</span>
+              <span className="text-[#2A3040] text-[10px] tracking-[0.5em] uppercase">Scroll</span>
               <div className="w-[18px] h-7 border border-[#1A2030] rounded-full flex justify-center">
                 <div className="w-[3px] h-[6px] bg-[#D4A853]/50 rounded-full mt-1.5 animate-bounce" />
               </div>
@@ -299,7 +327,7 @@ export default function Budget() {
 
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <p className="sr text-[#4A5568] text-xs mb-6 tracking-wider">
+            <p className="sr text-sm text-[#4A5568] mb-6 tracking-wider">
               تخيل معايا
             </p>
 
@@ -336,7 +364,7 @@ export default function Budget() {
 
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <p className="sr text-[#4A5568] text-xs mb-6 tracking-wider">
+            <p className="sr text-sm text-[#4A5568] mb-6 tracking-wider">
               الجنيه مش واقف
             </p>
 
@@ -407,7 +435,7 @@ export default function Budget() {
 
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <p className="sr text-[#4A5568] text-xs mb-8 tracking-wider">
+            <p className="sr text-sm text-[#4A5568] mb-8 tracking-wider">
               عشان نفهم — هنقسمها
             </p>
 
@@ -637,21 +665,34 @@ export default function Budget() {
               <span className="text-[#8B95A8]">جزء من دورة بتأثر على حياتك.</span>
             </p>
 
-            <p className="sr text-base text-white font-bold mt-8">
+            <p className="sr text-xl text-white font-bold mt-8">
               دي موازنة بلدك.
             </p>
-            <p className="sr text-sm text-[#5A6578] mt-2">
+            <p className="sr text-base text-[#5A6578] mt-2">
               اسأل عنها. وشارك في مستقبلها.
             </p>
 
-            <p className="sr text-xl sm:text-2xl font-black bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent mt-10">
+            <p className="sr text-2xl sm:text-3xl font-black bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent mt-10">
               موازنتك بين إيديك.
             </p>
 
-            <div className="sr mt-12 flex justify-center gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="w-1 h-1 rounded-full bg-[#D4A853]/20" />
-              ))}
+            {/* Enter the site — smooth transition */}
+            <div className="sr mt-14">
+              <a
+                href="/"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#D4A853] to-[#E8B94A] text-[#06080F] text-base font-bold hover:shadow-lg hover:shadow-[#D4A853]/20 transition-all duration-500 hover:-translate-y-0.5 group"
+              >
+                <span>ادخل على موارننتي</span>
+                <svg
+                  className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
