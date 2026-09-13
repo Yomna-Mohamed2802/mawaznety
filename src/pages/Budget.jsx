@@ -153,6 +153,7 @@ export default function Budget() {
   const debtWellRef = useRef(null);
   const curveRef = useRef(null);
   const growthPctRef = useRef(null);
+  const multiCoinsRef = useRef(null);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -180,41 +181,82 @@ export default function Budget() {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.6,
+          scrub: 1.2,
         },
       });
 
       /* ──────────────────────────────────────────────── */
-      /*  01 — HERO: THE COIN IS BORN                     */
-      /*  Coin enters from above, rotates, lands,         */
-      /*  subtle bounce, glow pulse, settles.              */
+      /*  01 — HERO: BALL-DROP BOUNCE                     */
+      /*  Coin falls from above like a dropped ball —     */
+      /*  real physics: fast fall, squish, bounce up,     */
+      /*  smaller bounce, settle. Glow pulse on landing.  */
       /* ──────────────────────────────────────────────── */
       master
         .set(coin, {
           x: 0,
-          y: () => -window.innerHeight * 0.6,
+          y: () => -window.innerHeight * 0.7,
           scale: 0.2,
-          rotation: -40,
+          rotation: 0,
           opacity: 0,
         })
+        /* coin appears and falls fast */
         .to(coin, {
           opacity: 1,
           y: 0,
-          scale: 0.85,
-          rotation: 0,
-          duration: 0.8,
-          ease: 'bounce.out',
+          duration: 0.15,
+          ease: 'power2.in',
         })
-        /* glow pulse on arrival */
+        /* FIRST BOUNCE — squish on impact */
+        .to(coin, {
+          scaleY: 0.7,
+          scaleX: 1.15,
+          y: 0,
+          duration: 0.04,
+          ease: 'power2.out',
+        })
+        /* bounce up */
+        .to(coin, {
+          scaleY: 1,
+          scaleX: 1,
+          y: () => -window.innerHeight * 0.08,
+          duration: 0.08,
+          ease: 'power2.out',
+        })
+        /* second smaller bounce down */
+        .to(coin, {
+          scaleY: 0.85,
+          scaleX: 1.06,
+          y: 0,
+          duration: 0.05,
+          ease: 'power2.in',
+        })
+        /* second bounce up (smaller) */
+        .to(coin, {
+          scaleY: 1,
+          scaleX: 1,
+          y: () => -window.innerHeight * 0.025,
+          duration: 0.06,
+          ease: 'power2.out',
+        })
+        /* settle */
+        .to(coin, {
+          scaleY: 1,
+          scaleX: 1,
+          y: 0,
+          scale: 0.85,
+          duration: 0.08,
+          ease: 'power2.inOut',
+        })
+        /* glow pulse on landing */
         .fromTo(glowRef.current,
-          { opacity: 0, scale: 0.5 },
-          { opacity: 0.6, scale: 1.3, duration: 0.3, ease: 'power2.out' },
-          '<'
+          { opacity: 0, scale: 0.3 },
+          { opacity: 0.7, scale: 1.4, duration: 0.1, ease: 'power2.out' },
+          '-=0.15'
         )
         .to(glowRef.current, {
           opacity: 0.15,
           scale: 1,
-          duration: 0.4,
+          duration: 0.3,
           ease: 'power2.inOut',
         });
 
@@ -263,47 +305,124 @@ export default function Budget() {
       });
 
       /* ──────────────────────────────────────────────── */
-      /*  03 — SCALE: trillions compress → 100 revealed   */
-      /*  The most important moment. Numbers visually     */
-      /*  compress toward center. Coin shrinks. "100"     */
-      /*  emerges from the compression.                    */
+      /*  02B — TRAVEL: coin walks along the dot path     */
+      /*  "الجنيه بيسافر" — coin physically travels        */
+      /*  from left to right along the journey dots.       */
       /* ──────────────────────────────────────────────── */
+      /* coin moves to the left start of the path */
+      master.to(coin, {
+        x: () => -window.innerWidth * 0.28,
+        y: 0,
+        scale: 0.4,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+      /* coin walks RIGHT along the dot path — like traveling */
+      master.to(coin, {
+        x: () => window.innerWidth * 0.28,
+        y: () => -window.innerHeight * 0.02,
+        scale: 0.4,
+        rotation: '+=360',
+        duration: 0.8,
+        ease: 'power1.inOut',
+      });
+      /* coin arrives at destination, small settle */
+      master.to(coin, {
+        scale: 0.45,
+        duration: 0.1,
+        ease: 'power2.out',
+      });
+      master.to(coin, {
+        scale: 0.4,
+        duration: 0.1,
+        ease: 'power2.inOut',
+      });
+
+      /* ──────────────────────────────────────────────── */
+      /*  03 — SCALE: coin MULTIPLIES then compresses     */
+      /*  "لو قسمنا كل جنيه على 100" — coin duplicates    */
+      /*  into many coins with "100" behind them, then     */
+      /*  all compress back into ONE coin.                  */
+      /* ──────────────────────────────────────────────── */
+      const multiCoins = gsap.utils.toArray('.multi-coin');
+      /* coin moves to center for multiplication */
       master.to(coin, {
         x: 0,
         y: 0,
-        scale: 0.6,
-        duration: 0.5,
+        scale: 0.5,
+        duration: 0.4,
         ease: 'power2.inOut',
       });
-      /* large numbers compress toward center */
-      if (scaleWrapRef.current) {
-        master.to(scaleWrapRef.current, {
-          scale: 0.15,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power3.in',
-        });
-      }
-      /* coin contracts with the compression */
-      master.to(coin, {
-        scale: 0.3,
-        duration: 0.3,
-        ease: 'power3.in',
-      }, '<');
-      /* "100" is revealed — emerges from compression */
+      /* coins burst OUT from main coin — multiplication */
+      multiCoins.forEach((mc, i) => {
+        const angle = (i / multiCoins.length) * Math.PI * 2;
+        const radius = window.innerWidth * 0.15;
+        master.fromTo(mc,
+          { x: 0, y: 0, opacity: 0, scale: 0.1, rotation: 0 },
+          {
+            x: Math.cos(angle) * radius,
+            y: Math.sin(angle) * radius * 0.5,
+            opacity: 0.8,
+            scale: 0.2,
+            rotation: 360 + i * 45,
+            duration: 0.4,
+            ease: 'power2.out',
+          },
+          `<${0.04 * i}`
+        );
+      });
+      /* "100" fades in behind the multiplied coins */
       if (scaleNumRef.current) {
         master.fromTo(scaleNumRef.current,
-          { scale: 3, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.5)' }
+          { scale: 2, opacity: 0 },
+          { scale: 1, opacity: 0.4, duration: 0.3, ease: 'power2.out' },
+          '-=0.2'
         );
       }
-      /* coin settles next to the 100 */
+      /* ALL coins compress back into ONE — the key transformation */
+      multiCoins.forEach((mc, i) => {
+        master.to(mc, {
+          x: 0,
+          y: 0,
+          scale: 0,
+          opacity: 0,
+          rotation: '+=180',
+          duration: 0.4,
+          ease: 'power3.in',
+        }, `<${0.03 * i}`);
+      });
+      /* "100" compresses too */
+      if (scaleNumRef.current) {
+        master.to(scaleNumRef.current, {
+          scale: 0.3,
+          opacity: 0,
+          duration: 0.3,
+          ease: 'power3.in',
+        }, '<');
+      }
+      /* main coin re-emerges from compression — GLOWS */
       master.to(coin, {
-        x: () => window.innerWidth * -0.12,
-        scale: 0.35,
+        scale: 0.8,
         duration: 0.3,
+        ease: 'back.out(2)',
+      });
+      master.to(glowRef.current, {
+        opacity: 0.6,
+        scale: 1.5,
+        duration: 0.2,
         ease: 'power2.out',
       }, '<');
+      master.to(glowRef.current, {
+        opacity: 0.15,
+        scale: 1,
+        duration: 0.3,
+      });
+      /* coin settles */
+      master.to(coin, {
+        scale: 0.5,
+        duration: 0.2,
+        ease: 'power2.inOut',
+      });
 
       /* ──────────────────────────────────────────────── */
       /*  04 — DISTRIBUTION: coin splits, branches fly    */
@@ -414,11 +533,12 @@ export default function Budget() {
       }
 
       /* ──────────────────────────────────────────────── */
-      /*  06 — SERVICES: coin travels to each service,    */
-      /*  activates on arrival. COIN ARRIVES → SERVICE    */
-      /*  ACTIVATES.                                       */
+      /*  06 — SERVICES: coin travels to each,            */
+      /*  text + icon BOTH light up on arrival.            */
+      /*  COIN ARRIVES → SERVICE ACTIVATES                 */
       /* ──────────────────────────────────────────────── */
       const serviceIcons = gsap.utils.toArray('.svc-icon');
+      const svcTexts = gsap.utils.toArray('.svc-text');
       const servicePositions = [
         { x: () => -window.innerWidth * 0.2, y: () => -window.innerHeight * 0.12 },
         { x: () => window.innerWidth * 0.18,  y: () => -window.innerHeight * 0.08 },
@@ -436,32 +556,51 @@ export default function Budget() {
           duration: 0.35,
           ease: 'power2.inOut',
         });
-        /* coin arrives → service activates */
+        /* coin arrives → icon lights up + grows */
         master.to(icon, {
           opacity: 1,
-          scale: 1.2,
-          filter: 'brightness(1.5) drop-shadow(0 0 12px rgba(212,168,83,0.6))',
+          scale: 1.3,
+          filter: 'brightness(1.6) drop-shadow(0 0 14px rgba(212,168,83,0.7))',
           duration: 0.2,
-          ease: 'power2.out',
+          ease: 'back.out(1.8)',
         });
-        /* subtle glow on coin */
+        /* text also lights up — whole scene glows */
+        svcTexts.forEach((txt) => {
+          master.to(txt, {
+            color: '#E8C874',
+            textShadow: '0 0 20px rgba(212,168,83,0.3)',
+            scale: 1.02,
+            duration: 0.15,
+            ease: 'power2.out',
+          }, '<');
+        });
+        /* coin glow confirms */
         master.to(glowRef.current, {
-          opacity: 0.4,
-          scale: 1.2,
+          opacity: 0.5,
+          scale: 1.3,
           duration: 0.15,
           ease: 'power2.out',
         }, '<');
+        /* icon settles, text returns */
+        master.to(icon, {
+          scale: 1.1,
+          filter: 'brightness(1.3) drop-shadow(0 0 8px rgba(212,168,83,0.4))',
+          duration: 0.2,
+        });
         master.to(glowRef.current, {
           opacity: 0.15,
           scale: 1,
           duration: 0.2,
-        });
-        /* service settles */
-        master.to(icon, {
-          scale: 1,
-          filter: 'brightness(1.2) drop-shadow(0 0 6px rgba(212,168,83,0.3))',
-          duration: 0.2,
         }, '<');
+      });
+      /* after all services — text returns to normal */
+      svcTexts.forEach((txt) => {
+        master.to(txt, {
+          color: '',
+          textShadow: 'none',
+          scale: 1,
+          duration: 0.3,
+        });
       });
 
       /* ──────────────────────────────────────────────── */
@@ -540,6 +679,39 @@ export default function Budget() {
       });
 
       /* ──────────────────────────────────────────────── */
+      /*  08B — HEART: coin traces a heart shape          */
+      /*  "مش مجرد أرقام — دي موازنة بلدك"                */
+      /*  Coin spins in a heart path — love for country.  */
+      /* ──────────────────────────────────────────────── */
+      const heartPoints = 40;
+      for (let i = 0; i <= heartPoints; i++) {
+        const t2 = (i / heartPoints) * Math.PI * 2;
+        const hx = 16 * Math.pow(Math.sin(t2), 3);
+        const hy = -(13 * Math.cos(t2) - 5 * Math.cos(2 * t2) - 2 * Math.cos(3 * t2) - Math.cos(4 * t2));
+        const isLast = i === heartPoints;
+        master.to(coin, {
+          x: hx * 6,
+          y: hy * 6,
+          rotation: `+=${360 / heartPoints}`,
+          scale: 0.35 + Math.sin(t2) * 0.05,
+          duration: isLast ? 0.05 : 0.025,
+          ease: 'none',
+        });
+      }
+      /* heart glow pulse */
+      master.to(glowRef.current, {
+        opacity: 0.5,
+        scale: 1.3,
+        duration: 0.15,
+        ease: 'power2.out',
+      });
+      master.to(glowRef.current, {
+        opacity: 0.15,
+        scale: 1,
+        duration: 0.2,
+      });
+
+      /* ──────────────────────────────────────────────── */
       /*  08 — GROWTH: coin creates the upward path       */
       /*  Coin travels upward along a curve. Trail reveals*/
       /*  the growth line. 5.4% appears at the peak.      */
@@ -584,10 +756,9 @@ export default function Budget() {
       });
 
       /* ──────────────────────────────────────────────── */
-      /*  09 — CITIZEN: the same coin returns              */
-      /*  Environment simplifies. Coin returns to normal   */
-      /*  scale. Travels toward citizen. STOPS. Does NOT   */
-      /*  fade. The user followed this coin the whole way.  */
+      /*  09 — CITIZEN: fast spin + snap + STAYS          */
+      /*  Coin does a toss-catch spin, then settles.      */
+      /*  Does NOT fade. The protagonist remains.          */
       /* ──────────────────────────────────────────────── */
       /* fade growth elements */
       if (curveRef.current) {
@@ -596,20 +767,41 @@ export default function Budget() {
       if (growthPctRef.current) {
         master.to(growthPctRef.current, { opacity: 0, duration: 0.3 }, '<');
       }
-      /* coin returns to center, normal scale */
+      /* coin returns toward center */
       master.to(coin, {
         x: 0,
         y: 0,
-        scale: 0.85,
-        rotation: '+=60',
-        duration: 0.8,
-        ease: 'power3.inOut',
+        scale: 0.5,
+        duration: 0.3,
+        ease: 'power2.inOut',
       });
-      /* glow warm and calm */
+      /* FAST SPIN — toss-catch snap effect */
+      master.to(coin, {
+        rotation: '+=720',
+        scale: 0.9,
+        duration: 0.3,
+        ease: 'power4.inOut',
+      });
+      /* snap — slight squish on catch */
+      master.to(coin, {
+        scaleY: 0.88,
+        scaleX: 1.08,
+        duration: 0.04,
+        ease: 'power2.out',
+      });
+      /* settle back to round */
+      master.to(coin, {
+        scaleY: 1,
+        scaleX: 1,
+        scale: 0.85,
+        duration: 0.1,
+        ease: 'elastic.out(1, 0.5)',
+      });
+      /* warm glow — coin is home */
       master.to(glowRef.current, {
-        opacity: 0.25,
-        scale: 1.1,
-        duration: 0.5,
+        opacity: 0.3,
+        scale: 1.15,
+        duration: 0.4,
         ease: 'power2.inOut',
       }, '<');
       /* coin STAYS visible — the protagonist remains */
@@ -880,6 +1072,12 @@ export default function Budget() {
       <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] via-[#0D1120] to-[#0A0E18]">
         <div className="absolute inset-0 pointer-events-none opacity-[0.02]"
           style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+        {/* Multiplied coins — burst from main coin during scale transformation */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="multi-coin absolute w-4 h-4 rounded-full bg-gradient-to-br from-[#D4A853] to-[#B8922E] shadow-md shadow-[#D4A853]/15" style={{ opacity: 0 }} />
+          ))}
+        </div>
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <p className="sr text-sm text-[#4A5568] mb-8 tracking-wider">{t.s03Label}</p>
@@ -888,7 +1086,7 @@ export default function Budget() {
             </h2>
             {/* Large numbers that COMPRESS during transformation */}
             <div ref={scaleWrapRef} className="sr inline-block">
-              <span className="text-[7rem] sm:text-[9rem] md:text-[11rem] font-black bg-gradient-to-b from-[#E8C874] via-[#D4A853] to-[#B8922E] bg-clip-text text-transparent leading-none drop-shadow-[0_0_60px_rgba(212,168,83,0.15)]">
+              <span ref={scaleNumRef} className="text-[7rem] sm:text-[9rem] md:text-[11rem] font-black bg-gradient-to-b from-[#E8C874] via-[#D4A853] to-[#B8922E] bg-clip-text text-transparent leading-none drop-shadow-[0_0_60px_rgba(212,168,83,0.15)]">
                 {t.s03num}
               </span>
             </div>
@@ -967,10 +1165,10 @@ export default function Budget() {
         </div>
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <h2 className="sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-6">
+            <h2 className="svc-text sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-6">
               {t.s04h1}<br /><span className="text-[#A78BDA]">{t.s04h2}</span>
             </h2>
-            <p className="sr text-base text-[#5A6578] max-w-lg mx-auto mb-14 leading-relaxed">{t.s04p}</p>
+            <p className="svc-text sr text-base text-[#5A6578] max-w-lg mx-auto mb-14 leading-relaxed">{t.s04p}</p>
             {/* Service icons — each activates when coin arrives */}
             <div className="sr flex justify-center gap-5 sm:gap-8 text-4xl sm:text-5xl md:text-6xl">
               <span className="svc-icon opacity-30 transition-none cursor-default">🎓</span>
