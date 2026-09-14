@@ -1217,7 +1217,7 @@ export default function Budget() {
       {/* ════════════════════════════════════════════════ */}
       {/* S01 — THE HOOK: The coin is born                 */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
+      <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {s01Dots.map((dot, i) => (
             <div key={i} className="float absolute rounded-full bg-[#D4A853]"
@@ -1229,18 +1229,18 @@ export default function Budget() {
         </div>
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-            <p className="sr text-[#D4A853]/30 text-xs tracking-[0.7em] uppercase mb-10 font-medium">{t.tag}</p>
-            <h1 className="sr text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.2] mb-8">
-              <span className="block mb-3">{t.h1a}</span>
-              <span className="block mb-3">{t.h1b}</span>
+            <p className="sr text-[#D4A853]/30 text-xs tracking-[0.7em] uppercase mb-6 font-medium">{t.tag}</p>
+            <h1 className="sr text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.2] mb-5">
+              <span className="block mb-1">{t.h1a}</span>
+              <span className="block mb-1">{t.h1b}</span>
               <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent block">{t.h1c}</span>
               <span className="bg-gradient-to-l from-[#D4A853] to-[#E8C874] bg-clip-text text-transparent block">{t.h1d}</span>
             </h1>
             <p className="sr text-sm text-[#3D4758] max-w-md mx-auto leading-relaxed">{t.heroSub}</p>
-            <div className="sr mt-6 flex items-center justify-center gap-2 text-[#2A3040] text-xs tracking-wider">
+            <div className="sr mt-4 flex items-center justify-center gap-2 text-[#2A3040] text-xs tracking-wider">
               <span>🇪🇬</span><span>{t.fromEgypt}</span>
             </div>
-            <div className="sr mt-16 flex flex-col items-center gap-3">
+            <div className="sr mt-10 flex flex-col items-center gap-3">
               <span className="text-[#2A3040] text-[10px] tracking-[0.5em] uppercase">Scroll</span>
               <div className="w-[18px] h-7 border border-[#1A2030] rounded-full flex justify-center">
                 <div className="w-[3px] h-[6px] bg-[#D4A853]/50 rounded-full mt-1.5 animate-bounce" />
