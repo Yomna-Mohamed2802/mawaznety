@@ -364,7 +364,7 @@ export default function Budget() {
         .to(coin, {
           opacity: 1,
           y: 0,
-          duration: 0.15,
+          duration: 0.10,
           ease: 'power2.in',
         })
         .call(playDrop)
@@ -373,7 +373,7 @@ export default function Budget() {
           scaleY: 0.7,
           scaleX: 1.15,
           y: 0,
-          duration: 0.04,
+          duration: 0.03,
           ease: 'power2.out',
         })
         .call(playBounce)
@@ -382,7 +382,7 @@ export default function Budget() {
           scaleY: 1,
           scaleX: 1,
           y: () => -window.innerHeight * 0.08,
-          duration: 0.08,
+          duration: 0.05,
           ease: 'power2.out',
         })
         /* second smaller bounce down */
@@ -390,7 +390,7 @@ export default function Budget() {
           scaleY: 0.85,
           scaleX: 1.06,
           y: 0,
-          duration: 0.05,
+          duration: 0.03,
           ease: 'power2.in',
         })
         .call(playBounce)
@@ -399,7 +399,7 @@ export default function Budget() {
           scaleY: 1,
           scaleX: 1,
           y: () => -window.innerHeight * 0.01,
-          duration: 0.05,
+          duration: 0.03,
           ease: 'power2.out',
         })
         /* settle on ground — lower */
@@ -408,7 +408,7 @@ export default function Budget() {
           scaleX: 1,
           y: () => window.innerHeight * 0.15,
           scale: 0.85,
-          duration: 0.08,
+          duration: 0.05,
           ease: 'power2.out',
         })
         /* ground impact squish */
@@ -416,7 +416,7 @@ export default function Budget() {
           scaleY: 0.7,
           scaleX: 1.15,
           y: () => window.innerHeight * 0.15,
-          duration: 0.03,
+          duration: 0.02,
           ease: 'power2.out',
         })
         .call(playSplash)
@@ -425,7 +425,7 @@ export default function Budget() {
           scaleY: 1,
           scaleX: 1,
           y: () => window.innerHeight * 0.15,
-          duration: 0.06,
+          duration: 0.04,
           ease: 'elastic.out(1.2, 0.5)',
         })
         /* SPLASH — mini coins burst outward like water on impact */
@@ -458,26 +458,26 @@ export default function Budget() {
         .to(groundRef.current, {
           opacity: 1,
           scale: 1,
-          duration: 0.1,
+          duration: 0.07,
           ease: 'power2.out',
-        }, '<+=0.03')
+        }, '<+=0.02')
         /* ripple expand out */
         .to(groundRef.current, {
           scale: 2.5,
           opacity: 0,
-          duration: 0.25,
+          duration: 0.17,
           ease: 'power2.out',
         })
         /* glow pulse on landing */
         .fromTo(glowRef.current,
           { opacity: 0, scale: 0.3 },
-          { opacity: 0.7, scale: 1.4, duration: 0.1, ease: 'power2.out' },
-          '-=0.15'
+          { opacity: 0.7, scale: 1.4, duration: 0.07, ease: 'power2.out' },
+          '-=0.10'
         )
         .to(glowRef.current, {
           opacity: 0.15,
           scale: 1,
-          duration: 0.3,
+          duration: 0.20,
           ease: 'power2.inOut',
         });
 
@@ -773,6 +773,15 @@ export default function Budget() {
         { x: () => window.innerWidth * 0.15,  y: () => window.innerHeight * 0.12 },
         { x: () => 0,                         y: () => 0 },
       ];
+      /* text reveals once — then icons light up one by one */
+      svcTexts.forEach((txt) => {
+        master.to(txt, {
+          opacity: 1,
+          y: 0,
+          duration: 0.3,
+          ease: 'power3.out',
+        });
+      });
       serviceIcons.forEach((icon, i) => {
         const pos = servicePositions[i];
         /* coin travels to service */
@@ -1102,7 +1111,7 @@ export default function Budget() {
             trigger: el.closest('.scene'),
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 1,
+            scrub: 2,
           },
         });
       });
@@ -1217,7 +1226,7 @@ export default function Budget() {
       {/* ════════════════════════════════════════════════ */}
       {/* S01 — THE HOOK: The coin is born                 */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[150vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
+      <section className="scene relative h-[100vh] w-full overflow-hidden bg-gradient-to-b from-[#06080F] via-[#0B0F1A] to-[#06080F]">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {s01Dots.map((dot, i) => (
             <div key={i} className="float absolute rounded-full bg-[#D4A853]"
@@ -1452,24 +1461,24 @@ export default function Budget() {
       {/* S04 — SERVICES: Coin travels to each, activates */}
       {/* COIN ARRIVES → SERVICE ACTIVATES                 */}
       {/* ════════════════════════════════════════════════ */}
-      <section className="scene relative h-[300vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
+      <section className="scene relative h-[200vh] w-full overflow-hidden bg-gradient-to-b from-[#0A0E18] to-[#06080F]">
         <div className="absolute inset-0 pointer-events-none">
           <div className="float absolute top-[30%] left-[20%] w-48 h-48 rounded-full bg-[#A78BDA]/[0.03] blur-[80px]" />
           <div className="float absolute bottom-[25%] right-[15%] w-56 h-56 rounded-full bg-[#6ABFA7]/[0.03] blur-[80px]" />
         </div>
         <div className="sticky top-0 h-screen flex items-center justify-center">
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-            <h2 className="svc-text sr text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-6">
+            <h2 className="svc-text text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-6 opacity-0">
               {t.s04h1}<br /><span className="text-[#A78BDA]">{t.s04h2}</span>
             </h2>
-            <p className="svc-text sr text-base text-[#5A6578] max-w-lg mx-auto mb-14 leading-relaxed">{t.s04p}</p>
+            <p className="svc-text text-base text-[#5A6578] max-w-lg mx-auto mb-14 leading-relaxed opacity-0">{t.s04p}</p>
             {/* Service icons — each activates when coin arrives */}
-            <div className="sr flex justify-center gap-5 sm:gap-8 text-4xl sm:text-5xl md:text-6xl">
-              <span className="svc-icon opacity-30 transition-none cursor-default">🎓</span>
-              <span className="svc-icon opacity-30 transition-none cursor-default">👨‍👩‍👧‍👦</span>
-              <span className="svc-icon opacity-30 transition-none cursor-default">🏢</span>
-              <span className="svc-icon opacity-30 transition-none cursor-default">🏥</span>
-              <span className="svc-icon opacity-30 transition-none cursor-default">🌿</span>
+            <div className="flex justify-center gap-5 sm:gap-8 text-4xl sm:text-5xl md:text-6xl">
+              <span className="svc-icon opacity-0 transition-none cursor-default">🎓</span>
+              <span className="svc-icon opacity-0 transition-none cursor-default">👨‍👩‍👧‍👦</span>
+              <span className="svc-icon opacity-0 transition-none cursor-default">🏢</span>
+              <span className="svc-icon opacity-0 transition-none cursor-default">🏥</span>
+              <span className="svc-icon opacity-0 transition-none cursor-default">🌿</span>
             </div>
             <p className="sr text-sm text-[#3D4758] mt-10">{t.s04foot}</p>
           </div>
