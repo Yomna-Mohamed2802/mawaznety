@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import CookieConsent from '../ui/CookieConsent';
+import ChatBot from '../chatbot/ChatBot';
 import { useAuth } from '../../context/AuthContext';
 import { useLang } from '../../context/LangContext';
 import { incrementCounter, trackEvent, subscribeEmail } from '../../services/db';
@@ -121,6 +122,7 @@ const Layout = () => {
         </footer>
       </div>
       <CookieConsent />
+      <ChatBot />
     </div>
   );
 };

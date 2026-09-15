@@ -34,9 +34,8 @@ const Download = () => {
           </div>
 
           <a
-            href="https://www.mof.gov.eg/uploads/CitizenBudget_26-27.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/CitizenBudget2026-2027.pdf"
+            download="CitizenBudget2026-2027.pdf"
             className="flex items-center justify-center gap-2 w-full py-3 bg-primary-700 text-white rounded-xl font-semibold text-sm hover:bg-primary-800 transition-colors"
           >
             <HiOutlineDocumentDownload className="w-5 h-5" />

@@ -16,7 +16,6 @@ import StatCard from '../components/dashboard/StatCard';
 import ExpenditureDonut from '../components/charts/ExpenditureDonut';
 import DebtTrendChart from '../components/charts/DebtTrendChart';
 import InvestmentChart from '../components/charts/InvestmentChart';
-import ChatBot from '../components/chatbot/ChatBot';
 import {
   budgetOverview, budget100, revenues, expenditures, debt,
   education, health, social, infrastructure, economy,
@@ -210,15 +209,14 @@ export default function MasterDashboard() {
               <a href="#kpi" className="btn-primary bg-primary-900 text-white hover:bg-primary-800" style={{ boxShadow: '0 10px 30px -10px rgb(0 0 0 / 0.3)' }}>
                 {t.exploreBtn}
               </a>
-              <button
-                onClick={() => {
-                  navigate('/download');
-                }}
+              <a
+                href="/CitizenBudget2026-2027.pdf"
+                download="CitizenBudget2026-2027.pdf"
                 className="btn-secondary bg-white/15 text-white border-white/30 hover:bg-white/25"
               >
                 <HiOutlineDocumentText className="w-4 h-4" />
                 {t.downloadBtn}
-              </button>
+              </a>
             </motion.div>
           </motion.div>
         </div>
@@ -947,9 +945,6 @@ export default function MasterDashboard() {
 
       {/* ─── Source Drawer ───────────────────────────────── */}
       <SourceDrawer figure={drawerFigure} onClose={() => setDrawerFigure(null)} />
-
-      {/* ─── ChatBot ──────────────────────────────────────── */}
-      <ChatBot />
 
       {/* Lightweight toast — no new dep, no redesign */}
       <AnimatePresence>
