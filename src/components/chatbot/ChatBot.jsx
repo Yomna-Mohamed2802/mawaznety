@@ -91,15 +91,19 @@ function MessageBubble({ msg, onRetry }) {
 export default function ChatBot() {
   const { lang, t } = useLang();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('mawaznety-chat');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [{
       id: 1,
       sender: 'bot',
       text: lang === 'ar'
         ? 'أهلاً! أنا مساعد موازنتي.\nاسألني أي حاجة عن الموازنة العامة المصرية، وأنا هشرحها لك ببساطة.'
         : 'Hi! I\'m Mawaznety Assistant.\nAsk me anything about Egypt\'s public budget and I\'ll explain it simply.',
-    },
-  ]);
+    }];
+  });
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [hasNewMessage, setHasNewMessage] = useState(false);
@@ -115,6 +119,10 @@ export default function ChatBot() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    localStorage.setItem('mawaznety-chat', JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => {
     if (isOpen) {
