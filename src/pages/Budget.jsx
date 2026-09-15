@@ -838,6 +838,16 @@ export default function Budget() {
           duration: 0.3,
         });
       });
+      /* footer fades in after services */
+      const svcFoot = document.querySelector('.svc-foot');
+      if (svcFoot) {
+        master.to(svcFoot, {
+          opacity: 1,
+          y: 0,
+          duration: 0.2,
+          ease: 'power2.out',
+        });
+      }
 
       /* ──────────────────────────────────────────────── */
       /*  07 — INVESTMENT: coin transforms                */
@@ -1091,12 +1101,12 @@ export default function Budget() {
             opacity: 1,
             filter: 'blur(0px)',
             stagger: 0.06,
-            ease: 'power3.out',
+            ease: 'none',
             scrollTrigger: {
               trigger: scene,
-              start: 'top 70%',
-              end: 'top 10%',
-              toggleActions: 'play none none reverse',
+              start: 'top 100%',
+              end: 'top 20%',
+              scrub: 1,
             },
           }
         );
@@ -1480,7 +1490,7 @@ export default function Budget() {
               <span className="svc-icon opacity-0 transition-none cursor-default">🏥</span>
               <span className="svc-icon opacity-0 transition-none cursor-default">🌿</span>
             </div>
-            <p className="sr text-sm text-[#3D4758] mt-10">{t.s04foot}</p>
+            <p className="svc-foot text-sm text-[#3D4758] mt-10 opacity-0">{t.s04foot}</p>
           </div>
         </div>
       </section>
