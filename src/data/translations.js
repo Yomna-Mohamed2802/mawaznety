@@ -547,6 +547,51 @@ const translations = {
         investment: { label: 'جذب الاستثمارات الأجنبية', desc: 'تسهيل إجراءات الاستثمار' },
       },
     },
+
+    // Login additional
+    loginConsentError: 'يجب الموافقة على الشروط والأحكام وسياسة الخصوصية أولاً',
+    loginRegisterSuccess: 'تم التسجيل بنجاح! تحقق من بريدك الإلكتروني لتأكيد الحساب.',
+    loginAlreadyAuthenticated: 'أنت مسجل الدخول بالفعل',
+    loginAdmin: 'مدير النظام',
+    loginGoToDashboard: 'الذهاب للوحة التحكم',
+    loginLogout: 'تسجيل الخروج',
+    loginPlaceholderName: 'اسمك هنا',
+    loginPlaceholderPassword: '٦ أحرف على الأقل',
+    loginLoading: 'جاري...',
+
+    // Admin additional
+    adminStatsTitle: 'إحصائيات الموقع والاستخدام',
+    adminViewReports: 'التقارير العامة',
+    adminVisitors: 'الزوار',
+    adminPageViews: 'مشاهدات الصفحة',
+    adminVotes: 'التصويتات',
+    adminQuizzes: 'اختبارات مكتملة',
+    adminChatQuestions: 'أسئلة الشات بوت',
+    adminEmailSubscribers: 'مشتركين البريد',
+    adminEventsByType: 'الأحداث حسب النوع',
+    adminRecentEvents: 'آخر الأحداث',
+    adminEvent: 'الحدث',
+    adminPage: 'الصفحة',
+    adminTime: 'الوقت',
+
+    // Voting additional
+    voteCount: 'صوت',
+
+    // ChatBot additional
+    chatRetry: 'إعادة المحاولة',
+
+    // Sidebar additional
+    sidebarAdmin: 'لوحة التحكم',
+    sidebarExpand: 'توسيع',
+    sidebarCollapse: 'طي',
+    sidebarCloseMenu: 'إغلاق القائمة',
+
+    // MawaznetyLogo
+    logoAlt: 'شعار موازنتي',
+    logoSubtitle: 'نظام موازنة المواطن 2026/2027',
+
+    // Skip to content
+    skipToContent: 'تخطي إلى المحتوى',
   },
   en: {
     // Header
@@ -1096,6 +1141,51 @@ const translations = {
         investment: { label: 'Attract Foreign Investment', desc: 'Facilitate investment procedures' },
       },
     },
+
+    // Login additional
+    loginConsentError: 'You must agree to the Terms & Conditions and Privacy Policy first',
+    loginRegisterSuccess: 'Registration successful! Check your email to verify your account.',
+    loginAlreadyAuthenticated: 'You are already logged in',
+    loginAdmin: 'System Admin',
+    loginGoToDashboard: 'Go to Dashboard',
+    loginLogout: 'Logout',
+    loginPlaceholderName: 'Your name here',
+    loginPlaceholderPassword: 'At least 6 characters',
+    loginLoading: 'Loading...',
+
+    // Admin additional
+    adminStatsTitle: 'Site Statistics & Usage',
+    adminViewReports: 'View Reports',
+    adminVisitors: 'Visitors',
+    adminPageViews: 'Page Views',
+    adminVotes: 'Votes',
+    adminQuizzes: 'Quizzes Completed',
+    adminChatQuestions: 'Chatbot Questions',
+    adminEmailSubscribers: 'Email Subscribers',
+    adminEventsByType: 'Events by Type',
+    adminRecentEvents: 'Recent Events',
+    adminEvent: 'Event',
+    adminPage: 'Page',
+    adminTime: 'Time',
+
+    // Voting additional
+    voteCount: 'votes',
+
+    // ChatBot additional
+    chatRetry: 'Retry',
+
+    // Sidebar additional
+    sidebarAdmin: 'Admin Panel',
+    sidebarExpand: 'Expand',
+    sidebarCollapse: 'Collapse',
+    sidebarCloseMenu: 'Close menu',
+
+    // MawaznetyLogo
+    logoAlt: 'Mawaznety Logo',
+    logoSubtitle: 'Citizen Budget System 2026/2027',
+
+    // Skip to content
+    skipToContent: 'Skip to content',
   },
 };
 

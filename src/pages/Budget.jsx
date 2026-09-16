@@ -1197,7 +1197,7 @@ export default function Budget() {
   }, []);
 
   return (
-    <div ref={containerRef} className="bg-[#06080F]" dir="rtl">
+    <div ref={containerRef} className="bg-[#06080F]" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       {/* ── Progress Bar ──────────────────────────────── */}
       <div className="fixed top-0 left-0 right-0 h-[2px] bg-white/[0.03] z-[200]">
         <div
@@ -1214,7 +1214,7 @@ export default function Budget() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A853] to-[#B8922E] flex items-center justify-center">
               <span className="text-[#06080F] font-black text-xs">م</span>
             </div>
-            <span className="text-white/60 text-xs font-medium hidden sm:block" dir="rtl">موازنتي</span>
+            <span className="text-white/60 text-xs font-medium hidden sm:block" dir={lang === 'ar' ? 'rtl' : 'ltr'}>موازنتي</span>
           </div>
         </a>
         <div className="flex items-center gap-2 pointer-events-auto">

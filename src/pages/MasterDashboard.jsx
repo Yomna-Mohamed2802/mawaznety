@@ -76,10 +76,6 @@ export default function MasterDashboard() {
   const [toast, setToast] = useState(null);
 
   const openSource = (figure) => figure && setDrawerFigure(figure);
-  const showToast = (msg) => {
-    setToast(msg);
-    window.setTimeout(() => setToast(null), 2600);
-  };
 
   /* ─── Budget 100 data for donut ──────────────────────── */
 

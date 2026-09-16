@@ -11,7 +11,7 @@ export default function SourceDrawer({ figure, onClose }) {
   return (
     <AnimatePresence>
       {figure && (
-        <>
+        <div key="source-drawer">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -115,7 +115,7 @@ export default function SourceDrawer({ figure, onClose }) {
               )}
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );

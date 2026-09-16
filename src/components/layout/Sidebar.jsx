@@ -26,14 +26,14 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
 
   const menuItems = [
     { path: '/dashboard', label: t.home, icon: HiOutlineHome },
-    { path: '/learn', label: t.budgetStory, icon: HiOutlineBookOpen },
-    { path: '/budget100', label: t.budget100, icon: HiOutlineChartBar },
-    { path: '/finance-minister', label: t.financeMinister, icon: HiOutlineDocumentText },
-    { path: '/quiz', label: t.quiz, icon: HiOutlineClipboardCheck },
-    { path: '/voting', label: t.voting, icon: HiOutlineSparkles },
-    { path: '/reports', label: t.reports, icon: HiOutlineChartBar },
-    { path: '/settings', label: t.settings, icon: HiOutlineCog },
-    ...(isAdmin ? [{ path: '/admin', label: 'لوحة التحكم', icon: HiOutlineCog }] : []),
+    { path: '/dashboard/learn', label: t.budgetStory, icon: HiOutlineBookOpen },
+    { path: '/dashboard/budget100', label: t.budget100, icon: HiOutlineChartBar },
+    { path: '/dashboard/finance-minister', label: t.financeMinister, icon: HiOutlineDocumentText },
+    { path: '/dashboard/quiz', label: t.quiz, icon: HiOutlineClipboardCheck },
+    { path: '/dashboard/voting', label: t.voting, icon: HiOutlineSparkles },
+    { path: '/dashboard/reports', label: t.reports, icon: HiOutlineChartBar },
+    { path: '/dashboard/settings', label: t.settings, icon: HiOutlineCog },
+    ...(isAdmin ? [{ path: '/dashboard/admin', label: t.sidebarAdmin, icon: HiOutlineCog }] : []),
   ];
 
   return (
@@ -71,8 +71,8 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
             <button
               onClick={onToggleCollapse}
               className="hidden lg:flex p-1.5 rounded-lg hover:bg-primary-100 transition-colors"
-              title={collapsed ? 'Expand' : 'Collapse'}
-              aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
+              title={collapsed ? t.sidebarExpand : t.sidebarCollapse}
+              aria-label={collapsed ? t.sidebarExpand : t.sidebarCollapse}
             >
               <HiOutlineChevronLeft className={`w-4 h-4 text-primary-500 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`} />
             </button>
@@ -80,7 +80,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
             <button
               onClick={onClose}
               className="lg:hidden p-1.5 rounded-lg hover:bg-primary-100 transition-colors"
-              aria-label="Close menu"
+              aria-label={t.sidebarCloseMenu}
             >
               <HiOutlineX className="w-4 h-4 text-primary-500" />
             </button>

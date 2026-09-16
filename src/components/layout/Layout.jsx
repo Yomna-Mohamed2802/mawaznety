@@ -1,6 +1,5 @@
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -50,7 +49,7 @@ const Layout = () => {
     setTimeout(() => setEmailMsg(''), 4000);
   };
 
-  if (loading) {;
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface">
         <div className="flex flex-col items-center gap-4">
@@ -96,10 +95,10 @@ const Layout = () => {
               {t.footerDisclaimer}
             </p>
             <div className="flex flex-wrap justify-center gap-3 text-xs">
-              <Link to="/privacy" className="text-primary-500 hover:text-primary-700 underline">{t.footerPrivacy}</Link>
-              <Link to="/terms" className="text-primary-500 hover:text-primary-700 underline">{t.footerTerms}</Link>
-              <Link to="/cookies" className="text-primary-500 hover:text-primary-700 underline">{t.footerCookies}</Link>
-              <Link to="/refund" className="text-primary-500 hover:text-primary-700 underline">{t.footerRefund}</Link>
+              <Link to="/dashboard/privacy" className="text-primary-500 hover:text-primary-700 underline">{t.footerPrivacy}</Link>
+              <Link to="/dashboard/terms" className="text-primary-500 hover:text-primary-700 underline">{t.footerTerms}</Link>
+              <Link to="/dashboard/cookies" className="text-primary-500 hover:text-primary-700 underline">{t.footerCookies}</Link>
+              <Link to="/dashboard/refund" className="text-primary-500 hover:text-primary-700 underline">{t.footerRefund}</Link>
             </div>
             <form onSubmit={handleEmailSubmit} className="flex items-center justify-center gap-2 max-w-sm mx-auto">
               <label htmlFor="footer-email" className="sr-only">اشترك في التحديثات</label>

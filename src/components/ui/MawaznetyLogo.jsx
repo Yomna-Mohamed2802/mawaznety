@@ -1,4 +1,7 @@
+import { useLang } from '../../context/LangContext';
+
 const MawaznetyLogo = ({ size = 'md', showText = true, className = '' }) => {
+  const { t } = useLang();
   const sizes = {
     sm: { icon: 40, text: 'text-lg', sub: 'text-[10px]' },
     md: { icon: 56, text: 'text-xl', sub: 'text-xs' },
@@ -13,7 +16,7 @@ const MawaznetyLogo = ({ size = 'md', showText = true, className = '' }) => {
         className="relative flex-shrink-0"
         style={{ width: s.icon, height: s.icon }}
       >
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" role="img" aria-label="شعار موازنتي">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" role="img" aria-label={t.logoAlt}>
           <defs>
             <linearGradient id="logoBg" x1="0" y1="0" x2="100" y2="100">
               <stop offset="0%" stopColor="#102a43" />
@@ -51,7 +54,7 @@ const MawaznetyLogo = ({ size = 'md', showText = true, className = '' }) => {
           <h1 className={`font-bold text-primary-900 ${s.text}`} style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
             موازنتي
           </h1>
-          <p className={`text-primary-500 ${s.sub}`}>نظام موازنة المواطن 2026/2027</p>
+          <p className={`text-primary-500 ${s.sub}`}>{t.logoSubtitle}</p>
         </div>
       )}
     </div>

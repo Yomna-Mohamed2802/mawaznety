@@ -81,10 +81,10 @@ const Voting = () => {
         } catch {}
         incrementCounter('totalVotes').catch(() => {});
       } else {
-        setError(result.error || 'حدث خطأ أثناء التصويت. حاول مرة أخرى.');
+        setError(result.error || t.voteError);
       }
     } catch {
-      setError('حدث خطأ أثناء التصويت. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.');
+      setError(t.voteError);
     }
 
     setVoting(false);
@@ -190,7 +190,7 @@ const Voting = () => {
                 </div>
                 <div className="text-left">
                   <p className="text-2xl font-bold text-primary-600">{getPercentage(candidate.id)}%</p>
-                   <p className="text-sm text-gray-500">{getVotes(candidate.id)} صوت</p>
+                   <p className="text-sm text-gray-500">{getVotes(candidate.id)} {t.voteCount}</p>
                 </div>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">

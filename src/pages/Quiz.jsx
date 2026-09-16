@@ -57,7 +57,7 @@ const Quiz = () => {
     setShowResult(true);
 
     const isCorrect = index === questions[currentQuestion].correct;
-    if (isCorrect) setScore(score + 1);
+    if (isCorrect) setScore(prev => prev + 1);
     
     setAnswers([...answers, { questionId: questions[currentQuestion].id, answer: index, isCorrect }]);
   };

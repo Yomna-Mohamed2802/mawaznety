@@ -137,7 +137,7 @@ const LoadingScreen = ({ onComplete }) => {
             transition={{ delay: 0.3 }}
           >
             <h2 className="text-white/90 text-lg font-bold tracking-wide" style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
-              موازنتي
+              {lang === 'ar' ? 'موازنتي' : 'Mawaznety'}
             </h2>
           </motion.div>
 

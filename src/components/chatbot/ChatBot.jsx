@@ -50,7 +50,7 @@ function TypingIndicator() {
   );
 }
 
-function MessageBubble({ msg, onRetry }) {
+function MessageBubble({ msg, onRetry, t }) {
   const isBot = msg.sender === 'bot';
   const isError = msg.isError;
   return (
@@ -79,7 +79,7 @@ function MessageBubble({ msg, onRetry }) {
             className="mt-1.5 flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 transition-colors"
           >
             <HiArrowPath className="w-3 h-3" />
-            إعادة المحاولة
+            {t.chatRetry}
           </button>
         )}
       </div>
@@ -221,7 +221,7 @@ export default function ChatBot() {
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 overscroll-contain">
                 {messages.map((msg) => (
-                  <MessageBubble key={msg.id} msg={msg} onRetry={handleRetry} />
+                  <MessageBubble key={msg.id} msg={msg} onRetry={handleRetry} t={t} />
                 ))}
                 {isTyping && (
                   <div className="flex gap-2 justify-start">

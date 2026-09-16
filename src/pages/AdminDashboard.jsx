@@ -85,22 +85,22 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">{t.home}</h1>
-          <p className="text-primary-600">إحصائيات الموقع والاستخدام</p>
+          <p className="text-primary-600">{t.adminStatsTitle}</p>
         </div>
-        <Link to="/reports" className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800">
+        <Link to="/dashboard/reports" className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800">
           <HiOutlineArrowLeft className="w-4 h-4" />
-          التقارير العامة
+          {t.adminViewReports}
         </Link>
       </div>
 
       {/* Overview Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard icon={HiOutlineUsers} label="الزوار" value={analytics?.eventsByType?.totalVisitors || 0} color="bg-primary-500" />
-        <StatCard icon={HiOutlineEye} label="مشاهدات الصفحة" value={analytics?.totalEvents || 0} color="bg-blue-500" />
-        <StatCard icon={HiOutlineCheckCircle} label="التصويتات" value={analytics?.totalVotes || 0} color="bg-amber-500" />
-        <StatCard icon={HiOutlineCheckCircle} label="اختبارات مكتملة" value={analytics?.totalQuizScores || 0} color="bg-violet-500" />
-        <StatCard icon={HiOutlineChatBubbleLeftRight} label="أسئلة الشات بوت" value={analytics?.eventsByType?.questionsAsked || 0} color="bg-emerald-500" />
-        <StatCard icon={HiOutlineMail} label="مشتركين البريد" value={analytics?.totalEmails || 0} color="bg-rose-500" />
+        <StatCard icon={HiOutlineUsers} label={t.adminVisitors} value={analytics?.eventsByType?.totalVisitors || 0} color="bg-primary-500" />
+        <StatCard icon={HiOutlineEye} label={t.adminPageViews} value={analytics?.totalEvents || 0} color="bg-blue-500" />
+        <StatCard icon={HiOutlineCheckCircle} label={t.adminVotes} value={analytics?.totalVotes || 0} color="bg-amber-500" />
+        <StatCard icon={HiOutlineCheckCircle} label={t.adminQuizzes} value={analytics?.totalQuizScores || 0} color="bg-violet-500" />
+        <StatCard icon={HiOutlineChatBubbleLeftRight} label={t.adminChatQuestions} value={analytics?.eventsByType?.questionsAsked || 0} color="bg-emerald-500" />
+        <StatCard icon={HiOutlineMail} label={t.adminEmailSubscribers} value={analytics?.totalEmails || 0} color="bg-rose-500" />
       </div>
 
       {/* Events by Type */}
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl shadow-lg p-6"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">الأحداث حسب النوع</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.adminEventsByType}</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {Object.entries(analytics.eventsByType).map(([event, count]) => (
               <div key={event} className="bg-primary-50 rounded-lg p-3 text-center">
@@ -130,14 +130,14 @@ export default function AdminDashboard() {
           transition={{ delay: 0.1 }}
           className="bg-white rounded-2xl shadow-lg p-6"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">آخر الأحداث</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.adminRecentEvents}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 border-b">
-                  <th className="pb-2 font-medium">الحدث</th>
-                  <th className="pb-2 font-medium">الصفحة</th>
-                  <th className="pb-2 font-medium">الوقت</th>
+                   <th className="pb-2 font-medium">{t.adminEvent}</th>
+                   <th className="pb-2 font-medium">{t.adminPage}</th>
+                   <th className="pb-2 font-medium">{t.adminTime}</th>
                 </tr>
               </thead>
               <tbody>

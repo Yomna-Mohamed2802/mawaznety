@@ -23,7 +23,7 @@ const Login = () => {
     e.preventDefault();
     if (honeypot) return;
     if (!agreeTerms) {
-      setError('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية أولاً');
+      setError(t.loginConsentError);
       return;
     }
     setError('');
@@ -33,7 +33,7 @@ const Login = () => {
     if (isRegister) {
       const result = await register(email, password, name);
       if (result.success) {
-        setSuccess(result.message || 'تم التسجيل بنجاح! تحقق من بريدك الإلكتروني لتأكيد الحساب.');
+        setSuccess(result.message || t.loginRegisterSuccess);
         setIsRegister(false);
       } else {
         setError(result.error);
@@ -51,7 +51,7 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     if (!agreeTerms) {
-      setError('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية أولاً');
+      setError(t.loginConsentError);
       return;
     }
     setError('');
@@ -96,23 +96,23 @@ const Login = () => {
           {isAuthenticated ? (
             <div className="text-center space-y-4">
               <div className="bg-emerald-50 border border-emerald-200/60 rounded-xl p-4">
-                <p className="text-sm text-emerald-700 font-medium">أنت مسجل الدخول بالفعل</p>
+                <p className="text-sm text-emerald-700 font-medium">{t.loginAlreadyAuthenticated}</p>
                 <p className="text-xs text-emerald-600 mt-1">{user?.email}</p>
-                {user?.isAdmin && <p className="text-xs text-emerald-600 mt-1 font-bold">مدير النظام</p>}
+                {user?.isAdmin && <p className="text-xs text-emerald-600 mt-1 font-bold">{t.loginAdmin}</p>}
               </div>
 
               <button
                 onClick={() => navigate('/dashboard')}
                 className="w-full btn-primary justify-center py-3.5"
               >
-                الذهاب للوحة التحكم
+                {t.loginGoToDashboard}
               </button>
 
               <button
                 onClick={handleLogout}
                 className="w-full btn-secondary justify-center py-3.5 text-red-600 border-red-200 hover:bg-red-50"
               >
-                تسجيل الخروج
+                {t.loginLogout}
               </button>
             </div>
           ) : (
@@ -141,7 +141,7 @@ const Login = () => {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full px-4 py-3 bg-surface-warm/50 border border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-sm text-primary-900 placeholder-primary-400"
-                      placeholder="اسمك هنا"
+                      placeholder={t.loginPlaceholderName}
                       required
                     />
                   </div>
@@ -172,7 +172,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-4 py-3 bg-surface-warm/50 border border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-sm text-primary-900 placeholder-primary-400"
-                    placeholder="٦ أحرف على الأقل"
+                      placeholder={t.loginPlaceholderPassword}
                     required
                     minLength={6}
                   />
@@ -213,7 +213,7 @@ const Login = () => {
                   disabled={loading}
                   className="w-full btn-primary justify-center py-3.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'جاري...' : isRegister ? t.registerBtn : t.loginBtn}
+                  {loading ? t.loginLoading : isRegister ? t.registerBtn : t.loginBtn}
                 </button>
               </form>
 
