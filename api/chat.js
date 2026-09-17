@@ -2,7 +2,7 @@
  * Mawaznety AI Chat Endpoint
  *
  * Vercel Serverless Function
- * Proxies chat requests to OpenRouter with full security hardening.
+ * Proxies chat requests to OpenRouter.
  *
  * Environment variables (server-side only):
  * - OPENROUTER_API_KEY: OpenRouter API key
@@ -12,36 +12,10 @@
 const MAX_MESSAGES = 20;
 const REQUEST_TIMEOUT_MS = 30000;
 const MAX_BODY_BYTES = 100000;
-const MAX_REQUESTS_PER_DAY = 500;
 
 const ALLOWED_ORIGIN = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : null;
-
-const requestCounts = new Map();
-
-function getClientIP(req) {
-  return (
-    req.headers['x-forwarded-for']?.split(',')[0].trim() ||
-    req.headers['x-real-ip'] ||
-    req.socket?.remoteAddress ||
-    'unknown'
-  );
-}
-
-function getDailyLimit() {
-  const now = Date.now();
-  const dayStart = Math.floor(now / 86400000) * 86400000;
-  const key = `day_${dayStart}`;
-  const count = requestCounts.get(key) || 0;
-
-  if (count >= MAX_REQUESTS_PER_DAY) {
-    return { exceeded: true, count };
-  }
-
-  requestCounts.set(key, count + 1);
-  return { exceeded: false, count: count + 1 };
-}
 
 function setCORSHeaders(res) {
   const origin = ALLOWED_ORIGIN || 'same-origin';
@@ -101,19 +75,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'messages array is empty' });
   }
 
-  const dailyCheck = getDailyLimit();
-  if (dailyCheck.exceeded) {
-    return res.status(429).json({
-      error: 'Rate limit exceeded. Please try again later.',
-    });
-  }
-
   const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
   const AI_MODEL = process.env.AI_MODEL || 'openrouter/free';
 
   if (!OPENROUTER_API_KEY) {
     console.error('[chat] OPENROUTER_API_KEY not configured');
-    return res.status(503).json({ error: 'Service temporarily unavailable' });
+    return res.status(500).json({ error: 'AI not configured', fallback: true });
   }
 
   try {
@@ -141,64 +108,32 @@ export default async function handler(req, res) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      let errorMsg = `OpenRouter API error: ${response.status}`;
-
-      try {
-        const errorData = await response.json().catch(() => null);
-        if (errorData?.error?.message) {
-          errorMsg = errorData.error.message;
-        }
-      } catch {
-        // Use default error message
-      }
-
-      if (response.status === 401) {
-        console.error('[chat] OpenRouter authentication failed');
-        return res.status(503).json({ error: 'Service temporarily unavailable' });
-      }
-
-      if (response.status === 404) {
-        console.error('[chat] Model not found');
-        return res.status(503).json({ error: 'Service temporarily unavailable' });
-      }
-
-      if (response.status === 429) {
-        console.error('[chat] OpenRouter rate limit exceeded');
-        return res.status(429).json({
-          error: 'Too many requests. Please wait a moment and try again.',
-        });
-      }
-
-      if (response.status >= 500) {
-        console.error(`[chat] OpenRouter server error: ${response.status}`);
-        return res.status(503).json({ error: 'Service temporarily unavailable' });
-      }
-
-      return res.status(response.status).json({ error: errorMsg });
+      console.error(`[chat] OpenRouter error: ${response.status}`);
+      return res.status(500).json({ error: 'AI temporarily unavailable', fallback: true });
     }
 
     const data = await response.json();
 
     if (!data || typeof data !== 'object') {
       console.error('[chat] Malformed response from OpenRouter');
-      return res.status(500).json({ error: 'Received invalid response from AI provider' });
+      return res.status(500).json({ error: 'Invalid AI response', fallback: true });
     }
 
     const content = data.choices?.[0]?.message?.content;
 
     if (!content || typeof content !== 'string') {
       console.error('[chat] No content in OpenRouter response');
-      return res.status(500).json({ error: 'AI model returned an empty response' });
+      return res.status(500).json({ error: 'Empty AI response', fallback: true });
     }
 
     return res.status(200).json({ content });
   } catch (err) {
     if (err.name === 'AbortError') {
       console.error('[chat] OpenRouter request timed out');
-      return res.status(504).json({ error: 'AI service timed out. Please try again.' });
+      return res.status(504).json({ error: 'AI timed out', fallback: true });
     }
 
     console.error('[chat] OpenRouter request failed:', err.message);
-    return res.status(503).json({ error: 'Service temporarily unavailable' });
+    return res.status(500).json({ error: 'AI request failed', fallback: true });
   }
 }

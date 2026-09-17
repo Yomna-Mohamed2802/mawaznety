@@ -14,14 +14,10 @@ export async function sendToAI(userMessage, history = [], lang = 'ar') {
       body: JSON.stringify({ messages }),
     });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
     const data = await response.json();
 
-    if (!data || !data.content) {
-      throw new Error('Invalid response from AI provider');
+    if (data.fallback || !data.content) {
+      return getRuleBasedResponse(userMessage, lang);
     }
 
     return data.content;
