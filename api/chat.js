@@ -12,7 +12,7 @@
 const MAX_MESSAGES = 20;
 const REQUEST_TIMEOUT_MS = 30000;
 const MAX_BODY_BYTES = 100000;
-const MAX_REQUESTS_PER_DAY = 50;
+const MAX_REQUESTS_PER_DAY = 500;
 
 const ALLOWED_ORIGIN = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
